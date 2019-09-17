@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>237</width>
-    <height>227</height>
+    <width>208</width>
+    <height>214</height>
    </rect>
   </property>
   <property name="features">
@@ -150,129 +150,81 @@
       </property>
       <item>
        <widget class="QToolButton" name="flagN">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>N</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagV">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>V</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagNone">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>.</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagB">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>B</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagD">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>D</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagI">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>I</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagZ">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>Z</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="flagC">
-        <property name="font">
-         <font>
-          <family>Helvetica</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>C</string>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
