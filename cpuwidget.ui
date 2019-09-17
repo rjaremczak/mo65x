@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>207</width>
-    <height>207</height>
+    <width>237</width>
+    <height>227</height>
    </rect>
   </property>
   <property name="features">
@@ -28,8 +28,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Courier</family>
-        <pointsize>15</pointsize>
+        <family>Monospace</family>
        </font>
       </property>
       <property name="styleSheet">
@@ -70,8 +69,7 @@
      <widget class="QLineEdit" name="valueY">
       <property name="font">
        <font>
-        <family>Courier</family>
-        <pointsize>15</pointsize>
+        <family>Monospace</family>
        </font>
       </property>
       <property name="styleSheet">
@@ -118,8 +116,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Courier</family>
-        <pointsize>15</pointsize>
+        <family>Monospace</family>
        </font>
       </property>
       <property name="styleSheet">
@@ -301,8 +298,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Courier</family>
-        <pointsize>15</pointsize>
+        <family>Monospace</family>
        </font>
       </property>
       <property name="styleSheet">
@@ -329,8 +325,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Courier</family>
-        <pointsize>15</pointsize>
+        <family>Monospace</family>
        </font>
       </property>
       <property name="styleSheet">
