@@ -10,3 +10,12 @@ QAbstractButton:checked {
     color: black;
     background-color: orange;
 }
+
+QDockWidget {
+    border: 3px solid black;
+}
+
+QDockWidget::title {
+    text-align: center;
+    background-color: rgb(50,50,50);
+}
