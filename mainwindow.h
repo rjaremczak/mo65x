@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 
 #include "cpuwidget.h"
+#include "cpu.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,9 +21,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
-
     CpuWidget* m_cpuWidget = nullptr;
-
+    QTimer* m_pollTimer = nullptr;
+    Cpu* m_cpu = nullptr;
 };
 
 #endif // MAINWINDOW_H

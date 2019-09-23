@@ -12,11 +12,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    cpu.cpp \
+    cpustate.cpp \
     cpuwidget.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    cpu.h \
+    cpustate.h \
     cpuwidget.h \
     mainwindow.h
 

@@ -35,7 +35,13 @@
      </spacer>
     </item>
     <item row="1" column="3">
-     <widget class="QLabel" name="label_12">
+     <widget class="QLabel" name="regX">
+      <property name="font">
+       <font>
+        <family>Ubuntu Mono</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">color:lightgreen</string>
       </property>
@@ -48,7 +54,13 @@
      </widget>
     </item>
     <item row="3" column="3">
-     <widget class="QLabel" name="label_13">
+     <widget class="QLabel" name="regY">
+      <property name="font">
+       <font>
+        <family>Ubuntu Mono</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">color:lightgreen</string>
       </property>
@@ -71,7 +83,13 @@
      </widget>
     </item>
     <item row="9" column="3">
-     <widget class="QLabel" name="label_15">
+     <widget class="QLabel" name="regSP">
+      <property name="font">
+       <font>
+        <family>Ubuntu Mono</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">color:lightgreen</string>
       </property>
@@ -84,7 +102,13 @@
      </widget>
     </item>
     <item row="8" column="3">
-     <widget class="QLabel" name="label_14">
+     <widget class="QLabel" name="regPC">
+      <property name="font">
+       <font>
+        <family>Ubuntu Mono</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">color:lightgreen</string>
       </property>
@@ -97,7 +121,13 @@
      </widget>
     </item>
     <item row="0" column="3">
-     <widget class="QLabel" name="label_11">
+     <widget class="QLabel" name="regA">
+      <property name="font">
+       <font>
+        <family>Ubuntu Mono</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">color:lightgreen</string>
       </property>
@@ -130,7 +160,7 @@
      </widget>
     </item>
     <item row="5" column="0">
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="labelP">
       <property name="styleSheet">
        <string notr="true">color:gray</string>
       </property>
@@ -150,12 +180,12 @@
      </widget>
     </item>
     <item row="5" column="3">
-     <layout class="QHBoxLayout" name="flagsLayout">
+     <layout class="QHBoxLayout" name="flagsBox">
       <property name="spacing">
        <number>1</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="flagN">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -168,7 +198,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="flagV">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -188,7 +218,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="flagB">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -201,7 +231,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_7">
+       <widget class="QLabel" name="flagD">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -214,7 +244,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_8">
+       <widget class="QLabel" name="flagI">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -227,7 +257,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_9">
+       <widget class="QLabel" name="flagZ">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -240,7 +270,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="flagC">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
