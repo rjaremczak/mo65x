@@ -19,4 +19,7 @@ public slots:
 
 private:
     Cpu m_cpu;
+
+    uint8_t cpuBusRead(uint16_t addr);
+    void cpuBusWrite(uint16_t addr, uint8_t data);
 };

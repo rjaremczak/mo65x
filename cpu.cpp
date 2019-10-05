@@ -1,7 +1,8 @@
 #include "cpu.h"
 
-Cpu::Cpu()
+
+Cpu::Cpu(const Cpu::BusRead busRead, const Cpu::BusWrite busWrite) :
+    m_busRead(busRead), m_busWrite(busWrite)
 {
-    m_registers.flags.v = false;
-    m_registers.flags.z = true;
+
 }
