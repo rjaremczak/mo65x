@@ -6,8 +6,8 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication::setStyle(QStyleFactory::create("Fusion"));
     QApplication a(argc, argv);
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     QFile qss(":/main.qss");
     qss.open( QFile::ReadOnly);

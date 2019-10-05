@@ -15,6 +15,7 @@ SOURCES += \
     cpu.cpp \
     cpustate.cpp \
     cpuwidget.cpp \
+    emulationstate.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -22,6 +23,7 @@ HEADERS += \
     cpu.h \
     cpustate.h \
     cpuwidget.h \
+    emulationstate.h \
     mainwindow.h
 
 FORMS += \

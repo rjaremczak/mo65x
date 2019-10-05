@@ -1,9 +1,9 @@
 * {
-    background-color: rgb(53,53,53);
+    background-color: rgb(63,67,67);
     color: white;
     selection-color: black;
     selection-background-color: orange;
-    alternate-background-color: rgb(45,45,45);
+    alternate-background-color: rgb(41,41,41);
 }
 
 QAbstractButton:checked {
@@ -12,10 +12,25 @@ QAbstractButton:checked {
 }
 
 QDockWidget {
-
 }
 
 QDockWidget::title {
-    text-align: center;
-    background-color: rgb(63,63,63);
+}
+
+QMainWindow::separator {
+    /*
+    background: rgb(41,41,41);
+    width: 2px;
+    height: 2px;
+    */
+}
+
+QMainWindow::separator:hover {
+    /* background: orange; */
+}
+
+QStatusBar {
+    /*
+    border-top: 2px solid rgb(41,41,41);
+    */
 }
