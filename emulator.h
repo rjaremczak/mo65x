@@ -12,10 +12,10 @@ public:
     explicit Emulator(QObject *parent = nullptr);
 
 signals:
-    void cpuStateChanged(CpuRegisters);
+    void cpuRegistersChanged(CpuRegisters);
 
 public slots:
-    void checkCpuState();
+    void checkCpuRegisters();
 
 private:
     Cpu m_cpu;

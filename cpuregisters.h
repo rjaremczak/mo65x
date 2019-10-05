@@ -4,17 +4,13 @@
 
 struct CpuRegisters
 {
-    uint8_t A;
-    uint8_t X;
-    uint8_t Y;
-    uint8_t SP;
-    uint16_t PC;
+    uint8_t a;
+    uint8_t x;
+    uint8_t y;
+    uint8_t sp;
+    uint16_t pc;
 
-    bool flagN;
-    bool flagV;
-    bool flagB;
-    bool flagD;
-    bool flagI;
-    bool flagZ;
-    bool flagC;
+    struct {
+        bool n, v, b, d, i , z, c;
+    } flags;
 };

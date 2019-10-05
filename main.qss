@@ -6,6 +6,10 @@
     alternate-background-color: rgb(41,41,41);
 }
 
+*:disabled {
+    color: gray;
+}
+
 QAbstractButton:checked {
     color: black;
     background-color: orange;

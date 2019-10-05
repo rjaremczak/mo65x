@@ -13,21 +13,21 @@ CpuWidget::~CpuWidget()
     delete ui;
 }
 
-void CpuWidget::updateState(const CpuRegisters state)
+void CpuWidget::updateState(const CpuRegisters registers)
 {
-    ui->regA->setText(format8(state.A));
-    ui->regX->setText(format8(state.X));
-    ui->regY->setText(format8(state.Y));
-    ui->regSP->setText(format16(0x100 + state.SP));
-    ui->regPC->setText(format16(state.PC));
+    ui->regA->setText(format8(registers.a));
+    ui->regX->setText(format8(registers.x));
+    ui->regY->setText(format8(registers.y));
+    ui->regSP->setText(format16(0x100 + registers.sp));
+    ui->regPC->setText(format16(registers.pc));
 
-    ui->flagB->setEnabled(state.flagB);
-    ui->flagC->setEnabled(state.flagC);
-    ui->flagD->setEnabled(state.flagD);
-    ui->flagI->setEnabled(state.flagI);
-    ui->flagN->setEnabled(state.flagN);
-    ui->flagV->setEnabled(state.flagV);
-    ui->flagZ->setEnabled(state.flagZ);
+    ui->flagB->setEnabled(registers.flags.b);
+    ui->flagC->setEnabled(registers.flags.c);
+    ui->flagD->setEnabled(registers.flags.d);
+    ui->flagI->setEnabled(registers.flags.i);
+    ui->flagN->setEnabled(registers.flags.n);
+    ui->flagV->setEnabled(registers.flags.v);
+    ui->flagZ->setEnabled(registers.flags.z);
 }
 
 QString CpuWidget::format8(uint8_t num) const

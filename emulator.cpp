@@ -5,7 +5,7 @@ Emulator::Emulator(QObject *parent) : QObject(parent)
 
 }
 
-void Emulator::checkCpuState()
+void Emulator::checkCpuRegisters()
 {
-    emit cpuStateChanged(m_cpu.state());
+    emit cpuRegistersChanged(m_cpu.registers());
 }
