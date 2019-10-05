@@ -13,17 +13,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     cpu.cpp \
-    cpustate.cpp \
+    cpuregisters.cpp \
     cpuwidget.cpp \
-    emulationstate.cpp \
+    emulator.cpp \
+    emulatorstate.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     cpu.h \
-    cpustate.h \
+    cpuregisters.h \
     cpuwidget.h \
-    emulationstate.h \
+    emulator.h \
+    emulatorstate.h \
     mainwindow.h
 
 FORMS += \

@@ -5,7 +5,7 @@
 #include <QTimer>
 
 #include "cpuwidget.h"
-#include "cpu.h"
+#include "emulator.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,7 +23,7 @@ private:
     Ui::MainWindow *ui;
     CpuWidget* m_cpuWidget = nullptr;
     QTimer* m_pollTimer = nullptr;
-    Cpu* m_cpu = nullptr;
+    Emulator* m_cpu = nullptr;
 };
 
 #endif // MAINWINDOW_H

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <chrono>
 
-struct EmulationState
+struct EmulatorState
 {
     std::chrono::nanoseconds clockPeriod{1000};
 };

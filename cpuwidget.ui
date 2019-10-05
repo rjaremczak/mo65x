@@ -18,7 +18,7 @@
    <set>QDockWidget::NoDockWidgetFeatures</set>
   </property>
   <property name="windowTitle">
-   <string>CPU State</string>
+   <string>CPU Info</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">

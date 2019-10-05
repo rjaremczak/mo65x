@@ -13,13 +13,13 @@ CpuWidget::~CpuWidget()
     delete ui;
 }
 
-void CpuWidget::updateState(const CpuState state)
+void CpuWidget::updateState(const CpuRegisters state)
 {
-    ui->regA->setText(format8(state.regA));
-    ui->regX->setText(format8(state.regX));
-    ui->regY->setText(format8(state.regY));
-    ui->regSP->setText(format16(0x100 + state.regSP));
-    ui->regPC->setText(format16(state.regPC));
+    ui->regA->setText(format8(state.A));
+    ui->regX->setText(format8(state.X));
+    ui->regY->setText(format8(state.Y));
+    ui->regSP->setText(format16(0x100 + state.SP));
+    ui->regPC->setText(format16(state.PC));
 
     ui->flagB->setEnabled(state.flagB);
     ui->flagC->setEnabled(state.flagC);

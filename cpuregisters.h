@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 
-struct CpuState
+struct CpuRegisters
 {
-    uint8_t regA;
-    uint8_t regX;
-    uint8_t regY;
-    uint8_t regSP;
-    uint16_t regPC;
+    uint8_t A;
+    uint8_t X;
+    uint8_t Y;
+    uint8_t SP;
+    uint16_t PC;
 
     bool flagN;
     bool flagV;

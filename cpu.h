@@ -1,22 +1,14 @@
 #pragma once
 
-#include <QObject>
+#include "cpuregisters.h"
 
-#include "cpustate.h"
-
-class Cpu : public QObject
+class Cpu
 {
-    Q_OBJECT
+private:
+    CpuRegisters m_registers;
 
 public:
-    explicit Cpu(QObject *parent = nullptr);
+    Cpu();
 
-signals:
-    void stateChanged(CpuState);
-
-public slots:
-    void checkState();
-
-private:
-    CpuState m_state;
+    inline CpuRegisters registers() const { return m_registers; }
 };
