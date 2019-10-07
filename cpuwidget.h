@@ -2,7 +2,6 @@
 #define CPUWIDGET_H
 
 #include <QDockWidget>
-
 #include "cpuregisters.h"
 
 namespace Ui {

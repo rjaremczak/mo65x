@@ -5,14 +5,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
-    m_cpu = new Emulator(this);
+    m_emulator = new Emulator(this);
 
     m_cpuWidget = new CpuWidget();
     this->addDockWidget(Qt::RightDockWidgetArea, m_cpuWidget);
-    connect(m_cpu, &Emulator::cpuRegistersChanged, m_cpuWidget, &CpuWidget::updateState);
+    connect(m_emulator, &Emulator::cpuRegistersChanged, m_cpuWidget, &CpuWidget::updateState);
+
+    m_monitorWidget = new MonitorWidget();
+    this->addDockWidget(Qt::RightDockWidgetArea, m_monitorWidget);
 
     m_pollTimer = new QTimer(this);
-    connect(m_pollTimer, &QTimer::timeout, m_cpu, &Emulator::checkCpuRegisters);
+    connect(m_pollTimer, &QTimer::timeout, m_emulator, &Emulator::checkCpuRegisters);
     m_pollTimer->start(1000);
 
 }

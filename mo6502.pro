@@ -18,7 +18,9 @@ SOURCES += \
     emulator.cpp \
     emulatorstate.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    memory.cpp \
+    monitorwidget.cpp
 
 HEADERS += \
     cpu.h \
@@ -26,11 +28,14 @@ HEADERS += \
     cpuwidget.h \
     emulator.h \
     emulatorstate.h \
-    mainwindow.h
+    mainwindow.h \
+    memory.h \
+    monitorwidget.h
 
 FORMS += \
     cpuwidget.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    monitorwidget.ui
 
 RESOURCES += resources.qrc
 
