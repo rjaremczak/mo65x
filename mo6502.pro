@@ -17,20 +17,19 @@ SOURCES += \
     cpuwidget.cpp \
     emulator.cpp \
     emulatorstate.cpp \
-    instruction.cpp \
+    instructions.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
     monitorwidget.cpp
 
 HEADERS += \
-    addressingmode.h \
     cpu.h \
     cpuregisters.h \
     cpuwidget.h \
     emulator.h \
     emulatorstate.h \
-    instruction.h \
+    instructions.h \
     mainwindow.h \
     memory.h \
     monitorwidget.h
