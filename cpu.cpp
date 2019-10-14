@@ -1,6 +1,6 @@
 #include "cpu.h"
 
-Cpu::Cpu(const Cpu::BoardConnector boardConnector) : m_board(boardConnector)
+Cpu::Cpu(Memory& memory) : m_memory(memory)
 {
 
 }

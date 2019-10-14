@@ -14,6 +14,8 @@ MonitorWidget::MonitorWidget(QWidget *parent) :
     list.append("0800 02 20 43 LDA 4320");
     list.append("test 1");
     m_dumpListModel->setStringList(list);
+
+    ui->dumpListView->setCurrentIndex(m_dumpListModel->index(1));
 }
 
 MonitorWidget::~MonitorWidget()

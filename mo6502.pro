@@ -12,26 +12,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    board.cpp \
     cpu.cpp \
     cpuregisters.cpp \
     cpuwidget.cpp \
+    emulator.cpp \
     emulatorstate.cpp \
     instructions.cpp \
     main.cpp \
     mainwindow.cpp \
-    memoryblock.cpp \
+    memory.cpp \
     monitorwidget.cpp
 
 HEADERS += \
-    board.h \
     cpu.h \
     cpuregisters.h \
     cpuwidget.h \
+    emulator.h \
     emulatorstate.h \
     instructions.h \
     mainwindow.h \
-    memoryblock.h \
+    memory.h \
     monitorwidget.h
 
 FORMS += \
