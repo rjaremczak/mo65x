@@ -2,14 +2,14 @@
 
 #include <QObject>
 #include "cpu.h"
+#include "memoryblock.h"
 
-class Emulator : public QObject
+class Board : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Emulator(QObject *parent = nullptr);
-
+    explicit Board(QObject *parent = nullptr);
 signals:
     void cpuRegistersChanged(CpuRegisters);
 
@@ -17,8 +17,8 @@ public slots:
     void checkCpuRegisters();
 
 private:
+    MemoryBlock<0x0000, 0xffff> m_ram;
     Cpu m_cpu;
-
 
     uint8_t cpuBusRead(uint16_t addr);
     void cpuBusWrite(uint16_t addr, uint8_t data);

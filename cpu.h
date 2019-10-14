@@ -4,21 +4,23 @@
 #include <chrono>
 #include "cpuregisters.h"
 
-class Emulator;
+class Board;
 
 class Cpu
 {
 public:
-    using BusRead = uint8_t(Emulator::*)(uint16_t);
-    using BusWrite = void(Emulator::*)(uint16_t, uint8_t);
+    struct BoardConnector
+    {
+        uint8_t(Board::*read)(uint16_t);
+        void(Board::*write)(uint16_t, uint8_t);
+    };
 
 private:
+    const BoardConnector m_board;
     CpuRegisters m_registers;
-    const BusRead m_busRead;
-    const BusWrite m_busWrite;
 
 public:
-    Cpu(const BusRead busRead, const BusWrite busWrite);
+    Cpu(const BoardConnector);
 
-    inline CpuRegisters registers() const { return m_registers; }
+    CpuRegisters registers() const { return m_registers; }
 };
