@@ -85,7 +85,14 @@
      </layout>
     </item>
     <item>
-     <widget class="QListView" name="listView"/>
+     <widget class="QListView" name="dumpListView">
+      <property name="font">
+       <font>
+        <family>Fira Mono</family>
+        <pointsize>13</pointsize>
+       </font>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="debugBox">

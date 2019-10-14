@@ -2,6 +2,7 @@
 #define MONITORWIDGET_H
 
 #include <QDockWidget>
+#include <QStringListModel>
 
 namespace Ui {
 class MonitorWidget;
@@ -17,6 +18,7 @@ public:
 
 private:
     Ui::MonitorWidget *ui;
+    QStringListModel *m_dumpListModel;
 };
 
 #endif // MONITORWIDGET_H
