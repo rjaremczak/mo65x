@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>274</width>
-    <height>261</height>
+    <height>294</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -88,9 +88,11 @@
      <widget class="QListView" name="dumpListView">
       <property name="font">
        <font>
-        <family>Fira Mono</family>
-        <pointsize>13</pointsize>
+        <family>Monospace</family>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:lightgreen</string>
       </property>
      </widget>
     </item>

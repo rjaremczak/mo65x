@@ -1,13 +1,19 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 namespace cpu {
 
-enum AddressingMode
+struct AddressingMode
 {
-    Imp, Acc, Imm, Rel, Abs, AbX, AbY, Zpg, ZpX, ZpY, Ind, InX, InY
+    uint8_t size;
 };
+
+const AddressingMode
+    Imp{0}, Acc{0},
+    Rel{1}, Imm{1}, Zp{1}, ZpX{1}, ZpY{1}, IndX{1}, IndY{1},
+    Ind{2}, Abs{2}, AbsX{2}, AbsY{2};
 
 enum Mnemonic
 {
@@ -29,15 +35,13 @@ enum Mnemonic
 
 struct Instruction
 {
-    const uint8_t opCode;
-    const Mnemonic mnemonic;
-    const AddressingMode addressingMode;
-    const uint8_t bytes;
-    const uint8_t cycles;
+    Mnemonic mnemonic = Invalid;
+    AddressingMode addressingMode = Imp;
+    uint8_t cycles = 0;
 };
 
-static constexpr Instruction NotSupported { 0, Invalid, Imp, 0, 0 };
+using InstructionsArray = std::array<Instruction, 256>;
 
-extern const Instruction Instructions[];
+extern const InstructionsArray Instructions;
 
 }

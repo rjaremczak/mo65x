@@ -13,6 +13,11 @@ CpuWidget::~CpuWidget()
     delete ui;
 }
 
+static QString flagStr(bool flagStatus, const char* flagCode)
+{
+    return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
+}
+
 void CpuWidget::updateState(const CpuRegisters registers)
 {
     ui->regA->setText(format8(registers.a));
@@ -21,13 +26,16 @@ void CpuWidget::updateState(const CpuRegisters registers)
     ui->regSP->setText(format16(0x100 + registers.sp));
     ui->regPC->setText(format16(registers.pc));
 
-    ui->flagB->setEnabled(registers.flags.b);
-    ui->flagC->setEnabled(registers.flags.c);
-    ui->flagD->setEnabled(registers.flags.d);
-    ui->flagI->setEnabled(registers.flags.i);
-    ui->flagN->setEnabled(registers.flags.n);
-    ui->flagV->setEnabled(registers.flags.v);
-    ui->flagZ->setEnabled(registers.flags.z);
+    QString str;
+    str.append(flagStr(registers.flags.n, "N"));
+    str.append(flagStr(registers.flags.v, "V"));
+    str.append(flagStr(false, "."));
+    str.append(flagStr(registers.flags.b, "B"));
+    str.append(flagStr(registers.flags.d, "D"));
+    str.append(flagStr(registers.flags.i, "I"));
+    str.append(flagStr(registers.flags.z, "Z"));
+    str.append(flagStr(registers.flags.c, "C"));
+    ui->flags->setText(str);
 }
 
 QString CpuWidget::format8(uint8_t num) const
