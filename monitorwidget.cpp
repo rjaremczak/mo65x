@@ -1,6 +1,7 @@
 #include "monitorwidget.h"
 #include "ui_monitorwidget.h"
 #include "disassembler.h"
+#include <QFontDatabase>
 
 MonitorWidget::MonitorWidget(QWidget *parent, const Memory& memory) :
     QDockWidget(parent),
@@ -10,17 +11,19 @@ MonitorWidget::MonitorWidget(QWidget *parent, const Memory& memory) :
 {
     ui->setupUi(this);
 
+    auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    font.setPointSize(13);
+    ui->dumpListView->setFont(font);
+
     m_dumpListModel = new QStringListModel(this);
     ui->dumpListView->setModel(m_dumpListModel);
 
-    /*
     QStringList list;
-    list.append("0800 02 20 43 LDA 4320");
-    list.append("test 1");
+    for(int i=0; i<5; i++) {
+        list.append(m_disassembler.disassemble());
+        m_disassembler.step();
+    }
     m_dumpListModel->setStringList(list);
-    */
-
-    //m_dumpListModel->setStringList(m_disassembler.format(5));
 
     ui->dumpListView->setCurrentIndex(m_dumpListModel->index(1));
 }

@@ -1,7 +1,7 @@
 #include <map>
 #include <QStringList>
 #include "disassembler.h"
-#include "instructions.h"
+#include "opcodes.h"
 
 static const std::map<Mnemonic, const char*> Mnemonics {
     { ADC, "ADC"}, { SBC, "SBC"}, { AND, "AND"}, { ORA, "ORA"}, { ASL, "ASL"}, { LSR, "LSR"}, { EOR, "EOR"}, { ROL, "ROL"}, { ROR, "ROR"},
@@ -19,7 +19,7 @@ static const std::map<Mnemonic, const char*> Mnemonics {
     { NOP, "NOP"}, { Invalid, "???"}
 };
 
-static QString formatHex8(uint16_t val) {
+static QString formatHex8(uint8_t val) {
     return QString("%1").arg(val, 2, 16, QChar('0'));
 }
 
@@ -32,13 +32,39 @@ Disassembler::Disassembler(const Memory &memory, uint16_t pc) : m_memory(memory)
     setAddr(pc);
 }
 
+void Disassembler::setAddr(uint16_t addr)
+{
+    m_addr = addr;
+    m_opcode = m_memory[addr];
+    m_instruction = OpCodes[m_opcode];
+}
+
+void Disassembler::step()
+{
+    setAddr(m_addr + m_instruction.size);
+}
+
+QString Disassembler::dumpBytes(uint16_t n) const
+{
+    QString str;
+    for(uint16_t i=0; i<n; i++) { str.append(formatHex8(m_memory[m_addr + i])).append(" "); }
+    return str;
+}
+
+QString Disassembler::dumpWords(uint16_t n) const
+{
+    QString str;
+    for(uint16_t i=0; i<n; i+=2) { str.append(formatHex16(m_memory.read16(m_addr + i))).append(" "); }
+    return str;
+}
+
 QString Disassembler::disassemble() const
 {
-    const auto opcode = m_memory[m_addr];
-    auto str = formatHex16(m_addr).append(" ").append(formatHex8(opcode)).append(" ");
-    const auto& instruction = Instructions[opcode];
-
-
-    return QString("%1").arg(m_addr, 4, 16, QChar('0'));
+    QString str = formatHex16(m_addr).append(" ");
+    for(uint8_t i=0; i<3; i++) {
+        str.append(i < m_instruction.size ? formatHex8(m_memory[m_addr+i]).append(" ") : "   ");
+    }
+    str.append(Mnemonics.at(m_instruction.mnemonic)).append(" ");
+    return str;
 }
 

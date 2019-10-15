@@ -1,13 +1,11 @@
 #pragma once
 
 #include <cstdint>
-#include <array>
 
-
-enum AddressingMode {
-    Imp, Acc,
-    Rel, Imm, Zp, ZpX, ZpY, IndX, IndY,
-    Ind, Abs, AbsX, AbsY
+enum Addressing {
+    Implied, Accumulator,
+    Relative, Immediate, ZeroPage, ZeroPageX, ZeroPageY, IndexedIndirectX, IndirectIndexedY,
+    Indirect, Absolute, AbsoluteX, AbsoluteY
 };
 
 enum Mnemonic
@@ -31,14 +29,10 @@ enum Mnemonic
 struct Instruction
 {
     Mnemonic mnemonic = Invalid;
-    AddressingMode addressingMode = Imp;
-    uint8_t bytes = 1;
+    Addressing addressing = Implied;
+    uint8_t size = 1;
     uint8_t cycles = 0;
 
     Instruction() = default;
-    Instruction(Mnemonic mnemonic, AddressingMode addressingMode, uint8_t cycles);
+    Instruction(Mnemonic mnemonic, Addressing addressing, uint8_t cycles);
 };
-
-using InstructionsArray = std::array<Instruction, 256>;
-
-extern const InstructionsArray Instructions;

@@ -7,12 +7,12 @@
     <x>0</x>
     <y>0</y>
     <width>274</width>
-    <height>294</height>
+    <height>288</height>
    </rect>
   </property>
   <property name="styleSheet">
    <string notr="true">QDockWidget {color: orange}  QDockWidget::title {text-align: left;
-    border-bottom: 1px solid orange;} </string>
+    border-bottom: 1px solid orange;} QListView::item { font-size: 14 }</string>
   </property>
   <property name="features">
    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
@@ -89,6 +89,7 @@
       <property name="font">
        <font>
         <family>Monospace</family>
+        <pointsize>13</pointsize>
        </font>
       </property>
       <property name="styleSheet">

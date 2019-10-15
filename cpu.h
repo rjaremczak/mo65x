@@ -4,7 +4,7 @@
 #include <chrono>
 #include "cpuregisters.h"
 #include "memory.h"
-#include "instructions.h"
+#include "opcodes.h"
 
 class Cpu
 {
