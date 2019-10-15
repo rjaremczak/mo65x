@@ -15,6 +15,7 @@ SOURCES += \
     cpu.cpp \
     cpuregisters.cpp \
     cpuwidget.cpp \
+    disassembler.cpp \
     emulator.cpp \
     emulatorstate.cpp \
     instructions.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     cpu.h \
     cpuregisters.h \
     cpuwidget.h \
+    disassembler.h \
     emulator.h \
     emulatorstate.h \
     instructions.h \

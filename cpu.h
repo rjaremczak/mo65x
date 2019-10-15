@@ -4,12 +4,14 @@
 #include <chrono>
 #include "cpuregisters.h"
 #include "memory.h"
+#include "instructions.h"
 
 class Cpu
 {
     Memory& m_memory;
 
     CpuRegisters m_registers;
+    Instruction m_instruction;
 
 public:
     Cpu(Memory&);

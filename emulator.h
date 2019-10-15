@@ -13,6 +13,7 @@ class Emulator : public QObject
 
 public:
     explicit Emulator(QObject *parent = nullptr);
+    const Memory& cpuMemoryView() const { return m_memory; }
 
 signals:
     void cpuRegistersChanged(CpuRegisters);

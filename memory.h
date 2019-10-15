@@ -9,6 +9,8 @@ class Memory
 public:
     Memory();
 
+    uint8_t operator[] (uint16_t addr) const { return m_ram[addr]; }
+
     uint8_t read8(uint16_t addr) const
     {
         return m_ram[addr];

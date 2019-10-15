@@ -3,17 +3,12 @@
 #include <cstdint>
 #include <array>
 
-namespace cpu {
 
-struct AddressingMode
-{
-    uint8_t size;
+enum AddressingMode {
+    Imp, Acc,
+    Rel, Imm, Zp, ZpX, ZpY, IndX, IndY,
+    Ind, Abs, AbsX, AbsY
 };
-
-const AddressingMode
-    Imp{0}, Acc{0},
-    Rel{1}, Imm{1}, Zp{1}, ZpX{1}, ZpY{1}, IndX{1}, IndY{1},
-    Ind{2}, Abs{2}, AbsX{2}, AbsY{2};
 
 enum Mnemonic
 {
@@ -37,11 +32,13 @@ struct Instruction
 {
     Mnemonic mnemonic = Invalid;
     AddressingMode addressingMode = Imp;
+    uint8_t bytes = 1;
     uint8_t cycles = 0;
+
+    Instruction() = default;
+    Instruction(Mnemonic mnemonic, AddressingMode addressingMode, uint8_t cycles);
 };
 
 using InstructionsArray = std::array<Instruction, 256>;
 
 extern const InstructionsArray Instructions;
-
-}

@@ -1,10 +1,7 @@
 #include "instructions.h"
 
-namespace cpu {
-
 const InstructionsArray Instructions = []{
     InstructionsArray arr;
-    arr.fill({Invalid});
     arr[0x00] = { BRK, Imp, 7 };
     arr[0x01] = { ORA, IndX, 6 };
     arr[0x05] = { ORA, Zp, 3 };
@@ -177,4 +174,19 @@ const InstructionsArray Instructions = []{
     return arr;
 }();
 
+Instruction::Instruction(Mnemonic mnemonic, AddressingMode addressingMode, uint8_t cycles)
+{
+    this->mnemonic = mnemonic;
+    this->addressingMode = addressingMode;
+    this->cycles = cycles;
+    this->bytes = [addressingMode]() -> uint8_t {
+        switch (addressingMode) {
+        case Imp: case Acc:
+            return 1;
+        case Rel: case Imm: case Zp: case ZpX: case ZpY: case IndX: case IndY:
+            return 2;
+        case Ind: case Abs: case AbsX: case AbsY:
+            return 3;
+        }
+    }();
 }

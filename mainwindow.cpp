@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->addDockWidget(Qt::RightDockWidgetArea, m_cpuWidget);
     connect(m_emulator, &Emulator::cpuRegistersChanged, m_cpuWidget, &CpuWidget::updateState);
 
-    m_monitorWidget = new MonitorWidget();
+    m_monitorWidget = new MonitorWidget(this, m_emulator->cpuMemoryView());
     this->addDockWidget(Qt::RightDockWidgetArea, m_monitorWidget);
 
     m_pollTimer = new QTimer(this);
