@@ -27,6 +27,16 @@ static QString formatHex16(uint16_t val) {
     return QString("%1").arg(val, 4, 16, QChar('0'));
 }
 
+QString Disassembler::formatOperand8() const
+{
+    return "$"+formatHex8(m_memory[m_addr+1]);
+}
+
+QString Disassembler::formatOperand16() const
+{
+    return "$"+formatHex16(m_memory[m_addr+1]);
+}
+
 Disassembler::Disassembler(const Memory &memory, uint16_t pc) : m_memory(memory)
 {
     setAddr(pc);
@@ -64,7 +74,47 @@ QString Disassembler::disassemble() const
     for(uint8_t i=0; i<3; i++) {
         str.append(i < m_instruction.size ? formatHex8(m_memory[m_addr+i]).append(" ") : "   ");
     }
+    str.append(" ");
     str.append(Mnemonics.at(m_instruction.mnemonic)).append(" ");
-    return str;
+
+    switch (m_instruction.addressing) {
+    case Implied:
+    case Accumulator:
+        break;
+    case Immediate:
+        str.append("#").append(formatOperand8());
+        break;
+    case Absolute:
+        str.append(formatOperand16());
+        break;
+    case AbsoluteX:
+        str.append(formatOperand16()).append(",X");
+        break;
+    case AbsoluteY:
+        str.append(formatOperand16()).append(",Y");
+        break;
+    case ZeroPage:
+        str.append(formatOperand8());
+        break;
+    case ZeroPageX:
+        str.append(formatOperand8()).append(",X");
+        break;
+    case ZeroPageY:
+        str.append(formatOperand8()).append(",Y");
+        break;
+    case IndexedIndirectX:
+        str.append("(").append(formatOperand8()).append(",X)");
+        break;
+    case IndirectIndexedY:
+        str.append("(").append(formatOperand8()).append("),Y");
+        break;
+    case Indirect:
+        str.append("(").append(formatOperand16()).append(")");
+        break;
+    case Relative:
+        str.append("$").append(formatHex16(static_cast<uint16_t>(m_addr + static_cast<int8_t>(m_memory[m_addr+1]))));
+        break;
+    }
+    return str.toUpper();
 }
 

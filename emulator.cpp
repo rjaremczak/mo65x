@@ -10,3 +10,8 @@ void Emulator::checkCpuRegisters()
 {
     emit cpuRegistersChanged(m_cpu.registers());
 }
+
+void Emulator::loadBinaryFile()
+{
+    qDebug("load");
+}

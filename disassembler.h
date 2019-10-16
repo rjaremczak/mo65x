@@ -11,6 +11,9 @@ class Disassembler
     uint16_t m_opcode;
     Instruction m_instruction;
 
+    QString formatOperand8() const;
+    QString formatOperand16() const;
+
 public:
     Disassembler(const Memory&, uint16_t addr = 0);
 

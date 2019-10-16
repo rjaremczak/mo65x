@@ -31,6 +31,19 @@
        <number>0</number>
       </property>
       <item>
+       <widget class="QToolButton" name="viewModeAsm">
+        <property name="text">
+         <string>Asm</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">viewModeGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="viewModeHex">
         <property name="text">
          <string>Hex</string>
@@ -47,19 +60,6 @@
        <widget class="QToolButton" name="viewModeTxt">
         <property name="text">
          <string>Txt</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">viewModeGroup</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="viewModeAsm">
-        <property name="text">
-         <string>Asm</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -103,14 +103,30 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QToolButton" name="progRun">
+       <widget class="QSpinBox" name="progPC"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="progSetPC">
         <property name="text">
-         <string>Run</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+         <string>Go</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QToolButton" name="progStep">
@@ -120,23 +136,14 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QToolButton" name="progRun">
+        <property name="text">
+         <string>Run</string>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Maximum</enum>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="progAddress"/>
+       </widget>
       </item>
      </layout>
     </item>

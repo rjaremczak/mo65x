@@ -19,6 +19,7 @@ SOURCES += \
     disassembler.cpp \
     emulator.cpp \
     emulatorstate.cpp \
+    emulatorwidget.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     disassembler.h \
     emulator.h \
     emulatorstate.h \
+    emulatorwidget.h \
     mainwindow.h \
     memory.h \
     monitorwidget.h \
@@ -40,6 +42,7 @@ HEADERS += \
 
 FORMS += \
     cpuwidget.ui \
+    emulatorwidget.ui \
     mainwindow.ui \
     monitorwidget.ui
 

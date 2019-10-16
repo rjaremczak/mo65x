@@ -20,5 +20,5 @@ signals:
 
 public slots:
     void checkCpuRegisters();
-
+    void loadBinaryFile();
 };
