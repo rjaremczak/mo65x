@@ -24,7 +24,6 @@ protected:
 
 private:
     Ui::MonitorWidget *ui;
-    QStringListModel *m_dumpListModel;
     const Memory& m_memory;
     Disassembler m_disassembler;
 

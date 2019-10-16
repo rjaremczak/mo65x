@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EmulatorWidget</class>
- <widget class="QDockWidget" name="EmulatorWidget">
+ <class>MemoryWidget</class>
+ <widget class="QDockWidget" name="MemoryWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,20 +14,13 @@
    <string notr="true">QDockWidget {color: orange}  QDockWidget::title {text-align: left;
     border-bottom: 1px solid orange;} </string>
   </property>
-  <property name="windowTitle">
-   <string>Emulator</string>
+  <property name="features">
+   <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable</set>
   </property>
-  <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string>Memory images</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+  <property name="windowTitle">
+   <string>Memory</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents"/>
  </widget>
  <resources/>
  <connections/>

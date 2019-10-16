@@ -37,23 +37,29 @@ void MonitorWidget::initView()
     ui->viewModeAsm->setChecked(true);
 
     auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    //font.setPointSize(13);
-    ui->dumpListView->setFont(font);
-    ui->dumpListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->dumpListView->setSelectionMode(QAbstractItemView::NoSelection);
 
-    m_dumpListModel = new QStringListModel(this);
-    ui->dumpListView->setModel(m_dumpListModel);
+#ifdef __APPLE__
+    font.setPointSize(13);
+#endif
+
+    ui->dumpView->setFont(font);
 }
 
 void MonitorWidget::updateView()
 {
-    QStringList list;
+    QString html("<div style='white-space:pre; display:inline-block'>");
     int rows = rowsInView();
-    while(rows--) {
-        list.append(m_disassembler.disassemble());
+    if(rows--) {
+        html.append("<span style='color:lightgreen'>");
+        html.append(m_disassembler.disassemble()).append("</span><br>");
         m_disassembler.step();
+        html.append("<span style='color:darkseagreen'>");
+        while(rows--) {
+            html.append(m_disassembler.disassemble()+"<br>");
+            m_disassembler.step();
+        }
+        html.append("</span>");
     }
-    m_dumpListModel->setStringList(list);
-    ui->dumpListView->setCurrentIndex(m_dumpListModel->index(1));
+    html.append("</div>");
+    ui->dumpView->setHtml(html);
 }

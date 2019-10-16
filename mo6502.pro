@@ -19,12 +19,12 @@ SOURCES += \
     disassembler.cpp \
     emulator.cpp \
     emulatorstate.cpp \
-    emulatorwidget.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
     monitorwidget.cpp \
-    opcodes.cpp
+    opcodes.cpp \
+    memorywidget.cpp
 
 HEADERS += \
     ../../../projects/mindpart/mo6502/instruction.h \
@@ -34,17 +34,17 @@ HEADERS += \
     disassembler.h \
     emulator.h \
     emulatorstate.h \
-    emulatorwidget.h \
     mainwindow.h \
     memory.h \
     monitorwidget.h \
-    opcodes.h
+    opcodes.h \
+    memorywidget.h
 
 FORMS += \
     cpuwidget.ui \
-    emulatorwidget.ui \
     mainwindow.ui \
-    monitorwidget.ui
+    monitorwidget.ui \
+    memorywidget.ui
 
 RESOURCES += resources.qrc
 
