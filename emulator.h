@@ -13,12 +13,15 @@ class Emulator : public QObject
 
 public:
     explicit Emulator(QObject *parent = nullptr);
-    const Memory& cpuMemoryView() const { return m_memory; }
+    const Memory& memory() const { return m_memory; }
+    void fillMemory(size_t start, size_t size, uint8_t value);
+    void loadMemory(size_t start, const QByteArray& data);
+    QByteArray saveMemory(size_t start, size_t size);
 
 signals:
     void cpuRegistersChanged(CpuRegisters);
+    void memoryContentChanged(size_t start, size_t size);
 
 public slots:
     void checkCpuRegisters();
-    void loadBinaryFile();
 };

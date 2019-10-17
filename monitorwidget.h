@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include <QStringListModel>
 #include "disassembler.h"
+#include "emulator.h"
 
 namespace Ui {
 class MonitorWidget;
@@ -16,7 +17,7 @@ class MonitorWidget : public QDockWidget
 public:
     enum ViewMode { Asm, Hex, Txt };
 
-    explicit MonitorWidget(QWidget *parent, const Memory& );
+    explicit MonitorWidget(QWidget *parent, Emulator*);
     ~MonitorWidget();
 
 protected:
@@ -24,7 +25,8 @@ protected:
 
 private:
     Ui::MonitorWidget *ui;
-    const Memory& m_memory;
+    Emulator* m_emulator;
+
     Disassembler m_disassembler;
 
     int rowsInView() const;

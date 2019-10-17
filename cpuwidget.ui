@@ -30,7 +30,7 @@
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>CPU Info</string>
+   <string>CPU</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
@@ -46,7 +46,70 @@
     <property name="verticalSpacing">
      <number>2</number>
     </property>
-    <item row="3" column="2">
+    <item row="0" column="1">
+     <widget class="QLabel" name="regPC">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:lightgreen</string>
+      </property>
+      <property name="text">
+       <string>0000</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="labelSP">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:gray</string>
+      </property>
+      <property name="text">
+       <string>SP</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLabel" name="flags">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:lightgreen</string>
+      </property>
+      <property name="text">
+       <string>NVB.DIZC</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QLabel" name="labelA">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:gray</string>
+      </property>
+      <property name="text">
+       <string>A</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
      <widget class="QLabel" name="labelY">
       <property name="font">
        <font>
@@ -63,69 +126,6 @@
     </item>
     <item row="1" column="5">
      <widget class="QLabel" name="regX">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:lightgreen</string>
-      </property>
-      <property name="text">
-       <string>00</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="labelA">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:gray</string>
-      </property>
-      <property name="text">
-       <string>A</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="labelPC">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:gray</string>
-      </property>
-      <property name="text">
-       <string>PC</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:gray</string>
-      </property>
-      <property name="text">
-       <string>X</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="5">
-     <widget class="QLabel" name="regY">
       <property name="font">
        <font>
         <family>Monospace</family>
@@ -160,7 +160,40 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="5">
+    <item row="3" column="5">
+     <widget class="QLabel" name="regY">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:lightgreen</string>
+      </property>
+      <property name="text">
+       <string>00</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <family>Monospace</family>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:gray</string>
+      </property>
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="5">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -176,26 +209,8 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="regPC">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:lightgreen</string>
-      </property>
-      <property name="text">
-       <string>0000</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="labelSP">
+    <item row="0" column="0">
+     <widget class="QLabel" name="labelPC">
       <property name="font">
        <font>
         <family>Monospace</family>
@@ -205,25 +220,7 @@
        <string notr="true">color:gray</string>
       </property>
       <property name="text">
-       <string>SP</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLabel" name="regSP">
-      <property name="font">
-       <font>
-        <family>Monospace</family>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:lightgreen</string>
-      </property>
-      <property name="text">
-       <string>0100</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <string>PC</string>
       </property>
      </widget>
     </item>
@@ -242,8 +239,8 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QLabel" name="flags">
+    <item row="1" column="1">
+     <widget class="QLabel" name="regSP">
       <property name="font">
        <font>
         <family>Monospace</family>
@@ -253,7 +250,10 @@
        <string notr="true">color:lightgreen</string>
       </property>
       <property name="text">
-       <string>NVB.DIZC</string>
+       <string>0100</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>

@@ -3,11 +3,11 @@
 #include "disassembler.h"
 #include <QFontDatabase>
 
-MonitorWidget::MonitorWidget(QWidget *parent, const Memory& memory) :
+MonitorWidget::MonitorWidget(QWidget *parent, Emulator* emulator) :
     QDockWidget(parent),
     ui(new Ui::MonitorWidget),
-    m_memory(memory),
-    m_disassembler(memory)
+    m_emulator(emulator),
+    m_disassembler(emulator->memory())
 {
     ui->setupUi(this);
     initView();
@@ -50,15 +50,15 @@ void MonitorWidget::updateView()
     QString html("<div style='white-space:pre; display:inline-block'>");
     int rows = rowsInView();
     if(rows--) {
-        html.append("<span style='color:lightgreen'>");
-        html.append(m_disassembler.disassemble()).append("</span><br>");
+        html.append("<div style='color:black; background-color: lightgreen'>");
+        html.append(m_disassembler.disassemble()).append("</div>");
         m_disassembler.step();
-        html.append("<span style='color:darkseagreen'>");
+        html.append("<div style='color:darkseagreen'>");
         while(rows--) {
             html.append(m_disassembler.disassemble()+"<br>");
             m_disassembler.step();
         }
-        html.append("</span>");
+        html.append("</div>");
     }
     html.append("</div>");
     ui->dumpView->setHtml(html);

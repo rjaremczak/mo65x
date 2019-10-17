@@ -1,34 +1,20 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
+#include <array>
 
-class Memory
+class Memory : public std::array<uint8_t, 65536>
 {
-    uint8_t m_ram[65536];
-
 public:
-    Memory();
-
-    uint8_t operator[] (uint16_t addr) const { return m_ram[addr]; }
-
-    uint8_t read8(uint16_t addr) const
-    {
-        return m_ram[addr];
-    }
-
     uint16_t read16(uint16_t addr) const
     {
-        return static_cast<uint16_t>(m_ram[addr] | m_ram[static_cast<uint16_t>(addr + 1)] << 8);
-    }
-
-    void write8(uint16_t addr, uint8_t val)
-    {
-        m_ram[addr] = val;
+        return static_cast<uint16_t>((*this)[addr] | (*this)[static_cast<uint16_t>(addr + 1)] << 8);
     }
 
     void write16(uint16_t addr, uint16_t val)
     {
-        m_ram[addr] = val & 0xff;
-        m_ram[static_cast<uint16_t>(addr + 1)] = val >> 8;
+        (*this)[addr] = val & 0xff;
+        (*this)[static_cast<uint16_t>(addr + 1)] = val >> 8;
     }
 };
