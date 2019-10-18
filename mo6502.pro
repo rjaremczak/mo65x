@@ -14,6 +14,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     ../../../projects/mindpart/mo6502/instruction.cpp \
     bytespinbox.cpp \
+    centralwidget.cpp \
     cpu.cpp \
     disassembler.cpp \
     main.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
 HEADERS += \
     ../../../projects/mindpart/mo6502/instruction.h \
     bytespinbox.h \
+    centralwidget.h \
     cpu.h \
     cpustate.h \
     disassembler.h \
@@ -40,6 +42,7 @@ HEADERS += \
     wordspinbox.h
 
 FORMS += \
+    centralwidget.ui \
     cpuwidget.ui \
     mainwindow.ui \
     monitorwidget.ui \

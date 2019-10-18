@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_monitorWidget = new MonitorWidget(this, m_system->memory());
     this->addDockWidget(Qt::RightDockWidgetArea, m_monitorWidget);
 
+    m_centralWidget = new CentralWidget(this);
+    this->setCentralWidget(m_centralWidget);
+
     m_pollTimer = new QTimer(this);
     connect(m_pollTimer, &QTimer::timeout, m_system, &System::checkCpuState);
     m_pollTimer->start(1000);
