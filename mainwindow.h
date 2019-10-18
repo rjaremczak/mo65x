@@ -7,7 +7,7 @@
 #include "cpuwidget.h"
 #include "monitorwidget.h"
 #include "memorywidget.h"
-#include "emulator.h"
+#include "system.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,11 +23,11 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    MemoryWidget* m_memoryWidget = nullptr;
-    CpuWidget* m_cpuWidget = nullptr;
-    MonitorWidget* m_monitorWidget = nullptr;
-    QTimer* m_pollTimer = nullptr;
-    Emulator* m_emulator = nullptr;
+    MemoryWidget* m_memoryWidget;
+    CpuWidget* m_cpuWidget;
+    MonitorWidget* m_monitorWidget;
+    QTimer* m_pollTimer;
+    System* m_system;
 };
 
 #endif // MAINWINDOW_H

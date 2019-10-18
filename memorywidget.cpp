@@ -2,7 +2,7 @@
 #include "ui_memorywidget.h"
 #include <QFileDialog>
 
-MemoryWidget::MemoryWidget(QWidget *parent, Emulator* emulator) :
+MemoryWidget::MemoryWidget(QWidget *parent, System* emulator) :
     QDockWidget(parent),
     ui(new Ui::MemoryWidget),
     m_emulator(emulator)

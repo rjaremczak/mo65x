@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-struct CpuRegisters
+struct CpuState
 {
     uint8_t a;
     uint8_t x;
@@ -12,5 +12,5 @@ struct CpuRegisters
 
     struct {
         bool n, v, b, d, i , z, c;
-    } flags;
+    } flag;
 };

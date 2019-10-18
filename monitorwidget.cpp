@@ -3,20 +3,34 @@
 #include "disassembler.h"
 #include <QFontDatabase>
 
-MonitorWidget::MonitorWidget(QWidget *parent, Emulator* emulator) :
+MonitorWidget::MonitorWidget(QWidget *parent, const Memory& memory) :
     QDockWidget(parent),
     ui(new Ui::MonitorWidget),
-    m_emulator(emulator),
-    m_disassembler(emulator->memory())
+    m_disassembler(memory)
 {
     ui->setupUi(this);
     initView();
-    updateView();
+
+    connect(ui->progAddr, QOverload<int>::of(&QSpinBox::valueChanged), [&]{ changeAddress(static_cast<uint16_t>(ui->progAddr->value())); });
 }
 
 MonitorWidget::~MonitorWidget()
 {
     delete ui;
+}
+
+void MonitorWidget::changeAddress(uint16_t pc)
+{
+    if(m_address != pc) {
+        m_address = pc;
+        updateView();
+        emit addressChanged(pc);
+    }
+}
+
+void MonitorWidget::updateMemoryView(size_t start, size_t size)
+{
+    updateView();
 }
 
 void MonitorWidget::resizeEvent(QResizeEvent *)
@@ -26,7 +40,7 @@ void MonitorWidget::resizeEvent(QResizeEvent *)
 
 int MonitorWidget::rowsInView() const
 {
-    return 15;
+    return 30;
 }
 
 void MonitorWidget::initView()
@@ -47,6 +61,7 @@ void MonitorWidget::initView()
 
 void MonitorWidget::updateView()
 {
+    m_disassembler.setAddr(m_address);
     QString html("<div style='white-space:pre; display:inline-block'>");
     int rows = rowsInView();
     if(rows--) {

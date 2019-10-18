@@ -2,7 +2,7 @@
 #define MEMORYWIDGET_H
 
 #include <QDockWidget>
-#include "emulator.h"
+#include "system.h"
 
 namespace Ui {
 class MemoryWidget;
@@ -13,7 +13,7 @@ class MemoryWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit MemoryWidget(QWidget *parent, Emulator* emulator);
+    explicit MemoryWidget(QWidget *parent, System* emulator);
     ~MemoryWidget();
 
 public slots:
@@ -21,7 +21,7 @@ public slots:
 
 private:
     Ui::MemoryWidget *ui;
-    Emulator* m_emulator;
+    System* m_emulator;
 };
 
 #endif // MEMORYWIDGET_H

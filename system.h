@@ -4,7 +4,7 @@
 #include "cpu.h"
 #include "memory.h"
 
-class Emulator : public QObject
+class System : public QObject
 {
     Q_OBJECT
 
@@ -12,16 +12,19 @@ class Emulator : public QObject
     Cpu m_cpu;
 
 public:
-    explicit Emulator(QObject *parent = nullptr);
+    explicit System(QObject *parent = nullptr);
     const Memory& memory() const { return m_memory; }
+    const Cpu& cpu() const { return m_cpu; }
+
     void fillMemory(size_t start, size_t size, uint8_t value);
     void loadMemory(size_t start, const QByteArray& data);
     QByteArray saveMemory(size_t start, size_t size);
 
 signals:
-    void cpuRegistersChanged(CpuRegisters);
+    void cpuStateChanged(CpuState);
     void memoryContentChanged(size_t start, size_t size);
 
 public slots:
-    void checkCpuRegisters();
+    void checkCpuState();
+    void changePC(uint16_t);
 };

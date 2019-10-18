@@ -117,7 +117,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox">
+       <widget class="QSpinBox" name="progAddr">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -134,26 +134,13 @@ p, li { white-space: pre-wrap; }
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
         </property>
         <property name="displayIntegerBase">
          <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="progSetPC">
-        <property name="font">
-         <font>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Go</string>
         </property>
        </widget>
       </item>

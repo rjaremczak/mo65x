@@ -2,7 +2,7 @@
 #define CPUWIDGET_H
 
 #include <QDockWidget>
-#include "cpuregisters.h"
+#include "cpustate.h"
 
 namespace Ui {
 class CpuWidget;
@@ -17,7 +17,7 @@ public:
     ~CpuWidget();
 
 public slots:
-    void updateState(const CpuRegisters);
+    void updateState(const CpuState);
 
 private:
     Ui::CpuWidget *ui;

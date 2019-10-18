@@ -14,31 +14,28 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     ../../../projects/mindpart/mo6502/instruction.cpp \
     cpu.cpp \
-    cpuregisters.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
-    emulator.cpp \
-    emulatorstate.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
     monitorwidget.cpp \
     opcodes.cpp \
-    memorywidget.cpp
+    memorywidget.cpp \
+    system.cpp
 
 HEADERS += \
     ../../../projects/mindpart/mo6502/instruction.h \
     cpu.h \
-    cpuregisters.h \
+    cpustate.h \
     cpuwidget.h \
     disassembler.h \
-    emulator.h \
-    emulatorstate.h \
     mainwindow.h \
     memory.h \
     monitorwidget.h \
     opcodes.h \
-    memorywidget.h
+    memorywidget.h \
+    system.h
 
 FORMS += \
     cpuwidget.ui \
