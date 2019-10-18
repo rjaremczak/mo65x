@@ -12,9 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_memoryWidget = new MemoryWidget(this, m_system);
     this->addDockWidget(Qt::RightDockWidgetArea, m_memoryWidget);
 
-    m_cpuWidget = new CpuWidget();
-    this->addDockWidget(Qt::RightDockWidgetArea, m_cpuWidget);
-
     m_monitorWidget = new MonitorWidget(this, m_system->memory());
     this->addDockWidget(Qt::RightDockWidgetArea, m_monitorWidget);
 
@@ -22,13 +19,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_pollTimer, &QTimer::timeout, m_system, &System::checkCpuState);
     m_pollTimer->start(1000);
 
-    connect(m_system, &System::cpuStateChanged, m_cpuWidget, &CpuWidget::updateState);
+    connect(m_system, &System::cpuStateChanged, m_monitorWidget, &MonitorWidget::updateCpuState);
     connect(m_system, &System::memoryContentChanged, m_monitorWidget, &MonitorWidget::updateMemoryView);
 
     connect(m_monitorWidget, &MonitorWidget::addressChanged, m_system, &System::changePC);
 
     m_monitorWidget->changeAddress(m_system->cpu().pc());
-
 }
 
 MainWindow::~MainWindow()

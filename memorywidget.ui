@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>227</width>
+    <width>215</width>
     <height>210</height>
    </rect>
   </property>
@@ -31,7 +31,13 @@
        <number>2</number>
       </property>
       <item row="2" column="2">
-       <widget class="QSpinBox" name="fillMemoryValue">
+       <widget class="ByteSpinBox" name="fillMemoryValue">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -39,10 +45,10 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
-         <number>65535</number>
+         <number>255</number>
         </property>
         <property name="displayIntegerBase">
          <number>16</number>
@@ -50,7 +56,13 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="fillMemoryEndAddr">
+       <widget class="WordSpinBox" name="fillMemoryLast">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -58,7 +70,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -69,7 +81,13 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QSpinBox" name="saveMemoryBegin">
+       <widget class="WordSpinBox" name="saveMemoryBegin">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -77,7 +95,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -88,7 +106,13 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QSpinBox" name="fillMemoryBeginAddr">
+       <widget class="WordSpinBox" name="fillMemoryFirst">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -96,7 +120,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -107,7 +131,13 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="saveMemoryEnd">
+       <widget class="WordSpinBox" name="saveMemoryEnd">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -115,7 +145,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -126,7 +156,13 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QSpinBox" name="loadMemoryAddr">
+       <widget class="WordSpinBox" name="loadMemoryFirst">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -134,7 +170,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -204,9 +240,9 @@
        <number>2</number>
       </property>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="vectorReset">
+       <widget class="WordSpinBox" name="vectorReset">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -265,9 +301,9 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QSpinBox" name="vectorNMI">
+       <widget class="WordSpinBox" name="vectorNMI">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -277,6 +313,9 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
         <property name="buttonSymbols">
          <enum>QAbstractSpinBox::NoButtons</enum>
@@ -310,9 +349,9 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="vectorIRQ">
+       <widget class="WordSpinBox" name="vectorIRQ">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -365,6 +404,18 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ByteSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>bytespinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>WordSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>wordspinbox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

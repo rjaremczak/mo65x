@@ -8,22 +8,24 @@ System::System(QObject *parent) : QObject(parent),
     std::generate(m_memory.begin(), m_memory.end(), []{ return std::rand(); });
 }
 
-void System::fillMemory(size_t start, size_t size, uint8_t value)
+void System::fillMemory(uint16_t first, uint16_t last, uint8_t value)
 {
-    std::fill_n(m_memory.begin() + start, size, value);
+    std::fill(m_memory.begin() + first, m_memory.begin() + last + 1, value);
+    emit memoryContentChanged(first, last);
 }
 
-void System::loadMemory(size_t start, const QByteArray &data)
+size_t System::loadMemory(uint16_t first, const QByteArray &data)
 {
-    const auto size = std::min(static_cast<size_t>(data.size()), m_memory.size() - start);
-    std::copy_n(data.begin(), size, m_memory.begin() + start);
-    emit memoryContentChanged(start, size);
+    auto size = static_cast<uint16_t>(std::min(static_cast<size_t>(data.size()), m_memory.size() - first));
+    std::copy_n(data.begin(), size, m_memory.begin() + first);
+    emit memoryContentChanged(first, first + size);
+    return size;
 }
 
-QByteArray System::saveMemory(size_t start, size_t size)
+QByteArray System::saveMemory(uint16_t first, uint16_t last)
 {
     QByteArray data;
-    std::copy_n(m_memory.cbegin() + start, size, std::back_inserter(data));
+    std::copy(m_memory.cbegin() + first, m_memory.cbegin() + last + 1, std::back_inserter(data));
     return data;
 }
 

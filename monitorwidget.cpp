@@ -11,7 +11,7 @@ MonitorWidget::MonitorWidget(QWidget *parent, const Memory& memory) :
     ui->setupUi(this);
     initView();
 
-    connect(ui->progAddr, QOverload<int>::of(&QSpinBox::valueChanged), [&]{ changeAddress(static_cast<uint16_t>(ui->progAddr->value())); });
+    connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), [&]{ changeAddress(static_cast<uint16_t>(ui->regPC->value())); });
 }
 
 MonitorWidget::~MonitorWidget()
@@ -28,9 +28,34 @@ void MonitorWidget::changeAddress(uint16_t pc)
     }
 }
 
-void MonitorWidget::updateMemoryView(size_t start, size_t size)
+void MonitorWidget::updateMemoryView(uint16_t start, uint16_t last)
 {
     updateView();
+}
+
+static QString flagStr(bool flagStatus, const char* flagCode)
+{
+    return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
+}
+
+void MonitorWidget::updateCpuState(const CpuState state)
+{
+    ui->regA->setValue(state.a);
+    ui->regX->setValue(state.x);
+    ui->regY->setValue(state.y);
+    ui->regSP->setValue(0x100 + state.sp);
+    ui->regPC->setValue(state.pc);
+
+    QString str;
+    str.append(flagStr(state.flag.n, "N"));
+    str.append(flagStr(state.flag.v, "V"));
+    str.append(flagStr(false, "."));
+    str.append(flagStr(state.flag.b, "B"));
+    str.append(flagStr(state.flag.d, "D"));
+    str.append(flagStr(state.flag.i, "I"));
+    str.append(flagStr(state.flag.z, "Z"));
+    str.append(flagStr(state.flag.c, "C"));
+    ui->flags->setText(str);
 }
 
 void MonitorWidget::resizeEvent(QResizeEvent *)

@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QTimer>
 
-#include "cpuwidget.h"
 #include "monitorwidget.h"
 #include "memorywidget.h"
 #include "system.h"
@@ -24,7 +23,6 @@ public:
 private:
     Ui::MainWindow *ui;
     MemoryWidget* m_memoryWidget;
-    CpuWidget* m_cpuWidget;
     MonitorWidget* m_monitorWidget;
     QTimer* m_pollTimer;
     System* m_system;

@@ -25,7 +25,8 @@ signals:
 
 public slots:
     void changeAddress(uint16_t);
-    void updateMemoryView(size_t start, size_t size);
+    void updateMemoryView(uint16_t start, uint16_t last);
+    void updateCpuState(const CpuState);
 
 protected:
     void resizeEvent(QResizeEvent*) override;

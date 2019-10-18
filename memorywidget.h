@@ -17,11 +17,14 @@ public:
     ~MemoryWidget();
 
 public slots:
+
+private slots:
     void loadMemoryFromFile();
+    void fillMemory();
 
 private:
     Ui::MemoryWidget *ui;
-    System* m_emulator;
+    System* m_system;
 };
 
 #endif // MEMORYWIDGET_H
