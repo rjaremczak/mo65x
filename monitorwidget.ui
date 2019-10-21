@@ -33,11 +33,20 @@
       <property name="topMargin">
        <number>2</number>
       </property>
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
       <property name="verticalSpacing">
        <number>2</number>
       </property>
       <item row="1" column="0">
        <widget class="QLabel" name="labelSP">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>Monospace</family>
@@ -48,6 +57,9 @@
         </property>
         <property name="text">
          <string>SP</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -106,6 +118,12 @@
       </item>
       <item row="0" column="2">
        <widget class="QLabel" name="labelA">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>Monospace</family>
@@ -116,6 +134,9 @@
         </property>
         <property name="text">
          <string>A</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -143,6 +164,12 @@
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="labelPC">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>Monospace</family>
@@ -153,6 +180,9 @@
         </property>
         <property name="text">
          <string>PC</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -180,6 +210,12 @@
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="labelP">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>Monospace</family>
@@ -191,10 +227,19 @@
         <property name="text">
          <string>P</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
       <item row="1" column="2">
        <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>Monospace</family>
@@ -205,6 +250,9 @@
         </property>
         <property name="text">
          <string>X</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -235,6 +283,12 @@
       </item>
       <item row="2" column="2">
        <widget class="QLabel" name="labelY">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>Monospace</family>
@@ -245,6 +299,9 @@
         </property>
         <property name="text">
          <string>Y</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>

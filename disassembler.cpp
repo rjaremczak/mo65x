@@ -1,9 +1,9 @@
 #include <map>
 #include <QStringList>
 #include "disassembler.h"
-#include "opcodes.h"
+#include "opcode.h"
 
-static const std::map<Mnemonic, const char*> Mnemonics {
+static const std::map<Instruction, const char*> Mnemonics {
     { ADC, "ADC"}, { SBC, "SBC"}, { AND, "AND"}, { ORA, "ORA"}, { ASL, "ASL"}, { LSR, "LSR"}, { EOR, "EOR"}, { ROL, "ROL"}, { ROR, "ROR"},
     { BIT, "BIT"}, { CMP, "CMP"}, { CPX, "CPX"}, { CPY, "CPY"},
     { INC, "INC"}, { INX, "INX"}, { INY, "INY"},
@@ -75,7 +75,7 @@ QString Disassembler::disassemble() const
         str.append(i < m_instruction.size ? formatHex8(m_memory[m_addr+i]).append(" ") : "   ");
     }
     str.append(" ");
-    str.append(Mnemonics.at(m_instruction.mnemonic)).append(" ");
+    str.append(Mnemonics.at(m_instruction.instruction)).append(" ");
 
     switch (m_instruction.addressing) {
     case Implied:

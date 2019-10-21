@@ -1,14 +1,6 @@
 #pragma once
 
-#include <cstdint>
-
-enum Addressing {
-    Implied, Accumulator,
-    Relative, Immediate, ZeroPage, ZeroPageX, ZeroPageY, IndexedIndirectX, IndirectIndexedY,
-    Indirect, Absolute, AbsoluteX, AbsoluteY
-};
-
-enum Mnemonic
+enum Instruction
 {
     ADC, SBC, AND, ORA, ASL, LSR, EOR, ROL, ROR,
     BIT, CMP, CPX, CPY,
@@ -24,15 +16,4 @@ enum Mnemonic
     PHA, PHP, PLA, PLP,
     NOP,
     Invalid
-};
-
-struct Instruction
-{
-    Mnemonic mnemonic = Invalid;
-    Addressing addressing = Implied;
-    uint8_t size = 1;
-    uint8_t cycles = 0;
-
-    Instruction() = default;
-    Instruction(Mnemonic mnemonic, Addressing addressing, uint8_t cycles);
 };

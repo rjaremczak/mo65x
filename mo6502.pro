@@ -12,22 +12,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    ../../../projects/mindpart/mo6502/instruction.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
     cpu.cpp \
+    cpu_lookuptables.cpp \
     disassembler.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
     monitorwidget.cpp \
-    opcodes.cpp \
     memorywidget.cpp \
+    opcode.cpp \
     system.cpp \
     wordspinbox.cpp
 
 HEADERS += \
-    ../../../projects/mindpart/mo6502/instruction.h \
+    instruction.h \
+    addressingmode.h \
     bytespinbox.h \
     centralwidget.h \
     cpu.h \
@@ -36,8 +37,8 @@ HEADERS += \
     mainwindow.h \
     memory.h \
     monitorwidget.h \
-    opcodes.h \
     memorywidget.h \
+    opcode.h \
     system.h \
     wordspinbox.h
 

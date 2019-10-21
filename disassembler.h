@@ -2,14 +2,14 @@
 
 #include <QString>
 #include "memory.h"
-#include "opcodes.h"
+#include "opcode.h"
 
 class Disassembler
 {
     const Memory& m_memory;
     uint16_t m_addr;
     uint16_t m_opcode;
-    Instruction m_instruction;
+    OpCode m_instruction;
 
     QString formatOperand8() const;
     QString formatOperand16() const;
