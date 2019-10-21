@@ -7,19 +7,38 @@
 
 class Cpu
 {
+public:
+    enum ExecutionStatus { Idle, InvalidOpCode, Running, StopRequested };
+
+    using Handler = void (Cpu::*)();
+
+    static Handler operandsProvider(AddressingMode);
+    static Handler instructionExecutor(Instruction);
+
+    struct DecodeEntry {
+        const Operation* operation;
+        Handler operandsProvider;
+        Handler instructionExecutor;
+    };
+
+    using DecodeLookUpTable = std::array<DecodeEntry, OpCodeTable.size()>;
+
+private:
     union Operands {
         uint8_t* bytePtr;
         uint16_t address;
     };
 
-    static const std::map<AddressingMode, void (Cpu::*)()> addressingModeHandlers;
-    static const std::map<Instruction, void (Cpu::*)()> instructionHandlers;
+    static const DecodeLookUpTable decodeLookUpTable;
 
     Memory& m_memory;
     CpuState m_state;
-    OpCode m_instruction;
-    Operands m_operands;
     uint64_t m_cycles = 0;
+    volatile ExecutionStatus m_executionStatus = Idle;
+
+    uint8_t m_opCode;
+    const Operation* m_operation;
+    Operands m_operands;
 
     void amImplied();
     void amAccumulator();
@@ -35,81 +54,79 @@ class Cpu
     void amAbsoluteX();
     void amAbsoluteY();
 
-    void LDA();
-    void LDX();
-    void LDY();
-    void STA();
-    void STX();
-    void STY();
+    void insLDA();
+    void insLDX();
+    void insLDY();
+    void insSTA();
+    void insSTX();
+    void insSTY();
 
-    void ADC();
-    void SBC();
-    void INC();
-    void INX();
-    void INY();
-    void DEC();
-    void DEX();
-    void DEY();
+    void insADC();
+    void insSBC();
+    void insINC();
+    void insINX();
+    void insINY();
+    void insDEC();
+    void insDEX();
+    void insDEY();
 
-    void ASL();
-    void LSR();
-    void ROL();
-    void ROR();
+    void insASL();
+    void insLSR();
+    void insROL();
+    void insROR();
 
-    void AND();
-    void ORA();
-    void EOR();
+    void insAND();
+    void insORA();
+    void insEOR();
 
-    void CMP();
-    void CPX();
-    void CPY();
-    void BIT();
+    void insCMP();
+    void insCPX();
+    void insCPY();
+    void insBIT();
 
-    void SED();
-    void SEI();
-    void CLC();
-    void CLD();
-    void CLI();
-    void CLV();
+    void insSED();
+    void insSEI();
+    void insSEC();
+    void insCLC();
+    void insCLD();
+    void insCLI();
+    void insCLV();
 
-    void TAX();
-    void TXA();
-    void TAY();
-    void TYA();
-    void TSX();
-    void TXS();
+    void insTAX();
+    void insTXA();
+    void insTAY();
+    void insTYA();
+    void insTSX();
+    void insTXS();
 
-    void PHA();
-    void PLA();
-    void PHP();
-    void PLP();
+    void insPHA();
+    void insPLA();
+    void insPHP();
+    void insPLP();
 
-    void RTS();
-    void RTI();
-    void BRK();
-    void NOP();
+    void insRTS();
+    void insRTI();
+    void insBRK();
+    void insNOP();
 
-    void BCC();
-    void BCS();
-    void BEQ();
-    void BMI();
-    void BNE();
-    void BPL();
-    void BVC();
-    void BVS();
-    void JMP();
-    void JSR();
+    void insBCC();
+    void insBCS();
+    void insBEQ();
+    void insBMI();
+    void insBNE();
+    void insBPL();
+    void insBVC();
+    void insBVS();
+    void insJMP();
+    void insJSR();
 
 public:
-    enum ExecutionStatus { Ok, InvalidOpCode };
-
     Cpu(Memory&);
     auto state() const { return m_state; }
     auto pc() const { return m_state.pc; }
     auto cycles() const { return m_cycles; }
-    auto instruction() const { return m_instruction; }
+    auto instruction() const { return m_operation; }
     void resetCycles() { m_cycles = 0; }
-
     void setPC(uint16_t pc) { m_state.pc = pc; }
-    ExecutionStatus execute(bool continuous = false);
+    void execute(bool continuous = false);
 };

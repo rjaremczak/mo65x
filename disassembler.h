@@ -9,7 +9,7 @@ class Disassembler
     const Memory& m_memory;
     uint16_t m_addr;
     uint16_t m_opcode;
-    OpCode m_instruction;
+    Operation m_instruction;
 
     QString formatOperand8() const;
     QString formatOperand16() const;

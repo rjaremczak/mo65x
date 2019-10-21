@@ -46,7 +46,7 @@ void Disassembler::setAddr(uint16_t addr)
 {
     m_addr = addr;
     m_opcode = m_memory[addr];
-    m_instruction = OpCodes[m_opcode];
+    m_instruction = OpCodeTable[m_opcode];
 }
 
 void Disassembler::step()

@@ -1,6 +1,6 @@
 #include "opcode.h"
 
-OpCode::OpCode(Instruction mnemonic, AddressingMode addressing, uint8_t cycles)
+Operation::Operation(Instruction mnemonic, AddressingMode addressing, uint8_t cycles)
 {
     this->instruction = mnemonic;
     this->addressing = addressing;
@@ -27,8 +27,8 @@ OpCode::OpCode(Instruction mnemonic, AddressingMode addressing, uint8_t cycles)
     }();
 }
 
-const OpCodesArray OpCodes = []{
-    OpCodesArray arr;
+const std::array<Operation, 256> OpCodeTable = []{
+    std::array<Operation, 256> arr;
     arr.fill({ Invalid, Implied, 0 });
     arr[0x00] = { BRK, Implied, 7 };
     arr[0x01] = { ORA, IndexedIndirectX, 6 };

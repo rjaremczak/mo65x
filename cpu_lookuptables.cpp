@@ -1,86 +1,107 @@
 #include "cpu.h"
 #include <map>
 
-const std::map<AddressingMode, void (Cpu::*)()> Cpu::addressingModeHandlers = {
-   { AddressingMode::Implied, &Cpu::amImplied },
-   { AddressingMode::Accumulator, &Cpu::amAccumulator },
-   { AddressingMode::Relative, &Cpu::amRelative },
-   { AddressingMode::Immediate, &Cpu::amImmediate },
-   { AddressingMode::ZeroPage, &Cpu::amZeroPage },
-   { AddressingMode::ZeroPageX, &Cpu::amZeroPageX },
-   { AddressingMode::ZeroPageY, &Cpu::amZeroPageY },
-   { AddressingMode::IndexedIndirectX, &Cpu::amIndexedIndirectX },
-   { AddressingMode::IndirectIndexedY, &Cpu::amIndirectIndexedY },
-   { AddressingMode::Indirect, &Cpu::amIndirect },
-   { AddressingMode::Absolute, &Cpu::amAbsolute },
-   { AddressingMode::AbsoluteX, &Cpu::amAbsoluteX },
-   { AddressingMode::AbsoluteY, &Cpu::amAbsoluteY }
-};
+const Cpu::DecodeLookUpTable Cpu::decodeLookUpTable = []{
+    Cpu::DecodeLookUpTable lut;
+    for(size_t i = 0; i < OpCodeTable.size(); i++) {
+        const Operation* opCode = &OpCodeTable[i];
+        lut[i] = {
+            opCode,
+            Cpu::operandsProvider(opCode->addressing),
+            Cpu::instructionExecutor(opCode->instruction)
+        };
+    }
+    return lut;
+}();
 
-const std::map<Instruction, void (Cpu::*)()> Cpu::instructionHandlers = {
-    { Instruction::LDA, &Cpu::LDA },
-    { Instruction::LDX, &Cpu::LDX },
-    { Instruction::LDY, &Cpu::LDY },
-    { Instruction::STA, &Cpu::STA },
-    { Instruction::STX, &Cpu::STX },
-    { Instruction::STY, &Cpu::STY },
+Cpu::Handler Cpu::operandsProvider(AddressingMode addressingMode)
+{
+    switch(addressingMode) {
+        case Implied : return &Cpu::amImplied;
+        case Accumulator : return &Cpu::amAccumulator;
+        case Relative : return &Cpu::amRelative;
+        case Immediate : return &Cpu::amImmediate;
+        case ZeroPage : return &Cpu::amZeroPage;
+        case ZeroPageX : return &Cpu::amZeroPageX;
+        case ZeroPageY : return &Cpu::amZeroPageY;
+        case IndexedIndirectX : return &Cpu::amIndexedIndirectX;
+        case IndirectIndexedY : return &Cpu::amIndirectIndexedY;
+        case Indirect : return &Cpu::amIndirect;
+        case Absolute : return &Cpu::amAbsolute;
+        case AbsoluteX : return &Cpu::amAbsoluteX;
+        case AbsoluteY : return &Cpu::amAbsoluteY;
+    }
+}
 
-    { Instruction::ADC, &Cpu::ADC },
-    { Instruction::SBC, &Cpu::SBC },
-    { Instruction::INC, &Cpu::INC },
-    { Instruction::INX, &Cpu::INX },
-    { Instruction::INY, &Cpu::INY },
-    { Instruction::DEC, &Cpu::DEC },
-    { Instruction::DEX, &Cpu::DEX },
-    { Instruction::DEY, &Cpu::DEY },
+Cpu::Handler Cpu::instructionExecutor(Instruction instruction)
+{
+    switch (instruction) {
+    case LDA : return &Cpu::insLDA;
+    case LDX : return &Cpu::insLDX;
+    case LDY : return &Cpu::insLDY;
+    case STA : return &Cpu::insSTA;
+    case STX : return &Cpu::insSTX;
+    case STY : return &Cpu::insSTY;
 
-    { Instruction::ASL, &Cpu::ASL },
-    { Instruction::LSR, &Cpu::LSR },
-    { Instruction::ROL, &Cpu::ROL },
-    { Instruction::ROR, &Cpu::ROR },
+    case ADC : return &Cpu::insADC;
+    case SBC : return &Cpu::insSBC;
+    case INC : return &Cpu::insINC;
+    case INX : return &Cpu::insINX;
+    case INY : return &Cpu::insINY;
+    case DEC : return &Cpu::insDEC;
+    case DEX : return &Cpu::insDEX;
+    case DEY : return &Cpu::insDEY;
 
-    { Instruction::AND, &Cpu::AND },
-    { Instruction::ORA, &Cpu::ORA },
-    { Instruction::EOR, &Cpu::EOR },
+    case ASL : return &Cpu::insASL;
+    case LSR : return &Cpu::insLSR;
+    case ROL : return &Cpu::insROL;
+    case ROR : return &Cpu::insROR;
 
-    { Instruction::CMP, &Cpu::CMP },
-    { Instruction::CPX, &Cpu::CPX },
-    { Instruction::CPY, &Cpu::CPY },
-    { Instruction::BIT, &Cpu::BIT },
+    case AND : return &Cpu::insAND;
+    case ORA : return &Cpu::insORA;
+    case EOR : return &Cpu::insEOR;
 
-    { Instruction::SED, &Cpu::SED },
-    { Instruction::SEI, &Cpu::SEI },
-    { Instruction::CLC, &Cpu::CLC },
-    { Instruction::CLD, &Cpu::CLD },
-    { Instruction::CLI, &Cpu::CLI },
-    { Instruction::CLV, &Cpu::CLV },
+    case CMP : return &Cpu::insCMP;
+    case CPX : return &Cpu::insCPX;
+    case CPY : return &Cpu::insCPY;
+    case BIT : return &Cpu::insBIT;
 
-    { Instruction::TAX, &Cpu::TAX },
-    { Instruction::TXA, &Cpu::TXA },
-    { Instruction::TAY, &Cpu::TAY },
-    { Instruction::TYA, &Cpu::TYA },
-    { Instruction::TSX, &Cpu::TSX },
-    { Instruction::TXS, &Cpu::TXS },
+    case SED : return &Cpu::insSED;
+    case SEI : return &Cpu::insSEI;
+    case SEC : return &Cpu::insSEC;
+    case CLC : return &Cpu::insCLC;
+    case CLD : return &Cpu::insCLD;
+    case CLI : return &Cpu::insCLI;
+    case CLV : return &Cpu::insCLV;
 
-    { Instruction::PHA, &Cpu::PHA },
-    { Instruction::PLA, &Cpu::PLA },
-    { Instruction::PHP, &Cpu::PHP },
-    { Instruction::PLP, &Cpu::PLP },
+    case TAX : return &Cpu::insTAX;
+    case TXA : return &Cpu::insTXA;
+    case TAY : return &Cpu::insTAY;
+    case TYA : return &Cpu::insTYA;
+    case TSX : return &Cpu::insTSX;
+    case TXS : return &Cpu::insTXS;
 
-    { Instruction::RTS, &Cpu::RTS },
-    { Instruction::RTI, &Cpu::RTI },
-    { Instruction::BRK, &Cpu::BRK },
-    { Instruction::NOP, &Cpu::NOP },
+    case PHA : return &Cpu::insPHA;
+    case PLA : return &Cpu::insPLA;
+    case PHP : return &Cpu::insPHP;
+    case PLP : return &Cpu::insPLP;
 
-    { Instruction::BCC, &Cpu::BCC },
-    { Instruction::BCS, &Cpu::BCS },
-    { Instruction::BEQ, &Cpu::BEQ },
-    { Instruction::BMI, &Cpu::BMI },
-    { Instruction::BNE, &Cpu::BNE },
-    { Instruction::BPL, &Cpu::BPL },
-    { Instruction::BVC, &Cpu::BVC },
-    { Instruction::BVS, &Cpu::BVS },
-    { Instruction::JMP, &Cpu::JMP },
-    { Instruction::JSR, &Cpu::JSR },
-};
+    case RTS : return &Cpu::insRTS;
+    case RTI : return &Cpu::insRTI;
+    case BRK : return &Cpu::insBRK;
+    case NOP : return &Cpu::insNOP;
 
+    case BCC : return &Cpu::insBCC;
+    case BCS : return &Cpu::insBCS;
+    case BEQ : return &Cpu::insBEQ;
+    case BMI : return &Cpu::insBMI;
+    case BNE : return &Cpu::insBNE;
+    case BPL : return &Cpu::insBPL;
+    case BVC : return &Cpu::insBVC;
+    case BVS : return &Cpu::insBVS;
+    case JMP : return &Cpu::insJMP;
+    case JSR : return &Cpu::insJSR;
+
+    case Invalid : return nullptr;
+    }
+}

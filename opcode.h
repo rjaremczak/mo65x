@@ -4,17 +4,15 @@
 #include "instruction.h"
 #include "addressingmode.h"
 
-struct OpCode
+struct Operation
 {
     Instruction instruction = Invalid;
     AddressingMode addressing = Implied;
     uint8_t size = 1;
     uint8_t cycles = 0;
 
-    OpCode() = default;
-    OpCode(Instruction instruction, AddressingMode addressing, uint8_t cycles);
+    Operation() = default;
+    Operation(Instruction instruction, AddressingMode addressing, uint8_t cycles);
 };
 
-using OpCodesArray = std::array<OpCode, 256>;
-
-extern const OpCodesArray OpCodes;
+extern const std::array<Operation, 256> OpCodeTable;

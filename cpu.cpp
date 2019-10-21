@@ -65,277 +65,282 @@ void Cpu::amAbsoluteY()
 
 }
 
-void Cpu::LDA()
+void Cpu::insLDA()
 {
 
 }
 
-void Cpu::LDX()
+void Cpu::insLDX()
 {
 
 }
 
-void Cpu::LDY()
+void Cpu::insLDY()
 {
 
 }
 
-void Cpu::STA()
+void Cpu::insSTA()
 {
 
 }
 
-void Cpu::STX()
+void Cpu::insSTX()
 {
 
 }
 
-void Cpu::STY()
+void Cpu::insSTY()
 {
 
 }
 
-void Cpu::ADC()
+void Cpu::insADC()
 {
 
 }
 
-void Cpu::SBC()
+void Cpu::insSBC()
 {
 
 }
 
-void Cpu::INC()
+void Cpu::insINC()
 {
 
 }
 
-void Cpu::INX()
+void Cpu::insINX()
 {
 
 }
 
-void Cpu::INY()
+void Cpu::insINY()
 {
 
 }
 
-void Cpu::DEC()
+void Cpu::insDEC()
 {
 
 }
 
-void Cpu::DEX()
+void Cpu::insDEX()
 {
 
 }
 
-void Cpu::DEY()
+void Cpu::insDEY()
 {
 
 }
 
-void Cpu::ASL()
+void Cpu::insASL()
 {
 
 }
 
-void Cpu::LSR()
+void Cpu::insLSR()
 {
 
 }
 
-void Cpu::ROL()
+void Cpu::insROL()
 {
 
 }
 
-void Cpu::ROR()
+void Cpu::insROR()
 {
 
 }
 
-void Cpu::AND()
+void Cpu::insAND()
 {
 
 }
 
-void Cpu::ORA()
+void Cpu::insORA()
 {
 
 }
 
-void Cpu::EOR()
+void Cpu::insEOR()
 {
 
 }
 
-void Cpu::CMP()
+void Cpu::insCMP()
 {
 
 }
 
-void Cpu::CPX()
+void Cpu::insCPX()
 {
 
 }
 
-void Cpu::CPY()
+void Cpu::insCPY()
 {
 
 }
 
-void Cpu::BIT()
+void Cpu::insBIT()
 {
 
 }
 
-void Cpu::SED()
+void Cpu::insSED()
 {
 
 }
 
-void Cpu::SEI()
+void Cpu::insSEI()
 {
 
 }
 
-void Cpu::CLC()
+void Cpu::insSEC()
 {
 
 }
 
-void Cpu::CLD()
+void Cpu::insCLC()
 {
 
 }
 
-void Cpu::CLI()
+void Cpu::insCLD()
 {
 
 }
 
-void Cpu::CLV()
+void Cpu::insCLI()
 {
 
 }
 
-void Cpu::TAX()
+void Cpu::insCLV()
 {
 
 }
 
-void Cpu::TXA()
+void Cpu::insTAX()
 {
 
 }
 
-void Cpu::TAY()
+void Cpu::insTXA()
 {
 
 }
 
-void Cpu::TYA()
+void Cpu::insTAY()
 {
 
 }
 
-void Cpu::TSX()
+void Cpu::insTYA()
 {
 
 }
 
-void Cpu::TXS()
+void Cpu::insTSX()
 {
 
 }
 
-void Cpu::PHA()
+void Cpu::insTXS()
 {
 
 }
 
-void Cpu::PLA()
+void Cpu::insPHA()
 {
 
 }
 
-void Cpu::PHP()
+void Cpu::insPLA()
 {
 
 }
 
-void Cpu::PLP()
+void Cpu::insPHP()
 {
 
 }
 
-void Cpu::RTS()
+void Cpu::insPLP()
 {
 
 }
 
-void Cpu::RTI()
+void Cpu::insRTS()
 {
 
 }
 
-void Cpu::BRK()
+void Cpu::insRTI()
 {
 
 }
 
-void Cpu::NOP()
+void Cpu::insBRK()
 {
 
 }
 
-void Cpu::BCC()
+void Cpu::insNOP()
 {
 
 }
 
-void Cpu::BCS()
+void Cpu::insBCC()
 {
 
 }
 
-void Cpu::BEQ()
+void Cpu::insBCS()
 {
 
 }
 
-void Cpu::BMI()
+void Cpu::insBEQ()
 {
 
 }
 
-void Cpu::BNE()
+void Cpu::insBMI()
 {
 
 }
 
-void Cpu::BPL()
+void Cpu::insBNE()
 {
 
 }
 
-void Cpu::BVC()
+void Cpu::insBPL()
 {
 
 }
 
-void Cpu::BVS()
+void Cpu::insBVC()
 {
 
 }
 
-void Cpu::JMP()
+void Cpu::insBVS()
 {
 
 }
 
-void Cpu::JSR()
+void Cpu::insJMP()
+{
+
+}
+
+void Cpu::insJSR()
 {
 
 }
@@ -345,21 +350,17 @@ Cpu::Cpu(Memory& memory) : m_memory(memory)
 
 }
 
-Cpu::ExecutionStatus Cpu::execute(bool continuous)
+void Cpu::execute(bool continuous)
 {
     while (continuous) {
-        m_instruction = OpCodes[m_memory[m_state.pc]];
-        if(m_instruction.instruction == Invalid) return InvalidOpCode;
-
-        switch (m_instruction.addressing) {
-        case Implied: break;
-            // exec
-        case Absolute:
-            // exec(absAddressing
+        m_opCode = m_memory[m_state.pc];
+        const auto& decodeEntry = decodeLookUpTable[m_memory[m_state.pc]];
+        m_operation = decodeEntry.operation;
+        if(m_operation->instruction == Invalid) {
+            m_executionStatus = InvalidOpCode;
             break;
         }
-
+        (this->*decodeEntry.operandsProvider)();
+        (this->*decodeEntry.instructionExecutor)();
     }
-
-    return Ok;
 }
