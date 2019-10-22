@@ -34,7 +34,7 @@ QString Disassembler::formatOperand8() const
 
 QString Disassembler::formatOperand16() const
 {
-    return "$"+formatHex16(m_memory[m_addr+1]);
+    return "$"+formatHex16(m_memory.read16(m_addr+1));
 }
 
 Disassembler::Disassembler(const Memory &memory, uint16_t pc) : m_memory(memory)
@@ -46,12 +46,12 @@ void Disassembler::setAddr(uint16_t addr)
 {
     m_addr = addr;
     m_opcode = m_memory[addr];
-    m_instruction = OpCodeTable[m_opcode];
+    m_operation = OpCodeTable[m_opcode];
 }
 
 void Disassembler::step()
 {
-    setAddr(m_addr + m_instruction.size);
+    setAddr(m_addr + m_operation.size);
 }
 
 QString Disassembler::dumpBytes(uint16_t n) const
@@ -72,12 +72,12 @@ QString Disassembler::disassemble() const
 {
     QString str = formatHex16(m_addr).append(" ");
     for(uint8_t i=0; i<3; i++) {
-        str.append(i < m_instruction.size ? formatHex8(m_memory[m_addr+i]).append(" ") : "   ");
+        str.append(i < m_operation.size ? formatHex8(m_memory[m_addr+i]).append(" ") : "   ");
     }
     str.append(" ");
-    str.append(Mnemonics.at(m_instruction.instruction)).append(" ");
+    str.append(Mnemonics.at(m_operation.instruction)).append(" ");
 
-    switch (m_instruction.addressing) {
+    switch (m_operation.addressing) {
     case Implied:
     case Accumulator:
         break;
@@ -112,7 +112,8 @@ QString Disassembler::disassemble() const
         str.append("(").append(formatOperand16()).append(")");
         break;
     case Relative:
-        str.append("$").append(formatHex16(static_cast<uint16_t>(m_addr + static_cast<int8_t>(m_memory[m_addr+1]))));
+        const auto displacement = static_cast<int8_t>(m_memory[m_addr+1]);
+        str.append("$").append(formatHex16(static_cast<uint16_t>(m_addr + m_operation.size + displacement)));
         break;
     }
     return str.toUpper();
