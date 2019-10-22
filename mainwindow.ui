@@ -23,8 +23,46 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
+   <addaction name="menu_View"/>
+   <addaction name="menu_Tools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionShow_Memory">
+   <property name="text">
+    <string>&amp;Memory</string>
+   </property>
+  </action>
+  <action name="action_Cpu_Monitor">
+   <property name="text">
+    <string>&amp;Cpu Monitor</string>
+   </property>
+  </action>
+  <action name="action_Cpu_Monitor_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Cpu Monitor</string>
+   </property>
+  </action>
+  <action name="action_Memory">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Memory</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

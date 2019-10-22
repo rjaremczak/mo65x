@@ -44,7 +44,6 @@ HEADERS += \
 
 FORMS += \
     centralwidget.ui \
-    cpuwidget.ui \
     mainwindow.ui \
     monitorwidget.ui \
     memorywidget.ui
