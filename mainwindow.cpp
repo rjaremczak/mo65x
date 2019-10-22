@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_monitorWidget, &MonitorWidget::addressChanged, m_system, &System::changePC);
 
-    m_monitorWidget->changeAddress(m_system->cpu().pc());
+    m_system->checkCpuState();
 }
 
 MainWindow::~MainWindow()

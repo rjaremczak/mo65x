@@ -3,7 +3,8 @@
 
 System::System(QObject *parent) : QObject(parent),
     m_memory(),
-    m_cpu(m_memory)
+    m_cpu(m_memory),
+    m_cpuProbe(m_cpu)
 {
     std::generate(m_memory.begin(), m_memory.end(), []{ return std::rand(); });
 }
@@ -31,13 +32,13 @@ QByteArray System::saveMemory(uint16_t first, uint16_t last)
 
 void System::checkCpuState()
 {
-    emit cpuStateChanged(m_cpu.state());
+    emit cpuStateChanged(m_cpuProbe.registers(), m_cpuProbe.flags());
 }
 
 void System::changePC(uint16_t pc)
 {
-    if(m_cpu.state().pc != pc) {
-        m_cpu.setPC(pc);
-        emit cpuStateChanged(m_cpu.state());
+    if(m_cpuProbe.registers().pc != pc) {
+        m_cpuProbe.registers().pc = pc;
+        emit cpuStateChanged(m_cpuProbe.registers(), m_cpuProbe.flags());
     }
 }

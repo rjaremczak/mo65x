@@ -38,23 +38,23 @@ static QString flagStr(bool flagStatus, const char* flagCode)
     return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
 }
 
-void MonitorWidget::updateCpuState(const CpuState state)
+void MonitorWidget::updateCpuState(CpuRegisters regs, CpuFlags flags)
 {
-    ui->regA->setValue(state.a);
-    ui->regX->setValue(state.x);
-    ui->regY->setValue(state.y);
-    ui->regSP->setValue(0x100 + state.sp);
-    ui->regPC->setValue(state.pc);
+    ui->regA->setValue(regs.a);
+    ui->regX->setValue(regs.x);
+    ui->regY->setValue(regs.y);
+    ui->regSP->setValue(0x100 + regs.sp);
+    ui->regPC->setValue(regs.pc);
 
     QString str;
-    str.append(flagStr(state.flag.n, "N"));
-    str.append(flagStr(state.flag.v, "V"));
+    str.append(flagStr(flags.n, "N"));
+    str.append(flagStr(flags.v, "V"));
     str.append(flagStr(false, "."));
-    str.append(flagStr(state.flag.b, "B"));
-    str.append(flagStr(state.flag.d, "D"));
-    str.append(flagStr(state.flag.i, "I"));
-    str.append(flagStr(state.flag.z, "Z"));
-    str.append(flagStr(state.flag.c, "C"));
+    str.append(flagStr(flags.b, "B"));
+    str.append(flagStr(flags.d, "D"));
+    str.append(flagStr(flags.i, "I"));
+    str.append(flagStr(flags.z, "Z"));
+    str.append(flagStr(flags.c, "C"));
     ui->flags->setText(str);
 }
 

@@ -2,17 +2,17 @@
 
 void Cpu::amImplied()
 {
-
+    // nothing to do
 }
 
 void Cpu::amAccumulator()
 {
-
+    m_operand.bytePtr = &m_regs.a;
 }
 
 void Cpu::amRelative()
 {
-
+    m_operand.address = static_cast<uint16_t>(m_regs.pc + m_operation->size + static_cast<int8_t>(operand8()));
 }
 
 void Cpu::amImmediate()
@@ -352,15 +352,19 @@ Cpu::Cpu(Memory& memory) : m_memory(memory)
 
 void Cpu::execute(bool continuous)
 {
-    while (continuous) {
-        m_opCode = m_memory[m_state.pc];
-        const auto& decodeEntry = decodeLookUpTable[m_memory[m_state.pc]];
+    m_executionStatus = Running;
+    while (continuous && m_executionStatus != StopRequested) {
+        m_opCode = m_memory[m_regs.pc];
+        const auto& decodeEntry = decodeLookUpTable[m_memory[m_regs.pc]];
         m_operation = decodeEntry.operation;
         if(m_operation->instruction == Invalid) {
             m_executionStatus = InvalidOpCode;
-            break;
+            return;
         }
-        (this->*decodeEntry.operandsProvider)();
-        (this->*decodeEntry.instructionExecutor)();
+
+        m_cycles += m_operation->cycles;
+        (this->*decodeEntry.prepareOperands)();
+        (this->*decodeEntry.executeInstruction)();
     }
+    m_executionStatus = Idle;
 }

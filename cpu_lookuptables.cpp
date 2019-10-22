@@ -7,14 +7,14 @@ const Cpu::DecodeLookUpTable Cpu::decodeLookUpTable = []{
         const Operation* opCode = &OpCodeTable[i];
         lut[i] = {
             opCode,
-            Cpu::operandsProvider(opCode->addressing),
-            Cpu::instructionExecutor(opCode->instruction)
+            Cpu::operandsHandler(opCode->addressing),
+            Cpu::instructionHandler(opCode->instruction)
         };
     }
     return lut;
 }();
 
-Cpu::Handler Cpu::operandsProvider(AddressingMode addressingMode)
+Cpu::Handler Cpu::operandsHandler(AddressingMode addressingMode)
 {
     switch(addressingMode) {
         case Implied : return &Cpu::amImplied;
@@ -33,7 +33,7 @@ Cpu::Handler Cpu::operandsProvider(AddressingMode addressingMode)
     }
 }
 
-Cpu::Handler Cpu::instructionExecutor(Instruction instruction)
+Cpu::Handler Cpu::instructionHandler(Instruction instruction)
 {
     switch (instruction) {
     case LDA : return &Cpu::insLDA;

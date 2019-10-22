@@ -16,6 +16,7 @@ SOURCES += \
     centralwidget.cpp \
     cpu.cpp \
     cpu_lookuptables.cpp \
+    cpuprobe.cpp \
     disassembler.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -27,12 +28,15 @@ SOURCES += \
     wordspinbox.cpp
 
 HEADERS += \
+    cpuflags.h \
+    cpuprobe.h \
+    cpuregisters.h \
+    executionstatus.h \
     instruction.h \
     addressingmode.h \
     bytespinbox.h \
     centralwidget.h \
     cpu.h \
-    cpustate.h \
     disassembler.h \
     mainwindow.h \
     memory.h \

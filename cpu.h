@@ -1,44 +1,47 @@
 #pragma once
 
 #include <map>
-#include "cpustate.h"
 #include "memory.h"
 #include "opcode.h"
+#include "executionstatus.h"
+#include "cpuregisters.h"
+#include "cpuflags.h"
 
 class Cpu
 {
 public:
-    enum ExecutionStatus { Idle, InvalidOpCode, Running, StopRequested };
-
     using Handler = void (Cpu::*)();
 
-    static Handler operandsProvider(AddressingMode);
-    static Handler instructionExecutor(Instruction);
+    static Handler operandsHandler(AddressingMode);
+    static Handler instructionHandler(Instruction);
 
     struct DecodeEntry {
         const Operation* operation;
-        Handler operandsProvider;
-        Handler instructionExecutor;
+        Handler prepareOperands;
+        Handler executeInstruction;
     };
 
     using DecodeLookUpTable = std::array<DecodeEntry, OpCodeTable.size()>;
 
 private:
-    union Operands {
+    union Operand {
         uint8_t* bytePtr;
         uint16_t address;
     };
 
     static const DecodeLookUpTable decodeLookUpTable;
 
+    CpuRegisters m_regs;
+    CpuFlags m_flags;
     Memory& m_memory;
-    CpuState m_state;
     uint64_t m_cycles = 0;
     volatile ExecutionStatus m_executionStatus = Idle;
-
     uint8_t m_opCode;
     const Operation* m_operation;
-    Operands m_operands;
+    Operand m_operand;
+
+    uint8_t operand8() const { return m_memory[m_regs.pc + 1]; }
+    uint16_t operand16() const { return m_memory.read16(m_regs.pc + 1); }
 
     void amImplied();
     void amAccumulator();
@@ -120,13 +123,11 @@ private:
     void insJMP();
     void insJSR();
 
+    friend class CpuProbe;
+
 public:
     Cpu(Memory&);
-    auto state() const { return m_state; }
-    auto pc() const { return m_state.pc; }
     auto cycles() const { return m_cycles; }
-    auto instruction() const { return m_operation; }
     void resetCycles() { m_cycles = 0; }
-    void setPC(uint16_t pc) { m_state.pc = pc; }
     void execute(bool continuous = false);
 };
