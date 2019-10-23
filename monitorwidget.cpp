@@ -43,7 +43,7 @@ void MonitorWidget::updateCpuState(CpuRegisters regs, CpuFlags flags)
     ui->regA->setValue(regs.a);
     ui->regX->setValue(regs.x);
     ui->regY->setValue(regs.y);
-    ui->regSP->setValue(0x100 + regs.sp);
+    ui->regSP->setValue(regs.sp);
     ui->regPC->setValue(regs.pc);
 
     QString str;

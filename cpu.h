@@ -43,6 +43,11 @@ private:
     uint8_t operand8() const { return m_memory[m_regs.pc + 1]; }
     uint16_t operand16() const { return m_memory.read16(m_regs.pc + 1); }
 
+    void extraCycleOnPageBoundaryCrossing(uint16_t addr, uint8_t index)
+    {
+        if((addr & 0xff) + index > 0xff) m_cycles++;
+    }
+
     void amImplied();
     void amAccumulator();
     void amRelative();
