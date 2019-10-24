@@ -1,9 +1,9 @@
 #include <map>
 #include <QStringList>
 #include "disassembler.h"
-#include "opcode.h"
+#include "instruction.h"
 
-static const std::map<Instruction, const char*> Mnemonics {
+static const std::map<InstructionType, const char*> Mnemonics {
     { ADC, "ADC"}, { SBC, "SBC"}, { AND, "AND"}, { ORA, "ORA"}, { ASL, "ASL"}, { LSR, "LSR"}, { EOR, "EOR"}, { ROL, "ROL"}, { ROR, "ROR"},
     { BIT, "BIT"}, { CMP, "CMP"}, { CPX, "CPX"}, { CPY, "CPY"},
     { INC, "INC"}, { INX, "INX"}, { INY, "INY"},

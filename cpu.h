@@ -2,7 +2,7 @@
 
 #include <map>
 #include "memory.h"
-#include "opcode.h"
+#include "instruction.h"
 #include "executionstatus.h"
 #include "cpuregisters.h"
 #include "cpuflags.h"
@@ -13,35 +13,32 @@ public:
     using Handler = void (Cpu::*)();
 
     static Handler operandsHandler(AddressingMode);
-    static Handler instructionHandler(Instruction);
+    static Handler instructionHandler(InstructionType);
 
-    struct DecodeEntry {
-        const Operation* operation;
+    struct OpCodeEntry {
+        const Instruction* operation;
         Handler prepareOperands;
         Handler executeInstruction;
     };
 
-    using DecodeLookUpTable = std::array<DecodeEntry, OpCodeTable.size()>;
+    using OpCodeLookUpTableType = std::array<OpCodeEntry, OpCodeTable.size()>;
 
 private:
-    union Operand {
-        uint8_t* bytePtr;
-        uint16_t address;
-    };
+    static const OpCodeLookUpTableType OpCodeLookUpTable;
 
-    static const DecodeLookUpTable decodeLookUpTable;
+    volatile ExecutionStatus m_executionStatus = Idle;
 
+    Memory& m_memory;
     CpuRegisters m_regs;
     CpuFlags m_flags;
-    Memory& m_memory;
     uint64_t m_cycles = 0;
-    volatile ExecutionStatus m_executionStatus = Idle;
-    uint8_t m_opCode;
-    const Operation* m_operation;
-    Operand m_operand;
 
-    uint8_t operand8() const { return m_memory[m_regs.pc + 1]; }
-    uint16_t operand16() const { return m_memory.read16(m_regs.pc + 1); }
+    Memory::const_iterator m_instruction;
+    Memory::iterator m_operands;
+    uint8_t* m_effectiveOperand;
+
+    uint8_t operand8() { return *m_operands; }
+    uint16_t operand16() { return static_cast<uint16_t>(m_operands[0] | (m_operands[1] << 8)); }
 
     void extraCycleOnPageBoundaryCrossing(uint16_t addr, uint8_t index)
     {

@@ -18,12 +18,12 @@ SOURCES += \
     cpu_lookuptables.cpp \
     cpuprobe.cpp \
     disassembler.cpp \
+    instruction.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
     monitorwidget.cpp \
     memorywidget.cpp \
-    opcode.cpp \
     system.cpp \
     wordspinbox.cpp
 
@@ -32,17 +32,17 @@ HEADERS += \
     cpuprobe.h \
     cpuregisters.h \
     executionstatus.h \
-    instruction.h \
     addressingmode.h \
     bytespinbox.h \
     centralwidget.h \
     cpu.h \
     disassembler.h \
+    instruction.h \
+    instructiontype.h \
     mainwindow.h \
     memory.h \
     monitorwidget.h \
     memorywidget.h \
-    opcode.h \
     system.h \
     wordspinbox.h
 

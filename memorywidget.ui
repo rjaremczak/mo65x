@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>215</width>
-    <height>210</height>
+    <height>208</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -25,8 +25,14 @@
     <property name="spacing">
      <number>2</number>
     </property>
+    <property name="sizeConstraint">
+     <enum>QLayout::SetMaximumSize</enum>
+    </property>
     <item>
      <layout class="QGridLayout" name="memLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMaximumSize</enum>
+      </property>
       <property name="spacing">
        <number>2</number>
       </property>
@@ -236,6 +242,9 @@
     </item>
     <item>
      <layout class="QGridLayout" name="vectorsLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMaximumSize</enum>
+      </property>
       <property name="spacing">
        <number>2</number>
       </property>
@@ -387,19 +396,6 @@
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
     </item>
    </layout>
   </widget>

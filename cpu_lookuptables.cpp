@@ -1,10 +1,10 @@
 #include "cpu.h"
 #include <map>
 
-const Cpu::DecodeLookUpTable Cpu::decodeLookUpTable = []{
-    Cpu::DecodeLookUpTable lut;
+const Cpu::OpCodeLookUpTableType Cpu::OpCodeLookUpTable = []{
+    Cpu::OpCodeLookUpTableType lut;
     for(size_t i = 0; i < OpCodeTable.size(); i++) {
-        const Operation* opCode = &OpCodeTable[i];
+        const Instruction* opCode = &OpCodeTable[i];
         lut[i] = {
             opCode,
             Cpu::operandsHandler(opCode->addressing),
@@ -33,7 +33,7 @@ Cpu::Handler Cpu::operandsHandler(AddressingMode addressingMode)
     }
 }
 
-Cpu::Handler Cpu::instructionHandler(Instruction instruction)
+Cpu::Handler Cpu::instructionHandler(InstructionType instruction)
 {
     switch (instruction) {
     case LDA : return &Cpu::insLDA;
