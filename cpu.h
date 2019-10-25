@@ -47,6 +47,17 @@ private:
       m_cycles++;
   }
 
+  void push(uint8_t v) {
+    m_memory[m_regs.sp] = v;
+    m_regs.sp = (++m_regs.sp & 0xff) | 0x100;
+  }
+
+  uint8_t pull() {
+    const auto v = m_memory[m_regs.sp];
+    m_regs.sp = (--m_regs.sp & 0xff) | 0x100;
+    return v;
+  }
+
   void amImplied();
   void amAccumulator();
   void amRelative();
@@ -134,4 +145,7 @@ public:
   auto cycles() const { return m_cycles; }
   void resetCycles() { m_cycles = 0; }
   void execute(bool continuous = false);
+  void nmi();
+  void irq();
+  void reset();
 };

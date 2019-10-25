@@ -231,17 +231,19 @@ void Cpu::insTXS() {
 }
 
 void Cpu::insPHA() {
-  m_memory[m_regs.sp++] = m_regs.a;
-  m_regs.sp = (m_regs.sp & 0xff) | 0x100;
+  push(m_regs.a);
 }
 
 void Cpu::insPLA() {
+  m_regs.a = pull();
 }
 
 void Cpu::insPHP() {
+  push(m_flags.toByte());
 }
 
 void Cpu::insPLP() {
+  m_flags.fromByte(pull());
 }
 
 void Cpu::insRTS() {
@@ -309,4 +311,19 @@ void Cpu::execute(bool continuous) {
     (this->*decodeEntry.executeInstruction)();
   }
   m_executionStatus = Idle;
+}
+
+void Cpu::nmi()
+{
+
+}
+
+void Cpu::irq()
+{
+
+}
+
+void Cpu::reset()
+{
+
 }
