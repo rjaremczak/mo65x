@@ -29,50 +29,50 @@ static QString formatHex16(uint16_t val) {
 
 QString Disassembler::formatOperand8() const
 {
-    return "$"+formatHex8(m_memory[m_addr+1]);
+    return "$"+formatHex8(m_memory[m_address+1]);
 }
 
 QString Disassembler::formatOperand16() const
 {
-    return "$"+formatHex16(m_memory.read16(m_addr+1));
+    return "$"+formatHex16(m_memory.read16(m_address+1));
 }
 
 Disassembler::Disassembler(const Memory &memory, uint16_t pc) : m_memory(memory)
 {
-    setAddr(pc);
+    setAddress(pc);
 }
 
-void Disassembler::setAddr(uint16_t addr)
+void Disassembler::setAddress(uint16_t addr)
 {
-    m_addr = addr;
+    m_address = addr;
     m_opcode = m_memory[addr];
     m_operation = OpCodeTable[m_opcode];
 }
 
 void Disassembler::step()
 {
-    setAddr(m_addr + m_operation.size);
+    setAddress(m_address + m_operation.size);
 }
 
 QString Disassembler::dumpBytes(uint16_t n) const
 {
     QString str;
-    for(uint16_t i=0; i<n; i++) { str.append(formatHex8(m_memory[m_addr + i])).append(" "); }
+    for(uint16_t i=0; i<n; i++) { str.append(formatHex8(m_memory[m_address + i])).append(" "); }
     return str;
 }
 
 QString Disassembler::dumpWords(uint16_t n) const
 {
     QString str;
-    for(uint16_t i=0; i<n; i+=2) { str.append(formatHex16(m_memory.read16(m_addr + i))).append(" "); }
+    for(uint16_t i=0; i<n; i+=2) { str.append(formatHex16(m_memory.read16(m_address + i))).append(" "); }
     return str;
 }
 
 QString Disassembler::disassemble() const
 {
-    QString str = formatHex16(m_addr).append(" ");
+    QString str = formatHex16(m_address).append(" ");
     for(uint8_t i=0; i<3; i++) {
-        str.append(i < m_operation.size ? formatHex8(m_memory[m_addr+i]).append(" ") : "   ");
+        str.append(i < m_operation.size ? formatHex8(m_memory[m_address+i]).append(" ") : "   ");
     }
     str.append(" ");
     str.append(Mnemonics.at(m_operation.instruction)).append(" ");
@@ -112,8 +112,8 @@ QString Disassembler::disassemble() const
         str.append("(").append(formatOperand16()).append(")");
         break;
     case Relative:
-        const auto displacement = static_cast<int8_t>(m_memory[m_addr+1]);
-        str.append("$").append(formatHex16(static_cast<uint16_t>(m_addr + m_operation.size + displacement)));
+        const auto displacement = static_cast<int8_t>(m_memory[m_address+1]);
+        str.append("$").append(formatHex16(static_cast<uint16_t>(m_address + m_operation.size + displacement)));
         break;
     }
     return str.toUpper();

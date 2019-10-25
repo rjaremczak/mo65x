@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pollTimer->start(1000);
 
     connect(m_system, &System::cpuStateChanged, m_monitorWidget, &MonitorWidget::updateCpuState);
-    connect(m_system, &System::memoryContentChanged, m_monitorWidget, &MonitorWidget::updateMemoryView);
+    connect(m_system, &System::memoryContentChanged, m_monitorWidget, &MonitorWidget::updateMemoryContent);
 
     connect(m_monitorWidget, &MonitorWidget::addressChanged, m_system, &System::changePC);
 

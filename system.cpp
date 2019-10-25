@@ -32,7 +32,10 @@ QByteArray System::saveMemory(uint16_t first, uint16_t last)
 
 void System::checkCpuState()
 {
-    emit cpuStateChanged(m_cpuProbe.registers(), m_cpuProbe.flags());
+    auto flags = m_cpuProbe.flags();
+    flags.computeNZ(rand());
+    flags.computeC(rand());
+    emit cpuStateChanged(m_cpuProbe.registers(), flags);
 }
 
 void System::changePC(uint16_t pc)

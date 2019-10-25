@@ -2,6 +2,7 @@
 #include "ui_monitorwidget.h"
 #include "disassembler.h"
 #include <QFontDatabase>
+#include <QResizeEvent>
 
 MonitorWidget::MonitorWidget(QWidget *parent, const Memory& memory) :
     QDockWidget(parent),
@@ -21,16 +22,18 @@ MonitorWidget::~MonitorWidget()
 
 void MonitorWidget::changeAddress(uint16_t pc)
 {
-    if(m_address != pc) {
-        m_address = pc;
-        updateView();
+    if(m_firstAddress != pc) {
+        m_firstAddress = pc;
+        updateMemoryView();
         emit addressChanged(pc);
     }
 }
 
-void MonitorWidget::updateMemoryView(uint16_t start, uint16_t last)
+void MonitorWidget::updateMemoryContent(uint16_t first, uint16_t last)
 {
-    updateView();
+    if(m_firstAddress == std::clamp(m_firstAddress, first, last) || m_lastAddress == std::clamp(m_lastAddress, first, last)) {
+        updateMemoryView();
+    }
 }
 
 static QString flagStr(bool flagStatus, const char* flagCode)
@@ -56,16 +59,23 @@ void MonitorWidget::updateCpuState(CpuRegisters regs, CpuFlags flags)
     str.append(flagStr(flags.z, "Z"));
     str.append(flagStr(flags.c, "C"));
     ui->flags->setText(str);
+
+    if(regs.pc != m_firstAddress) {
+        m_firstAddress = regs.pc;
+        updateMemoryView();
+    }
 }
 
-void MonitorWidget::resizeEvent(QResizeEvent *)
+void MonitorWidget::resizeEvent(QResizeEvent* event)
 {
-    //qDebug("resize");
+    if(event->size().height() != event->oldSize().height()) {
+        updateMemoryView();
+    }
 }
 
 int MonitorWidget::rowsInView() const
 {
-    return 30;
+    return 2 + ui->dumpView->height() / ui->dumpView->fontMetrics().height();
 }
 
 void MonitorWidget::initView()
@@ -84,9 +94,9 @@ void MonitorWidget::initView()
     ui->dumpView->setFont(font);
 }
 
-void MonitorWidget::updateView()
+void MonitorWidget::disassemblerView()
 {
-    m_disassembler.setAddr(m_address);
+    m_disassembler.setAddress(m_firstAddress);
     QString html("<div style='white-space:pre; display:inline-block'>");
     int rows = rowsInView();
     if(rows--) {
@@ -102,4 +112,10 @@ void MonitorWidget::updateView()
     }
     html.append("</div>");
     ui->dumpView->setHtml(html);
+    m_lastAddress = m_disassembler.address();
+}
+
+void MonitorWidget::updateMemoryView()
+{
+    disassemblerView();
 }

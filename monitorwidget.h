@@ -25,7 +25,7 @@ signals:
 
 public slots:
     void changeAddress(uint16_t);
-    void updateMemoryView(uint16_t start, uint16_t last);
+    void updateMemoryContent(uint16_t start, uint16_t last);
     void updateCpuState(CpuRegisters, CpuFlags);
 
 protected:
@@ -35,11 +35,13 @@ private:
     Ui::MonitorWidget *ui;
 
     Disassembler m_disassembler;
-    uint16_t m_address;
+    uint16_t m_firstAddress;
+    uint16_t m_lastAddress;
 
     int rowsInView() const;
     void initView();
-    void updateView();
+    void disassemblerView();
+    void updateMemoryView();
 };
 
 #endif // MONITORWIDGET_H

@@ -4,9 +4,8 @@
 #include <cstddef>
 #include <array>
 
-class Memory : public std::array<uint8_t, 65536>
+struct Memory : public std::array<uint8_t, 65536>
 {
-public:
     uint16_t read16(uint16_t addr) const
     {
         return static_cast<uint16_t>((*this)[addr] | (*this)[static_cast<uint16_t>(addr + 1)] << 8);
