@@ -47,16 +47,8 @@ private:
       m_cycles++;
   }
 
-  void push(uint8_t v) {
-    m_memory[m_regs.sp] = v;
-    m_regs.sp = (++m_regs.sp & 0xff) | 0x100;
-  }
-
-  uint8_t pull() {
-    const auto v = m_memory[m_regs.sp];
-    m_regs.sp = (--m_regs.sp & 0xff) | 0x100;
-    return v;
-  }
+  void push(uint8_t v) { m_memory[m_regs.sp--] = v; }
+  uint8_t pull() { return m_memory[++m_regs.sp]; }
 
   void amImplied();
   void amAccumulator();

@@ -28,11 +28,7 @@ struct CpuFlags {
     v = (op1 ^ result) & (op2 ^ result) & 0x80;
   }
 
-  uint8_t toByte() {
-    return static_cast<uint8_t>(n << 7 | v << 6 | 0x20 | b << 4 | d << 3 | i << 2 | z << 1 | c);
-  }
-
-  void fromByte(uint8_t v) {
+  void operator = (uint8_t v) {
     n = v & 0x80;
     v = v & 0x40;
     b = v & 0x10;
@@ -41,4 +37,9 @@ struct CpuFlags {
     z = v & 0x02;
     c = v & 0x01;
   }
+
+  operator uint8_t() const {
+    return static_cast<uint8_t>(n << 7 | v << 6 | 0x20 | b << 4 | d << 3 | i << 2 | z << 1 | c);
+  }
+
 };

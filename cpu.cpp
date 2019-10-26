@@ -223,11 +223,11 @@ void Cpu::insTYA() {
 }
 
 void Cpu::insTSX() {
-  m_regs.x = m_regs.sp & 0xff;
+  m_regs.x = m_regs.sp.raw;
 }
 
 void Cpu::insTXS() {
-  m_regs.sp = m_regs.x | 0x100;
+  m_regs.sp.raw = m_regs.x;
 }
 
 void Cpu::insPHA() {
@@ -239,11 +239,11 @@ void Cpu::insPLA() {
 }
 
 void Cpu::insPHP() {
-  push(m_flags.toByte());
+  push(m_flags);
 }
 
 void Cpu::insPLP() {
-  m_flags.fromByte(pull());
+  m_flags = pull();
 }
 
 void Cpu::insRTS() {
