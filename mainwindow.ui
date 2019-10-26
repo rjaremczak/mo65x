@@ -33,8 +33,17 @@
      <string>Tools</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuMemory">
+    <property name="title">
+     <string>Memory</string>
+    </property>
+    <addaction name="actionMemoryLoadFromFile"/>
+    <addaction name="actionMemorySaveTo"/>
+    <addaction name="actionMemoryFill"/>
+   </widget>
    <addaction name="menu_View"/>
    <addaction name="menu_Tools"/>
+   <addaction name="menuMemory"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionShow_Memory">
@@ -61,6 +70,21 @@
    </property>
    <property name="text">
     <string>&amp;Memory</string>
+   </property>
+  </action>
+  <action name="actionMemoryLoadFromFile">
+   <property name="text">
+    <string>Load From...</string>
+   </property>
+  </action>
+  <action name="actionMemorySaveTo">
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionMemoryFill">
+   <property name="text">
+    <string>Fill </string>
    </property>
   </action>
  </widget>
