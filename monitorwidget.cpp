@@ -46,7 +46,7 @@ void MonitorWidget::updateCpuState(CpuRegisters regs, CpuFlags flags) {
   str.append(flagStr(flags.n, "N"));
   str.append(flagStr(flags.v, "V"));
   str.append(flagStr(false, "."));
-  str.append(flagStr(flags.b, "B"));
+  str.append(flagStr(false, "B"));
   str.append(flagStr(flags.d, "D"));
   str.append(flagStr(flags.i, "I"));
   str.append(flagStr(flags.z, "Z"));

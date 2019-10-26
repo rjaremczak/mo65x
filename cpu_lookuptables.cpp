@@ -1,17 +1,12 @@
-#include "cpu.h"
-#include <map>
+#include "cpu_lookuptables.h"
 
-const Cpu::OpCodeLookUpTableType Cpu::OpCodeLookUpTable = []{
-    Cpu::OpCodeLookUpTableType lut;
-    for(size_t i = 0; i < OpCodeTable.size(); i++) {
-        const Instruction* opCode = &OpCodeTable[i];
-        lut[i] = {
-            opCode,
-            Cpu::operandsHandler(opCode->addressing),
-            Cpu::instructionHandler(opCode->instruction)
-        };
-    }
-    return lut;
+const OpCodeLookUpTableType OpCodeLookUpTable = [] {
+  OpCodeLookUpTableType lut;
+  for (size_t i = 0; i < OpCodeTable.size(); i++) {
+    const Instruction* opCode = &OpCodeTable[i];
+    lut[i] = {opCode, Cpu::operandsHandler(opCode->addressing), Cpu::instructionHandler(opCode->instruction)};
+  }
+  return lut;
 }();
 
 Cpu::Handler Cpu::operandsHandler(AddressingMode addressingMode)

@@ -1,11 +1,15 @@
 #include "cpu.h"
+#include "cpu_lookuptables.h"
+
+Cpu::Cpu(Memory& memory) : memory_(memory) {
+}
 
 void Cpu::amImplied() {
   // nothing to do
 }
 
 void Cpu::amAccumulator() {
-  m_effectiveOperand = &m_regs.a;
+  effectiveOperand_ = &registers_.a;
 }
 
 void Cpu::amRelative() {
@@ -13,323 +17,337 @@ void Cpu::amRelative() {
 }
 
 void Cpu::amIndirect() {
-  // handled by jump instruction
+  effectiveAddress_ = memory_.read16(operand16());
 }
 
 void Cpu::amImmediate() {
-  m_effectiveOperand = m_operands;
+  effectiveOperand_ = operand_;
 }
 
 void Cpu::amZeroPage() {
-  m_effectiveOperand = &m_memory[operand8()];
+  setEffectiveAddressAndOperand(operand8());
 }
 
 void Cpu::amZeroPageX() {
-  m_effectiveOperand = &m_memory[static_cast<uint8_t>(operand8() + m_regs.x)];
+  setEffectiveAddressAndOperand(operand8(), registers_.x);
 }
 
 void Cpu::amZeroPageY() {
-  m_effectiveOperand = &m_memory[static_cast<uint8_t>(operand8() + m_regs.y)];
+  setEffectiveAddressAndOperand(operand8(), registers_.y);
 }
 
 void Cpu::amIndexedIndirectX() {
-  const auto addr = m_memory.read16(static_cast<uint8_t>(operand8() + m_regs.x));
-  m_effectiveOperand = &m_memory[addr];
+  setEffectiveAddressAndOperand(loByte(memory_.read16((operand8() + registers_.x))));
 }
 
 void Cpu::amIndirectIndexedY() {
-  const auto addr = m_memory.read16(operand8());
-  m_effectiveOperand = &m_memory[calculateAddressWithCyclePenalty(addr, m_regs.y)];
+  setEffectiveAddressAndOperand(memory_.read16(operand8()), registers_.y);
 }
 
 void Cpu::amAbsolute() {
-  m_effectiveOperand = &m_memory[operand16()];
+  setEffectiveAddressAndOperand(operand16());
 }
 
 void Cpu::amAbsoluteX() {
-  const auto addr = operand16();
-  m_effectiveOperand = &m_memory[calculateAddressWithCyclePenalty(addr, m_regs.x)];
+  setEffectiveAddressAndOperand(operand16(), registers_.x);
 }
 
 void Cpu::amAbsoluteY() {
-  const auto addr = operand16();
-  m_effectiveOperand = &m_memory[calculateAddressWithCyclePenalty(addr, m_regs.y)];
+  setEffectiveAddressAndOperand(operand16(), registers_.y);
 }
 
 void Cpu::insLDA() {
-  m_regs.a = *m_effectiveOperand;
+  registers_.a = *effectiveOperand_;
 }
 
 void Cpu::insLDX() {
-  m_regs.x = *m_effectiveOperand;
+  registers_.x = *effectiveOperand_;
 }
 
 void Cpu::insLDY() {
-  m_regs.y = *m_effectiveOperand;
+  registers_.y = *effectiveOperand_;
 }
 
 void Cpu::insSTA() {
-  *m_effectiveOperand = m_regs.a;
+  *effectiveOperand_ = registers_.a;
 }
 
 void Cpu::insSTX() {
-  *m_effectiveOperand = m_regs.x;
+  *effectiveOperand_ = registers_.x;
 }
 
 void Cpu::insSTY() {
-  *m_effectiveOperand = m_regs.y;
+  *effectiveOperand_ = registers_.y;
 }
 
 void Cpu::insADC() {
-  const auto op1 = m_regs.a;
-  const auto op2 = *m_effectiveOperand;
-  const uint16_t result = op1 + op2 + m_flags.c;
-  m_regs.a = result & 0xff;
-  m_flags.computeNZC(result);
-  m_flags.computeV(op1, op2, result);
+  const auto op1 = registers_.a;
+  const auto op2 = *effectiveOperand_;
+  const uint16_t result = op1 + op2 + flags_.c;
+  registers_.a = loByte(result);
+  flags_.computeNZC(result);
+  flags_.computeV(op1, op2, result);
 }
 
 void Cpu::insSBC() {
-  const auto op1 = m_regs.a;
-  const auto op2 = *m_effectiveOperand;
-  const uint16_t result = op1 - op2 - m_flags.c;
-  m_regs.a = result & 0xff;
-  m_flags.computeNZ(result);
-  m_flags.computeC(result);
-  m_flags.computeV(op1, op2, result);
+  const auto op1 = registers_.a;
+  const auto op2 = *effectiveOperand_;
+  const uint16_t result = op1 - op2 - flags_.c;
+  registers_.a = loByte(result);
+  flags_.computeNZ(result);
+  flags_.computeC(result);
+  flags_.computeV(op1, op2, result);
 }
 
 void Cpu::insINC() {
-  m_flags.computeNZ(++(*m_effectiveOperand));
+  flags_.computeNZ(++(*effectiveOperand_));
 }
 
 void Cpu::insINX() {
-  m_flags.computeNZ(++m_regs.x);
+  flags_.computeNZ(++registers_.x);
 }
 
 void Cpu::insINY() {
-  m_flags.computeNZ(++m_regs.y);
+  flags_.computeNZ(++registers_.y);
 }
 
 void Cpu::insDEC() {
-  m_flags.computeNZ(--(*m_effectiveOperand));
+  flags_.computeNZ(--(*effectiveOperand_));
 }
 
 void Cpu::insDEX() {
-  m_flags.computeNZ(--m_regs.x);
+  flags_.computeNZ(--registers_.x);
 }
 
 void Cpu::insDEY() {
-  m_flags.computeNZ(--m_regs.y);
+  flags_.computeNZ(--registers_.y);
 }
 
 void Cpu::insASL() {
-  auto val = *m_effectiveOperand;
-  m_flags.c = val & 0x80;
-  m_flags.computeNZ(*m_effectiveOperand = static_cast<uint8_t>(val << 1));
+  auto val = *effectiveOperand_;
+  flags_.c = val & 0x80;
+  flags_.computeNZ(*effectiveOperand_ = static_cast<uint8_t>(val << 1));
 }
 
 void Cpu::insLSR() {
-  auto val = *m_effectiveOperand;
-  m_flags.c = val & 0x01;
-  m_flags.computeNZ(*m_effectiveOperand = static_cast<uint8_t>(val >> 1));
+  auto val = *effectiveOperand_;
+  flags_.c = val & 0x01;
+  flags_.computeNZ(*effectiveOperand_ = static_cast<uint8_t>(val >> 1));
 }
 
 void Cpu::insROL() {
-  const auto res = static_cast<uint16_t>(*m_effectiveOperand << 1) | m_flags.c;
-  m_flags.c = res & 0x100;
-  m_flags.computeNZ(*m_effectiveOperand = res & 0xff);
+  const uint16_t res = static_cast<uint16_t>(*effectiveOperand_ << 1) | flags_.c;
+  flags_.c = res & 0x100;
+  flags_.computeNZ(*effectiveOperand_ = loByte(res));
 }
 
 void Cpu::insROR() {
-  uint16_t tmp = *m_effectiveOperand | (m_flags.c ? 0x100 : 0x00);
-  m_flags.c = tmp & 0x01;
-  m_flags.computeNZ(*m_effectiveOperand = (tmp >> 1) & 0xff);
+  const uint16_t tmp = *effectiveOperand_ | (flags_.c ? 0x100 : 0x00);
+  flags_.c = tmp & 0x01;
+  flags_.computeNZ(*effectiveOperand_ = loByte(tmp >> 1));
 }
 
 void Cpu::insAND() {
-  m_flags.computeNZ(m_regs.a &= *m_effectiveOperand);
+  flags_.computeNZ(registers_.a &= *effectiveOperand_);
 }
 
 void Cpu::insORA() {
-  m_flags.computeNZ(m_regs.a |= *m_effectiveOperand);
+  flags_.computeNZ(registers_.a |= *effectiveOperand_);
 }
 
 void Cpu::insEOR() {
-  m_flags.computeNZ(m_regs.a ^= *m_effectiveOperand);
+  flags_.computeNZ(registers_.a ^= *effectiveOperand_);
 }
 
 void Cpu::insCMP() {
-  m_flags.computeNZC(m_regs.a - *m_effectiveOperand);
+  flags_.computeNZC(registers_.a - *effectiveOperand_);
 }
 
 void Cpu::insCPX() {
-  m_flags.computeNZC(m_regs.x - *m_effectiveOperand);
+  flags_.computeNZC(registers_.x - *effectiveOperand_);
 }
 
 void Cpu::insCPY() {
-  m_flags.computeNZC(m_regs.y - *m_effectiveOperand);
+  flags_.computeNZC(registers_.y - *effectiveOperand_);
 }
 
 void Cpu::insBIT() {
-  m_flags.computeNZ(m_regs.a & *m_effectiveOperand);
+  flags_.computeNZ(registers_.a & *effectiveOperand_);
 }
 
 void Cpu::insSED() {
-  m_flags.d = true;
+  flags_.d = true;
 }
 
 void Cpu::insSEI() {
-  m_flags.i = true;
+  flags_.i = true;
 }
 
 void Cpu::insSEC() {
-  m_flags.c = true;
+  flags_.c = true;
 }
 
 void Cpu::insCLC() {
-  m_flags.c = false;
+  flags_.c = false;
 }
 
 void Cpu::insCLD() {
-  m_flags.d = false;
+  flags_.d = false;
 }
 
 void Cpu::insCLI() {
-  m_flags.i = false;
+  flags_.i = false;
 }
 
 void Cpu::insCLV() {
-  m_flags.v = false;
+  flags_.v = false;
 }
 
 void Cpu::insTAX() {
-  m_flags.computeNZ(m_regs.x = m_regs.a);
+  flags_.computeNZ(registers_.x = registers_.a);
 }
 
 void Cpu::insTXA() {
-  m_flags.computeNZ(m_regs.a = m_regs.x);
+  flags_.computeNZ(registers_.a = registers_.x);
 }
 
 void Cpu::insTAY() {
-  m_flags.computeNZ(m_regs.y = m_regs.a);
+  flags_.computeNZ(registers_.y = registers_.a);
 }
 
 void Cpu::insTYA() {
-  m_flags.computeNZ(m_regs.a = m_regs.y);
+  flags_.computeNZ(registers_.a = registers_.y);
 }
 
 void Cpu::insTSX() {
-  m_regs.x = m_regs.sp.value;
+  registers_.x = registers_.sp.value;
 }
 
 void Cpu::insTXS() {
-  m_regs.sp.value = m_regs.x;
+  registers_.sp.value = registers_.x;
 }
 
 void Cpu::insPHA() {
-  push(m_regs.a);
+  push(registers_.a);
 }
 
 void Cpu::insPLA() {
-  m_regs.a = pull();
+  registers_.a = pull();
 }
 
 void Cpu::insPHP() {
-  push(m_flags);
+  push(flags_);
 }
 
 void Cpu::insPLP() {
-  m_flags = pull();
-}
-
-void Cpu::insRTS() {
-  const auto lsb = pull();
-  const auto msb = pull();
-  m_regs.pc = static_cast<uint16_t>(lsb + (msb << 8) + 1);
-}
-
-void Cpu::insRTI() {
-  m_flags = pull();
-  insRTS();
-}
-
-void Cpu::insBRK() {
-  m_flags.b = true;
-  m_regs.pc++;
-  irq();
+  flags_ = pull();
 }
 
 void Cpu::insNOP() {
+  // literally do nothing :-)
 }
 
 void Cpu::insBCC() {
-  if(!m_flags.c) branch();
+  if (!flags_.c) branch();
 }
 
 void Cpu::insBCS() {
+  if (flags_.c) branch();
 }
 
 void Cpu::insBEQ() {
+  if (flags_.z) branch();
 }
 
 void Cpu::insBMI() {
+  if (flags_.n) branch();
 }
 
 void Cpu::insBNE() {
+  if (!flags_.z) branch();
 }
 
 void Cpu::insBPL() {
+  if (!flags_.n) branch();
 }
 
 void Cpu::insBVC() {
+  if (!flags_.v) branch();
 }
 
 void Cpu::insBVS() {
+  if (flags_.v) branch();
 }
 
 void Cpu::insJMP() {
+  registers_.pc = effectiveAddress_;
 }
 
 void Cpu::insJSR() {
+  push(loByte(registers_.pc));
+  push(hiByte(registers_.pc));
+  registers_.pc = effectiveAddress_;
 }
 
-Cpu::Cpu(Memory &memory) : m_memory(memory) {
+void Cpu::insRTS() {
+  const auto lo = pull();
+  const auto hi = pull();
+  registers_.pc = wordOf(lo, hi);
+}
+
+void Cpu::insRTI() {
+  flags_ = pull();
+  const auto lo = pull();
+  const auto hi = pull();
+  registers_.pc = wordOf(lo, hi) + 1;
+}
+
+void Cpu::insBRK() {
+  registers_.pc++;
+  push(hiByte(registers_.pc));
+  push(loByte(registers_.pc));
+  push(flags_.withBreakFlag());
+  registers_.pc = memory_.read16(VectorIRQ);
+}
+
+void Cpu::irq() {
+  push(hiByte(registers_.pc));
+  push(loByte(registers_.pc));
+  push(flags_);
+  flags_.i = true;
+  registers_.pc = memory_.read16(VectorIRQ);
+}
+
+void Cpu::nmi() {
+  flags_.i = true;
+  push(hiByte(registers_.pc));
+  push(loByte(registers_.pc));
+  push(flags_);
+  registers_.pc = memory_.read16(VectorNMI);
+}
+
+void Cpu::reset() {
+  registers_.pc = memory_.read16(VectorRESET);
 }
 
 void Cpu::execute(bool continuous) {
-  m_executionStatus = Running;
-  while (continuous && m_executionStatus != StopRequested) {
-    m_instruction = &m_memory[m_regs.pc];
-    m_operands = const_cast<Memory::iterator>(m_instruction + 1);
-    const auto &decodeEntry = OpCodeLookUpTable[*m_instruction];
+  executionStatus_ = Running;
+  while (continuous && executionStatus_ != StopRequested) {
+    instruction_ = &memory_[registers_.pc];
+    operand_ = const_cast<Memory::iterator>(instruction_ + 1);
+    const auto& decodeEntry = OpCodeLookUpTable[*instruction_];
     const auto operation = decodeEntry.operation;
 
     if (operation->instruction == Invalid) {
-      m_executionStatus = InvalidOpCode;
+      executionStatus_ = InvalidOpCode;
       return;
     }
 
-    m_regs.pc += operation->size;
-    m_cycles += operation->cycles;
+    registers_.pc += operation->size;
+    cycles_ += operation->cycles;
 
     (this->*decodeEntry.prepareOperands)();
     (this->*decodeEntry.executeInstruction)();
   }
-  m_executionStatus = Idle;
-}
-
-void Cpu::nmi()
-{
-
-}
-
-void Cpu::irq()
-{
-
-}
-
-void Cpu::reset()
-{
-
+  executionStatus_ = Idle;
 }

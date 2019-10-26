@@ -5,57 +5,57 @@
 #include "executionstatus.h"
 #include "instruction.h"
 #include "memory.h"
+#include "utilities.h"
 #include <map>
 
 class Cpu {
 public:
-  using Handler = void (Cpu::*)();
+  enum : uint16_t { VectorNMI = 0xfffa, VectorRESET = 0xfffc, VectorIRQ = 0xfffe };
 
+  using Handler = void (Cpu::*)();
   static Handler operandsHandler(AddressingMode);
   static Handler instructionHandler(InstructionType);
 
-  struct OpCodeEntry {
-    const Instruction *operation;
-    Handler prepareOperands;
-    Handler executeInstruction;
-  };
-
-  using OpCodeLookUpTableType = std::array<OpCodeEntry, OpCodeTable.size()>;
-
 private:
-  static const OpCodeLookUpTableType OpCodeLookUpTable;
+  volatile ExecutionStatus executionStatus_ = Idle;
+  Memory& memory_;
+  CpuRegisters registers_;
+  CpuFlags flags_;
+  uint64_t cycles_ = 0;
+  uint8_t* instruction_;
+  uint8_t* operand_;
+  uint8_t* effectiveOperand_;
+  uint16_t effectiveAddress_;
+  bool pageBoundaryCrossed_;
 
-  volatile ExecutionStatus m_executionStatus = Idle;
+  uint8_t operand8() { return *operand_; }
 
-  Memory &m_memory;
-  CpuRegisters m_regs;
-  CpuFlags m_flags;
-  uint64_t m_cycles = 0;
+  uint16_t operand16() { return wordOf(operand_[0], operand_[1]); }
 
-  Memory::const_iterator m_instruction;
-  Memory::iterator m_operands;
-  uint8_t *m_effectiveOperand;
-  bool m_pageBoundaryCrossed;
+  void push(uint8_t v) { memory_[registers_.sp.value--] = v; }
 
-  uint8_t operand8() { return *m_operands; }
+  uint8_t pull() { return memory_[++registers_.sp.value]; }
 
-  uint16_t operand16() {
-    return static_cast<uint16_t>(m_operands[0] | (m_operands[1] << 8));
+  void setEffectiveAddressAndOperand(uint16_t address) {
+    effectiveAddress_ = address;
+    effectiveOperand_ = &memory_[address];
   }
 
-  void push(uint8_t v) { m_memory[m_regs.sp.value--] = v; }
-
-  uint8_t pull() { return m_memory[++m_regs.sp.value]; }
-
-  uint16_t calculateAddressWithCyclePenalty(uint16_t address, int16_t displacement) {
+  void setEffectiveAddressAndOperand(uint16_t address, int16_t displacement) {
     const auto result = address + displacement;
-    m_pageBoundaryCrossed = (address ^ result) & 0xff00;
-    return (address & 0xff00) | (result & 0x00ff);
+    pageBoundaryCrossed_ = (address ^ result) & 0xff00;
+    effectiveAddress_ = (address & 0xff00) | (result & 0x00ff);
+    effectiveOperand_ = &memory_[effectiveAddress_];
+  }
+
+  void applyPageBoundaryCrossingPenalty() {
+    if (pageBoundaryCrossed_) cycles_++;
   }
 
   void branch() {
-    m_cycles++;
-    m_regs.pc = calculateAddressWithCyclePenalty(m_regs.pc, static_cast<int8_t>(operand8()));
+    cycles_++;
+    setEffectiveAddressAndOperand(registers_.pc, static_cast<int8_t>(operand8()));
+    registers_.pc = effectiveAddress_;
   }
 
   void amImplied();
@@ -141,9 +141,9 @@ private:
   friend class CpuProbe;
 
 public:
-  Cpu(Memory &);
-  auto cycles() const { return m_cycles; }
-  void resetCycles() { m_cycles = 0; }
+  Cpu(Memory&);
+  auto cycles() const { return cycles_; }
+  void resetCycles() { cycles_ = 0; }
   void execute(bool continuous = false);
   void nmi();
   void irq();

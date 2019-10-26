@@ -8,6 +8,6 @@ class CpuProbe
 
 public:
     CpuProbe(Cpu&);
-    CpuRegisters& registers() { return m_cpu.m_regs; }
-    CpuFlags& flags() { return m_cpu.m_flags; }
+    CpuRegisters& registers() { return m_cpu.registers_; }
+    CpuFlags& flags() { return m_cpu.flags_; }
 };

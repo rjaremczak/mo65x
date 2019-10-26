@@ -28,6 +28,7 @@ SOURCES += \
     wordspinbox.cpp
 
 HEADERS += \
+    cpu_lookuptables.h \
     cpuflags.h \
     cpuprobe.h \
     cpuregisters.h \
@@ -44,6 +45,7 @@ HEADERS += \
     monitorwidget.h \
     memorywidget.h \
     system.h \
+    utilities.h \
     wordspinbox.h
 
 FORMS += \

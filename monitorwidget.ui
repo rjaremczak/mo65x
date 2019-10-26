@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>274</width>
-    <height>375</height>
+    <height>412</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -327,12 +327,65 @@
      </widget>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="cyclesLayout">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>Cycles</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="cycles">
+        <property name="styleSheet">
+         <string notr="true">color:lightgreen</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="cyclesClear">
+        <property name="text">
+         <string>Clear</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="Line" name="line_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="viewModeLayout">
       <property name="spacing">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="bottomMargin">
-       <number>2</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QToolButton" name="viewModeAsm">
@@ -409,6 +462,13 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item>
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="debugLayout">
       <property name="spacing">
        <number>2</number>
@@ -444,9 +504,23 @@ p, li { white-space: pre-wrap; }
        </spacer>
       </item>
       <item>
+       <widget class="QToolButton" name="toolButton">
+        <property name="text">
+         <string>IRQ</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="toolButton_2">
+        <property name="text">
+         <string>NMI</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="resetButton">
         <property name="text">
-         <string>Reset</string>
+         <string>RST</string>
         </property>
        </widget>
       </item>
