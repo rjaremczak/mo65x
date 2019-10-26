@@ -35,6 +35,7 @@ private:
   Memory::const_iterator m_instruction;
   Memory::iterator m_operands;
   uint8_t *m_effectiveOperand;
+  bool m_pageBoundaryCrossed;
 
   uint8_t operand8() { return *m_operands; }
 
@@ -42,13 +43,20 @@ private:
     return static_cast<uint16_t>(m_operands[0] | (m_operands[1] << 8));
   }
 
-  void extraCycleOnPageBoundaryCrossing(uint16_t addr, uint8_t index) {
-    if ((addr & 0xff) + index > 0xff)
-      m_cycles++;
+  void push(uint8_t v) { m_memory[m_regs.sp.value--] = v; }
+
+  uint8_t pull() { return m_memory[++m_regs.sp.value]; }
+
+  uint16_t calculateAddressWithCyclePenalty(uint16_t address, int16_t displacement) {
+    const auto result = address + displacement;
+    m_pageBoundaryCrossed = (address ^ result) & 0xff00;
+    return (address & 0xff00) | (result & 0x00ff);
   }
 
-  void push(uint8_t v) { m_memory[m_regs.sp--] = v; }
-  uint8_t pull() { return m_memory[++m_regs.sp]; }
+  void branch() {
+    m_cycles++;
+    m_regs.pc = calculateAddressWithCyclePenalty(m_regs.pc, static_cast<int8_t>(operand8()));
+  }
 
   void amImplied();
   void amAccumulator();

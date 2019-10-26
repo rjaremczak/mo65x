@@ -25,22 +25,21 @@ void Cpu::amZeroPage() {
 }
 
 void Cpu::amZeroPageX() {
-  m_effectiveOperand = &m_memory[(operand8() + m_regs.x) & 0xff];
+  m_effectiveOperand = &m_memory[static_cast<uint8_t>(operand8() + m_regs.x)];
 }
 
 void Cpu::amZeroPageY() {
-  m_effectiveOperand = &m_memory[(operand8() + m_regs.y) & 0xff];
+  m_effectiveOperand = &m_memory[static_cast<uint8_t>(operand8() + m_regs.y)];
 }
 
 void Cpu::amIndexedIndirectX() {
-  const auto addr = m_memory.read16((operand8() + m_regs.x) & 0xff);
+  const auto addr = m_memory.read16(static_cast<uint8_t>(operand8() + m_regs.x));
   m_effectiveOperand = &m_memory[addr];
 }
 
 void Cpu::amIndirectIndexedY() {
   const auto addr = m_memory.read16(operand8());
-  extraCycleOnPageBoundaryCrossing(addr, m_regs.y);
-  m_effectiveOperand = &m_memory[addr + m_regs.y];
+  m_effectiveOperand = &m_memory[calculateAddressWithCyclePenalty(addr, m_regs.y)];
 }
 
 void Cpu::amAbsolute() {
@@ -49,14 +48,12 @@ void Cpu::amAbsolute() {
 
 void Cpu::amAbsoluteX() {
   const auto addr = operand16();
-  extraCycleOnPageBoundaryCrossing(addr, m_regs.x);
-  m_effectiveOperand = &m_memory[addr + m_regs.x];
+  m_effectiveOperand = &m_memory[calculateAddressWithCyclePenalty(addr, m_regs.x)];
 }
 
 void Cpu::amAbsoluteY() {
   const auto addr = operand16();
-  extraCycleOnPageBoundaryCrossing(addr, m_regs.y);
-  m_effectiveOperand = &m_memory[addr + m_regs.y];
+  m_effectiveOperand = &m_memory[calculateAddressWithCyclePenalty(addr, m_regs.y)];
 }
 
 void Cpu::insLDA() {
@@ -223,11 +220,11 @@ void Cpu::insTYA() {
 }
 
 void Cpu::insTSX() {
-  m_regs.x = m_regs.sp.raw;
+  m_regs.x = m_regs.sp.value;
 }
 
 void Cpu::insTXS() {
-  m_regs.sp.raw = m_regs.x;
+  m_regs.sp.value = m_regs.x;
 }
 
 void Cpu::insPHA() {
@@ -247,18 +244,27 @@ void Cpu::insPLP() {
 }
 
 void Cpu::insRTS() {
+  const auto lsb = pull();
+  const auto msb = pull();
+  m_regs.pc = static_cast<uint16_t>(lsb + (msb << 8) + 1);
 }
 
 void Cpu::insRTI() {
+  m_flags = pull();
+  insRTS();
 }
 
 void Cpu::insBRK() {
+  m_flags.b = true;
+  m_regs.pc++;
+  irq();
 }
 
 void Cpu::insNOP() {
 }
 
 void Cpu::insBCC() {
+  if(!m_flags.c) branch();
 }
 
 void Cpu::insBCS() {

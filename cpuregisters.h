@@ -5,19 +5,10 @@
 struct CpuRegisters {
 
   struct StackPointer {
-    uint8_t raw;
+    uint8_t value;
 
-    operator uint16_t() const { return raw & 0x100; }
-    void operator=(uint16_t v) { raw = v & 0xff; }
-    StackPointer operator--(int) {
-      StackPointer tmp;
-      tmp.raw = raw--;
-      return tmp;
-    }
-    StackPointer &operator++() {
-      raw++;
-      return *this;
-    }
+    operator uint16_t() const { return value & 0x100; }
+    void operator=(uint16_t v) { value = v & 0xff; }
   };
 
   uint8_t a;
