@@ -83,140 +83,139 @@ void Cpu::insSTY() {
 void Cpu::insADC() {
   const auto op1 = registers.a;
   const auto op2 = *effectiveOperand;
-  const uint16_t result = op1 + op2 + flags.c;
+  const uint16_t result = op1 + op2 + registers.p.c;
   registers.a = loByte(result);
-  flags.computeNZC(result);
-  flags.computeV(op1, op2, result);
+  registers.p.computeNZC(result);
+  registers.p.computeV(op1, op2, result);
 }
 
 void Cpu::insSBC() {
   const auto op1 = registers.a;
   const auto op2 = *effectiveOperand;
-  const uint16_t result = op1 - op2 - flags.c;
+  const uint16_t result = op1 - op2 - registers.p.c;
   registers.a = loByte(result);
-  flags.computeNZ(result);
-  flags.computeC(result);
-  flags.computeV(op1, op2, result);
+  registers.p.computeNZC(result);
+  registers.p.computeV(op1, op2, result);
 }
 
 void Cpu::insINC() {
-  flags.computeNZ(++(*effectiveOperand));
+  registers.p.computeNZ(++(*effectiveOperand));
 }
 
 void Cpu::insINX() {
-  flags.computeNZ(++registers.x);
+  registers.p.computeNZ(++registers.x);
 }
 
 void Cpu::insINY() {
-  flags.computeNZ(++registers.y);
+  registers.p.computeNZ(++registers.y);
 }
 
 void Cpu::insDEC() {
-  flags.computeNZ(--(*effectiveOperand));
+  registers.p.computeNZ(--(*effectiveOperand));
 }
 
 void Cpu::insDEX() {
-  flags.computeNZ(--registers.x);
+  registers.p.computeNZ(--registers.x);
 }
 
 void Cpu::insDEY() {
-  flags.computeNZ(--registers.y);
+  registers.p.computeNZ(--registers.y);
 }
 
 void Cpu::insASL() {
   auto val = *effectiveOperand;
-  flags.c = val & 0x80;
-  flags.computeNZ(*effectiveOperand = static_cast<uint8_t>(val << 1));
+  registers.p.c = val & 0x80;
+  registers.p.computeNZ(*effectiveOperand = static_cast<uint8_t>(val << 1));
 }
 
 void Cpu::insLSR() {
   auto val = *effectiveOperand;
-  flags.c = val & 0x01;
-  flags.computeNZ(*effectiveOperand = static_cast<uint8_t>(val >> 1));
+  registers.p.c = val & 0x01;
+  registers.p.computeNZ(*effectiveOperand = static_cast<uint8_t>(val >> 1));
 }
 
 void Cpu::insROL() {
-  const uint16_t res = static_cast<uint16_t>(*effectiveOperand << 1) | flags.c;
-  flags.c = res & 0x100;
-  flags.computeNZ(*effectiveOperand = loByte(res));
+  const uint16_t res = static_cast<uint16_t>(*effectiveOperand << 1) | registers.p.c;
+  registers.p.c = res & 0x100;
+  registers.p.computeNZ(*effectiveOperand = loByte(res));
 }
 
 void Cpu::insROR() {
-  const uint16_t tmp = *effectiveOperand | (flags.c ? 0x100 : 0x00);
-  flags.c = tmp & 0x01;
-  flags.computeNZ(*effectiveOperand = loByte(tmp >> 1));
+  const uint16_t tmp = *effectiveOperand | (registers.p.c ? 0x100 : 0x00);
+  registers.p.c = tmp & 0x01;
+  registers.p.computeNZ(*effectiveOperand = loByte(tmp >> 1));
 }
 
 void Cpu::insAND() {
-  flags.computeNZ(registers.a &= *effectiveOperand);
+  registers.p.computeNZ(registers.a &= *effectiveOperand);
 }
 
 void Cpu::insORA() {
-  flags.computeNZ(registers.a |= *effectiveOperand);
+  registers.p.computeNZ(registers.a |= *effectiveOperand);
 }
 
 void Cpu::insEOR() {
-  flags.computeNZ(registers.a ^= *effectiveOperand);
+  registers.p.computeNZ(registers.a ^= *effectiveOperand);
 }
 
 void Cpu::insCMP() {
-  flags.computeNZC(registers.a - *effectiveOperand);
+  registers.p.computeNZC(registers.a - *effectiveOperand);
 }
 
 void Cpu::insCPX() {
-  flags.computeNZC(registers.x - *effectiveOperand);
+  registers.p.computeNZC(registers.x - *effectiveOperand);
 }
 
 void Cpu::insCPY() {
-  flags.computeNZC(registers.y - *effectiveOperand);
+  registers.p.computeNZC(registers.y - *effectiveOperand);
 }
 
 void Cpu::insBIT() {
-  flags.computeNZ(registers.a & *effectiveOperand);
+  registers.p.computeNZ(registers.a & *effectiveOperand);
 }
 
 void Cpu::insSED() {
-  flags.d = true;
+  registers.p.d = true;
 }
 
 void Cpu::insSEI() {
-  flags.i = true;
+  registers.p.i = true;
 }
 
 void Cpu::insSEC() {
-  flags.c = true;
+  registers.p.c = true;
 }
 
 void Cpu::insCLC() {
-  flags.c = false;
+  registers.p.c = false;
 }
 
 void Cpu::insCLD() {
-  flags.d = false;
+  registers.p.d = false;
 }
 
 void Cpu::insCLI() {
-  flags.i = false;
+  registers.p.i = false;
 }
 
 void Cpu::insCLV() {
-  flags.v = false;
+  registers.p.v = false;
 }
 
 void Cpu::insTAX() {
-  flags.computeNZ(registers.x = registers.a);
+  registers.p.computeNZ(registers.x = registers.a);
 }
 
 void Cpu::insTXA() {
-  flags.computeNZ(registers.a = registers.x);
+  registers.p.computeNZ(registers.a = registers.x);
 }
 
 void Cpu::insTAY() {
-  flags.computeNZ(registers.y = registers.a);
+  registers.p.computeNZ(registers.y = registers.a);
 }
 
 void Cpu::insTYA() {
-  flags.computeNZ(registers.a = registers.y);
+  registers.p.computeNZ(registers.a = registers.y);
 }
 
 void Cpu::insTSX() {
@@ -236,11 +235,11 @@ void Cpu::insPLA() {
 }
 
 void Cpu::insPHP() {
-  push(flags);
+  push(registers.p);
 }
 
 void Cpu::insPLP() {
-  flags = pull();
+  registers.p = pull();
 }
 
 void Cpu::insNOP() {
@@ -248,35 +247,35 @@ void Cpu::insNOP() {
 }
 
 void Cpu::insBCC() {
-  if (!flags.c) branch();
+  if (!registers.p.c) branch();
 }
 
 void Cpu::insBCS() {
-  if (flags.c) branch();
+  if (registers.p.c) branch();
 }
 
 void Cpu::insBEQ() {
-  if (flags.z) branch();
+  if (registers.p.z) branch();
 }
 
 void Cpu::insBMI() {
-  if (flags.n) branch();
+  if (registers.p.n) branch();
 }
 
 void Cpu::insBNE() {
-  if (!flags.z) branch();
+  if (!registers.p.z) branch();
 }
 
 void Cpu::insBPL() {
-  if (!flags.n) branch();
+  if (!registers.p.n) branch();
 }
 
 void Cpu::insBVC() {
-  if (!flags.v) branch();
+  if (!registers.p.v) branch();
 }
 
 void Cpu::insBVS() {
-  if (flags.v) branch();
+  if (registers.p.v) branch();
 }
 
 void Cpu::insJMP() {
@@ -296,7 +295,7 @@ void Cpu::insRTS() {
 }
 
 void Cpu::insRTI() {
-  flags = pull();
+  registers.p = pull();
   const auto lo = pull();
   const auto hi = pull();
   registers.pc = wordOf(lo, hi) + 1;
@@ -306,23 +305,23 @@ void Cpu::insBRK() {
   registers.pc++;
   push(hiByte(registers.pc));
   push(loByte(registers.pc));
-  push(flags.withBreakFlag());
+  push(registers.p.withBreakFlag());
   registers.pc = memory_.read16(VectorIRQ);
 }
 
 void Cpu::irq() {
   push(hiByte(registers.pc));
   push(loByte(registers.pc));
-  push(flags);
-  flags.i = true;
+  push(registers.p);
+  registers.p.i = true;
   registers.pc = memory_.read16(VectorIRQ);
 }
 
 void Cpu::nmi() {
-  flags.i = true;
+  registers.p.i = true;
   push(hiByte(registers.pc));
   push(loByte(registers.pc));
-  push(flags);
+  push(registers.p);
   registers.pc = memory_.read16(VectorNMI);
 }
 
@@ -331,15 +330,15 @@ void Cpu::reset() {
 }
 
 void Cpu::execute(bool continuous) {
-  executionStatus_ = Running;
-  while (continuous && executionStatus_ != StopRequested) {
+  executionStatus = Running;
+  while (executionStatus != StopRequested) {
     instruction = &memory_[registers.pc];
     operand = const_cast<Memory::iterator>(instruction + 1);
     const auto& decodeEntry = OpCodeLookUpTable[*instruction];
     const auto operation = decodeEntry.operation;
 
     if (operation->instruction == INV) {
-      executionStatus_ = InvalidOpCode;
+      executionStatus = InvalidOpCode;
       return;
     }
 
@@ -348,6 +347,8 @@ void Cpu::execute(bool continuous) {
 
     (this->*decodeEntry.prepareOperands)();
     (this->*decodeEntry.executeInstruction)();
+
+    if (!continuous) break;
   }
-  executionStatus_ = Idle;
+  executionStatus = Stopped;
 }

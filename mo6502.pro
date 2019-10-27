@@ -29,7 +29,6 @@ SOURCES += \
 
 HEADERS += \
     cpu_lookuptables.h \
-    cpuflags.h \
     cpuregisters.h \
     executionstatus.h \
     addressingmode.h \

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cpuflags.h"
 #include "cpuregisters.h"
 #include "executionstatus.h"
 #include "instruction.h"
@@ -17,11 +16,10 @@ public:
   static Handler instructionHandler(InstructionType);
 
   CpuRegisters registers;
-  CpuFlags flags;
-  uint64_t cycles;
+  int cycles;
+  volatile ExecutionStatus executionStatus = Stopped;
 
 private:
-  volatile ExecutionStatus executionStatus_ = Idle;
   Memory& memory_;
   uint8_t* instruction;
   uint8_t* operand;

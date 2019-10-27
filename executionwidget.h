@@ -26,7 +26,7 @@ public slots:
   void executeSingleStep();
   void startContinuousExecution();
   void stopContinuousExecution();
-  void updateCpuState(CpuRegisters, CpuFlags);
+  void updateCpuState(CpuRegisters, int);
 
 private:
   Ui::ExecutionWidget *ui;

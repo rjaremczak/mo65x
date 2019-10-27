@@ -1,8 +1,3 @@
 #pragma once
 
-enum ExecutionStatus {
-    Idle,
-    InvalidOpCode,
-    Running,
-    StopRequested
-};
+enum ExecutionStatus { Stopped, InvalidOpCode, Running, StopRequested };

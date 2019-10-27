@@ -523,14 +523,14 @@
     <item>
      <layout class="QHBoxLayout" name="executionBox">
       <item>
-       <widget class="QToolButton" name="stepExecution_2">
+       <widget class="QToolButton" name="executeSingleStep">
         <property name="text">
          <string>Step</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="continuousExecution_2">
+       <widget class="QToolButton" name="continuousExecution">
         <property name="text">
          <string>Run</string>
         </property>
