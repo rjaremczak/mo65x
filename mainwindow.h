@@ -4,9 +4,10 @@
 #include <QMainWindow>
 #include <QTimer>
 
-#include "monitorwidget.h"
-#include "memorywidget.h"
 #include "centralwidget.h"
+#include "executionwidget.h"
+#include "memorywidget.h"
+#include "monitorwidget.h"
 #include "system.h"
 
 QT_BEGIN_NAMESPACE
@@ -23,11 +24,12 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    MemoryWidget* memoryWidget_;
-    MonitorWidget* monitorWidget_;
-    CentralWidget* centralWidget_;
-    QTimer* pollTimer_;
-    System* system_;
+    MemoryWidget* memoryWidget;
+    MonitorWidget* monitorWidget;
+    CentralWidget* centralWidget;
+    ExecutionWidget* executionWidget;
+    QTimer* pollTimer;
+    System* system;
 };
 
 #endif // MAINWINDOW_H

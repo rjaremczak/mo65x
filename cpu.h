@@ -16,46 +16,47 @@ public:
   static Handler operandsHandler(AddressingMode);
   static Handler instructionHandler(InstructionType);
 
+  CpuRegisters registers;
+  CpuFlags flags;
+  uint64_t cycles;
+
 private:
   volatile ExecutionStatus executionStatus_ = Idle;
   Memory& memory_;
-  CpuRegisters registers_;
-  CpuFlags flags_;
-  uint64_t cycles_ = 0;
-  uint8_t* instruction_;
-  uint8_t* operand_;
-  uint8_t* effectiveOperand_;
-  uint16_t effectiveAddress_;
-  bool pageBoundaryCrossed_;
+  uint8_t* instruction;
+  uint8_t* operand;
+  uint8_t* effectiveOperand;
+  uint16_t effectiveAddress;
+  bool pageBoundaryCrossed;
 
-  uint8_t operand8() { return *operand_; }
+  uint8_t operand8() { return *operand; }
 
-  uint16_t operand16() { return wordOf(operand_[0], operand_[1]); }
+  uint16_t operand16() { return wordOf(operand[0], operand[1]); }
 
-  void push(uint8_t v) { memory_[registers_.sp.value--] = v; }
+  void push(uint8_t v) { memory_[registers.sp.value--] = v; }
 
-  uint8_t pull() { return memory_[++registers_.sp.value]; }
+  uint8_t pull() { return memory_[++registers.sp.value]; }
 
   void setEffectiveAddressAndOperand(uint16_t address) {
-    effectiveAddress_ = address;
-    effectiveOperand_ = &memory_[address];
+    effectiveAddress = address;
+    effectiveOperand = &memory_[address];
   }
 
   void setEffectiveAddressAndOperand(uint16_t address, int16_t displacement) {
     const auto result = address + displacement;
-    pageBoundaryCrossed_ = (address ^ result) & 0xff00;
-    effectiveAddress_ = (address & 0xff00) | (result & 0x00ff);
-    effectiveOperand_ = &memory_[effectiveAddress_];
+    pageBoundaryCrossed = (address ^ result) & 0xff00;
+    effectiveAddress = (address & 0xff00) | (result & 0x00ff);
+    effectiveOperand = &memory_[effectiveAddress];
   }
 
   void applyPageBoundaryCrossingPenalty() {
-    if (pageBoundaryCrossed_) cycles_++;
+    if (pageBoundaryCrossed) cycles++;
   }
 
   void branch() {
-    cycles_++;
-    setEffectiveAddressAndOperand(registers_.pc, static_cast<int8_t>(operand8()));
-    registers_.pc = effectiveAddress_;
+    cycles++;
+    setEffectiveAddressAndOperand(registers.pc, static_cast<int8_t>(operand8()));
+    registers.pc = effectiveAddress;
   }
 
   void amImplied();
@@ -142,8 +143,6 @@ private:
 
 public:
   Cpu(Memory&);
-  auto cycles() const { return cycles_; }
-  void resetCycles() { cycles_ = 0; }
   void execute(bool continuous = false);
   void nmi();
   void irq();

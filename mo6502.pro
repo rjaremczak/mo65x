@@ -16,8 +16,8 @@ SOURCES += \
     centralwidget.cpp \
     cpu.cpp \
     cpu_lookuptables.cpp \
-    cpuprobe.cpp \
     disassembler.cpp \
+    executionwidget.cpp \
     instruction.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -30,7 +30,6 @@ SOURCES += \
 HEADERS += \
     cpu_lookuptables.h \
     cpuflags.h \
-    cpuprobe.h \
     cpuregisters.h \
     executionstatus.h \
     addressingmode.h \
@@ -38,6 +37,7 @@ HEADERS += \
     centralwidget.h \
     cpu.h \
     disassembler.h \
+    executionwidget.h \
     instruction.h \
     instructiontype.h \
     mainwindow.h \
@@ -50,6 +50,7 @@ HEADERS += \
 
 FORMS += \
     centralwidget.ui \
+    executionwidget.ui \
     mainwindow.ui \
     monitorwidget.ui \
     memorywidget.ui

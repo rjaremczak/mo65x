@@ -4,27 +4,33 @@
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
 
-  system_ = new System(this);
+  system = new System(this);
 
-  memoryWidget_ = new MemoryWidget(this, system_);
-  this->addDockWidget(Qt::RightDockWidgetArea, memoryWidget_);
+  monitorWidget = new MonitorWidget(this, system);
+  this->addDockWidget(Qt::LeftDockWidgetArea, monitorWidget);
 
-  monitorWidget_ = new MonitorWidget(this, system_);
-  this->addDockWidget(Qt::RightDockWidgetArea, monitorWidget_);
+  memoryWidget = new MemoryWidget(this, system);
+  this->addDockWidget(Qt::RightDockWidgetArea, memoryWidget);
 
-  centralWidget_ = new CentralWidget(this);
-  this->setCentralWidget(centralWidget_);
+  executionWidget = new ExecutionWidget(this, system);
+  this->addDockWidget(Qt::RightDockWidgetArea, executionWidget);
 
-  pollTimer_ = new QTimer(this);
-  connect(pollTimer_, &QTimer::timeout, system_, &System::checkCpuState);
-  pollTimer_->start(1000);
+  centralWidget = new CentralWidget(this);
+  this->setCentralWidget(centralWidget);
 
-  connect(system_, &System::cpuStateChanged, monitorWidget_, &MonitorWidget::updateCpuState);
-  connect(system_, &System::memoryContentChanged, monitorWidget_, &MonitorWidget::updateMemoryContent);
+  pollTimer = new QTimer(this);
+  connect(pollTimer, &QTimer::timeout, system, &System::checkCpuState);
+  // pollTimer->start(1000);
 
-  connect(monitorWidget_, &MonitorWidget::addressChanged, system_, &System::changePC);
+  connect(system, &System::cpuStateChanged, executionWidget, &ExecutionWidget::updateCpuState);
+  connect(system, &System::cpuStateChanged, [&](auto registers) { monitorWidget->changeAddress(registers.pc); });
+  connect(system, &System::memoryContentChanged, monitorWidget, &MonitorWidget::updateMemoryContent);
 
-  system_->checkCpuState();
+  connect(monitorWidget, &MonitorWidget::addressChanged, system, &System::changePC);
+
+  connect(executionWidget, &ExecutionWidget::pcChanged, system, &System::changePC);
+
+  system->checkCpuState();
 }
 
 MainWindow::~MainWindow() {

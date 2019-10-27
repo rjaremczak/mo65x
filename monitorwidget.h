@@ -25,7 +25,6 @@ signals:
 public slots:
   void changeAddress(uint16_t);
   void updateMemoryContent(uint16_t start, uint16_t last);
-  void updateCpuState(CpuRegisters, CpuFlags);
 
 protected:
   void resizeEvent(QResizeEvent*) override;
@@ -33,15 +32,18 @@ protected:
 private:
   Ui::MonitorWidget* ui;
 
-  System* system_;
-  Disassembler disassembler_;
-  uint16_t firstAddress_;
-  uint16_t lastAddress_;
+  System* system;
+  Disassembler disassembler;
+  uint16_t firstAddress;
+  uint16_t lastAddress;
 
   int rowsInView() const;
   void initView();
   void disassemblerView();
   void updateMemoryView();
+
+private slots:
+  void skipInstruction();
 };
 
 #endif // MONITORWIDGET_H
