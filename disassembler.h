@@ -6,10 +6,10 @@
 
 class Disassembler
 {
-    const Memory& m_memory;
-    uint16_t m_address;
-    uint16_t m_opcode;
-    Instruction m_operation;
+    const Memory& memory_;
+    uint16_t address_;
+    uint16_t opcode_;
+    Instruction instruction_;
 
     QString formatOperand8() const;
     QString formatOperand16() const;
@@ -17,7 +17,7 @@ class Disassembler
 public:
     Disassembler(const Memory&, uint16_t addr = 0);
 
-    auto address() const { return m_address; }
+    auto address() const { return address_; }
     void setAddress(uint16_t addr);
     void step();
 

@@ -1,37 +1,32 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
+  ui->setupUi(this);
 
-    m_system = new System(this);
+  system_ = new System(this);
 
-    m_memoryWidget = new MemoryWidget(this, m_system);
-    this->addDockWidget(Qt::RightDockWidgetArea, m_memoryWidget);
+  memoryWidget_ = new MemoryWidget(this, system_);
+  this->addDockWidget(Qt::RightDockWidgetArea, memoryWidget_);
 
-    m_monitorWidget = new MonitorWidget(this, m_system->memory());
-    this->addDockWidget(Qt::RightDockWidgetArea, m_monitorWidget);
+  monitorWidget_ = new MonitorWidget(this, system_);
+  this->addDockWidget(Qt::RightDockWidgetArea, monitorWidget_);
 
-    m_centralWidget = new CentralWidget(this);
-    this->setCentralWidget(m_centralWidget);
+  centralWidget_ = new CentralWidget(this);
+  this->setCentralWidget(centralWidget_);
 
-    m_pollTimer = new QTimer(this);
-    connect(m_pollTimer, &QTimer::timeout, m_system, &System::checkCpuState);
-    m_pollTimer->start(1000);
+  pollTimer_ = new QTimer(this);
+  connect(pollTimer_, &QTimer::timeout, system_, &System::checkCpuState);
+  pollTimer_->start(1000);
 
-    connect(m_system, &System::cpuStateChanged, m_monitorWidget, &MonitorWidget::updateCpuState);
-    connect(m_system, &System::memoryContentChanged, m_monitorWidget, &MonitorWidget::updateMemoryContent);
+  connect(system_, &System::cpuStateChanged, monitorWidget_, &MonitorWidget::updateCpuState);
+  connect(system_, &System::memoryContentChanged, monitorWidget_, &MonitorWidget::updateMemoryContent);
 
-    connect(m_monitorWidget, &MonitorWidget::addressChanged, m_system, &System::changePC);
+  connect(monitorWidget_, &MonitorWidget::addressChanged, system_, &System::changePC);
 
-    m_system->checkCpuState();
+  system_->checkCpuState();
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+MainWindow::~MainWindow() {
+  delete ui;
 }
-

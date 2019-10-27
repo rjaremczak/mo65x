@@ -23,11 +23,11 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    MemoryWidget* m_memoryWidget;
-    MonitorWidget* m_monitorWidget;
-    CentralWidget* m_centralWidget;
-    QTimer* m_pollTimer;
-    System* m_system;
+    MemoryWidget* memoryWidget_;
+    MonitorWidget* monitorWidget_;
+    CentralWidget* centralWidget_;
+    QTimer* pollTimer_;
+    System* system_;
 };
 
 #endif // MAINWINDOW_H

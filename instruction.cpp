@@ -29,7 +29,7 @@ Instruction::Instruction(InstructionType mnemonic, AddressingMode addressing, ui
 
 const std::array<Instruction, 256> OpCodeTable = []{
     std::array<Instruction, 256> arr;
-    arr.fill({ Invalid, Implied, 0 });
+    arr.fill({ INV, Implied, 0 });
     arr[0x00] = { BRK, Implied, 7 };
     arr[0x01] = { ORA, IndexedIndirectX, 6 };
     arr[0x05] = { ORA, ZeroPage, 3 };

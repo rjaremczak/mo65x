@@ -338,7 +338,7 @@ void Cpu::execute(bool continuous) {
     const auto& decodeEntry = OpCodeLookUpTable[*instruction_];
     const auto operation = decodeEntry.operation;
 
-    if (operation->instruction == Invalid) {
+    if (operation->instruction == INV) {
       executionStatus_ = InvalidOpCode;
       return;
     }

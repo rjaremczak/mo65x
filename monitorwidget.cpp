@@ -4,8 +4,8 @@
 #include <QFontDatabase>
 #include <QResizeEvent>
 
-MonitorWidget::MonitorWidget(QWidget *parent, const Memory &memory)
-    : QDockWidget(parent), ui(new Ui::MonitorWidget), m_disassembler(memory) {
+MonitorWidget::MonitorWidget(QWidget* parent, System* system)
+    : QDockWidget(parent), ui(new Ui::MonitorWidget), system_(system), disassembler_(system->memory()) {
   ui->setupUi(this);
   initView();
 
@@ -18,20 +18,20 @@ MonitorWidget::~MonitorWidget() {
 }
 
 void MonitorWidget::changeAddress(uint16_t pc) {
-  if (m_firstAddress != pc) {
-    m_firstAddress = pc;
+  if (firstAddress_ != pc) {
+    firstAddress_ = pc;
     updateMemoryView();
     emit addressChanged(pc);
   }
 }
 
 void MonitorWidget::updateMemoryContent(uint16_t first, uint16_t last) {
-  if (m_firstAddress == std::clamp(m_firstAddress, first, last) || m_lastAddress == std::clamp(m_lastAddress, first, last)) {
+  if (firstAddress_ == std::clamp(firstAddress_, first, last) || lastAddress_ == std::clamp(lastAddress_, first, last)) {
     updateMemoryView();
   }
 }
 
-static QString flagStr(bool flagStatus, const char *flagCode) {
+static QString flagStr(bool flagStatus, const char* flagCode) {
   return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
 }
 
@@ -53,13 +53,13 @@ void MonitorWidget::updateCpuState(CpuRegisters regs, CpuFlags flags) {
   str.append(flagStr(flags.c, "C"));
   ui->flags->setText(str);
 
-  if (regs.pc != m_firstAddress) {
-    m_firstAddress = regs.pc;
+  if (regs.pc != firstAddress_) {
+    firstAddress_ = regs.pc;
     updateMemoryView();
   }
 }
 
-void MonitorWidget::resizeEvent(QResizeEvent *event) {
+void MonitorWidget::resizeEvent(QResizeEvent* event) {
   if (event->size().height() != event->oldSize().height()) {
     updateMemoryView();
   }
@@ -85,25 +85,25 @@ void MonitorWidget::initView() {
 }
 
 void MonitorWidget::disassemblerView() {
-  m_disassembler.setAddress(m_firstAddress);
+  disassembler_.setAddress(firstAddress_);
   QString html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
   if (rows--) {
     html.append("<div style='color:black; background-color: lightgreen'>");
-    html.append(m_disassembler.disassemble()).append("</div>");
-    m_disassembler.step();
+    html.append(disassembler_.disassemble()).append("</div>");
+    disassembler_.step();
 
     html.append("<div style='color:darkseagreen'>");
     while (rows--) {
-      html.append(m_disassembler.disassemble() + "<br>");
-      m_disassembler.step();
+      html.append(disassembler_.disassemble() + "<br>");
+      disassembler_.step();
     }
 
     html.append("</div>");
   }
   html.append("</div>");
   ui->dumpView->setHtml(html);
-  m_lastAddress = m_disassembler.address();
+  lastAddress_ = disassembler_.address();
 }
 
 void MonitorWidget::updateMemoryView() {

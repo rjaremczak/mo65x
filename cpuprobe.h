@@ -4,10 +4,10 @@
 
 class CpuProbe
 {
-    Cpu& m_cpu;
+    Cpu& cpu_;
 
 public:
     CpuProbe(Cpu&);
-    CpuRegisters& registers() { return m_cpu.registers_; }
-    CpuFlags& flags() { return m_cpu.flags_; }
+    CpuRegisters& registers() { return cpu_.registers_; }
+    CpuFlags& flags() { return cpu_.flags_; }
 };

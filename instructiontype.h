@@ -15,5 +15,5 @@ enum InstructionType
     TAX, TAY, TSX, TXA, TYA, TXS,
     PHA, PHP, PLA, PLP,
     NOP,
-    Invalid
+    INV
 };

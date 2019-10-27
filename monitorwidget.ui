@@ -451,14 +451,14 @@ p, li { white-space: pre-wrap; }
        <number>2</number>
       </property>
       <item>
-       <widget class="QToolButton" name="stepButton">
+       <widget class="QToolButton" name="stepExecution">
         <property name="text">
          <string>Step</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="runButton">
+       <widget class="QToolButton" name="continuousExecution">
         <property name="text">
          <string>Run</string>
         </property>
@@ -481,21 +481,21 @@ p, li { white-space: pre-wrap; }
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QToolButton" name="activateIRQ">
         <property name="text">
          <string>IRQ</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_2">
+       <widget class="QToolButton" name="activateNMI">
         <property name="text">
          <string>NMI</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="resetButton">
+       <widget class="QToolButton" name="activateRESET">
         <property name="text">
          <string>RST</string>
         </property>

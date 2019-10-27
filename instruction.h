@@ -6,7 +6,7 @@
 
 struct Instruction
 {
-    InstructionType instruction = Invalid;
+    InstructionType instruction = INV;
     AddressingMode addressing = Implied;
     uint8_t size = 1;
     uint8_t cycles = 0;

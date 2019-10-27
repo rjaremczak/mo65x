@@ -1,6 +1,6 @@
 #include "cpuprobe.h"
 
-CpuProbe::CpuProbe(Cpu& cpu) : m_cpu(cpu)
+CpuProbe::CpuProbe(Cpu& cpu) : cpu_(cpu)
 {
 
 }

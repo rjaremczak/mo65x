@@ -97,6 +97,6 @@ Cpu::Handler Cpu::instructionHandler(InstructionType instruction)
     case JMP : return &Cpu::insJMP;
     case JSR : return &Cpu::insJSR;
 
-    case Invalid : return nullptr;
+    case INV : return nullptr;
     }
 }

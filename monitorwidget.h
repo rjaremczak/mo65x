@@ -16,7 +16,7 @@ class MonitorWidget : public QDockWidget {
 public:
   enum ViewMode { Asm, Hex, Txt };
 
-  explicit MonitorWidget(QWidget *parent, const Memory &);
+  explicit MonitorWidget(QWidget* parent, System* system);
   ~MonitorWidget() override;
 
 signals:
@@ -28,14 +28,15 @@ public slots:
   void updateCpuState(CpuRegisters, CpuFlags);
 
 protected:
-  void resizeEvent(QResizeEvent *) override;
+  void resizeEvent(QResizeEvent*) override;
 
 private:
-  Ui::MonitorWidget *ui;
+  Ui::MonitorWidget* ui;
 
-  Disassembler m_disassembler;
-  uint16_t m_firstAddress;
-  uint16_t m_lastAddress;
+  System* system_;
+  Disassembler disassembler_;
+  uint16_t firstAddress_;
+  uint16_t lastAddress_;
 
   int rowsInView() const;
   void initView();
