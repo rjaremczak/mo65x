@@ -28,8 +28,16 @@ private:
 
   uint8_t operand8() const { return *operandPtr_; }
   uint16_t operand16() const { return wordOf(operandPtr_[0], operandPtr_[1]); }
-  void push(uint8_t v) { memory_[registers.sp--] = v; }
-  uint8_t pull() { return memory_[++registers.sp]; }
+
+  void push8(uint8_t b) { memory_[registers.sp--] = b; }
+  uint8_t pull8() { return memory_[++registers.sp]; }
+
+  void push16(uint16_t w) {
+    push8(hiByte(w));
+    push8(loByte(w));
+  }
+
+  uint16_t pull16() { return wordOf(pull8(), pull8()); }
 
   void setEffectiveAddressAndOperand(uint16_t address) {
     effectiveAddress_ = address;

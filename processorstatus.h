@@ -5,6 +5,15 @@
 struct ProcessorStatus {
   bool n, v, d, i, z, c;
 
+  void reset() {
+    n = false;
+    v = false;
+    d = false;
+    i = false;
+    z = false;
+    c = false;
+  }
+
   void computeNZ(unsigned result) {
     n = result & 0x80;
     z = !result;

@@ -227,19 +227,19 @@ void Cpu::insTXS() {
 }
 
 void Cpu::insPHA() {
-  push(registers.a);
+  push8(registers.a);
 }
 
 void Cpu::insPLA() {
-  registers.a = pull();
+  registers.a = pull8();
 }
 
 void Cpu::insPHP() {
-  push(registers.p);
+  push8(registers.p);
 }
 
 void Cpu::insPLP() {
-  registers.p = pull();
+  registers.p = pull8();
 }
 
 void Cpu::insNOP() {
@@ -283,50 +283,47 @@ void Cpu::insJMP() {
 }
 
 void Cpu::insJSR() {
-  push(loByte(registers.pc));
-  push(hiByte(registers.pc));
+  push16(registers.pc);
   registers.pc = effectiveAddress_;
 }
 
 void Cpu::insRTS() {
-  const auto lo = pull();
-  const auto hi = pull();
-  registers.pc = wordOf(lo, hi);
+  registers.pc = pull16();
 }
 
 void Cpu::insRTI() {
-  registers.p = pull();
-  const auto lo = pull();
-  const auto hi = pull();
-  registers.pc = wordOf(lo, hi) + 1;
+  registers.p = pull8();
+  registers.pc = pull16() + 1;
 }
 
 void Cpu::insBRK() {
   registers.pc++;
-  push(hiByte(registers.pc));
-  push(loByte(registers.pc));
-  push(registers.p.withBreakFlag());
+  push16(registers.pc);
+  push8(registers.p.withBreakFlag());
   registers.pc = memory_.read16(VectorIRQ);
 }
 
 void Cpu::irq() {
-  push(hiByte(registers.pc));
-  push(loByte(registers.pc));
-  push(registers.p);
+  push16(registers.pc);
+  push8(registers.p);
   registers.p.i = true;
   registers.pc = memory_.read16(VectorIRQ);
 }
 
 void Cpu::nmi() {
+  push16(registers.pc);
+  push8(registers.p);
   registers.p.i = true;
-  push(hiByte(registers.pc));
-  push(loByte(registers.pc));
-  push(registers.p);
   registers.pc = memory_.read16(VectorNMI);
 }
 
 void Cpu::reset() {
   registers.pc = memory_.read16(VectorRESET);
+  registers.a = 0;
+  registers.x = 0;
+  registers.y = 0;
+  registers.sp = 0xfd;
+  registers.p.reset();
 }
 
 void Cpu::execute(bool continuous) {
@@ -335,15 +332,15 @@ void Cpu::execute(bool continuous) {
     const auto pc = &memory_[registers.pc];
     operandPtr_ = pc + 1;
     const auto& entry = DecodeTable[*pc];
-    const auto insdef = entry.instruction;
+    const auto ins = entry.instruction;
 
-    if (insdef->type == INV) {
+    if (ins->type == INV) {
       executionStatus = InvalidOpCode;
       return;
     }
 
-    registers.pc += insdef->size;
-    cycles += insdef->cycles;
+    registers.pc += ins->size;
+    cycles += ins->cycles;
 
     (this->*entry.prepareOperands)();
     (this->*entry.executeInstruction)();
