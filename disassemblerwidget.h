@@ -7,17 +7,17 @@
 #include <QStringListModel>
 
 namespace Ui {
-class MonitorWidget;
+class DisassemblerWidget;
 }
 
-class MonitorWidget : public QDockWidget {
+class DisassemblerWidget : public QDockWidget {
   Q_OBJECT
 
 public:
   enum ViewMode { Asm, Hex, Txt };
 
-  explicit MonitorWidget(QWidget* parent, System* system);
-  ~MonitorWidget() override;
+  explicit DisassemblerWidget(QWidget* parent, System* system);
+  ~DisassemblerWidget() override;
 
 signals:
   void addressChanged(uint16_t);
@@ -30,7 +30,7 @@ protected:
   void resizeEvent(QResizeEvent*) override;
 
 private:
-  Ui::MonitorWidget* ui;
+  Ui::DisassemblerWidget* ui;
 
   System* system;
   Disassembler disassembler;

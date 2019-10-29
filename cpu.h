@@ -1,60 +1,56 @@
 #pragma once
 
-#include "cpuregisters.h"
 #include "executionstatus.h"
 #include "instruction.h"
 #include "memory.h"
+#include "registers.h"
 #include "utilities.h"
 #include <map>
 
 class Cpu {
 public:
   enum : uint16_t { VectorNMI = 0xfffa, VectorRESET = 0xfffc, VectorIRQ = 0xfffe };
-
   using Handler = void (Cpu::*)();
-  static Handler operandsHandler(AddressingMode);
-  static Handler instructionHandler(InstructionType);
 
-  CpuRegisters registers;
+  friend constexpr Handler operandsHandler(AddressingMode);
+  friend constexpr Handler instructionHandler(InstructionType);
+
+  Registers registers;
   int cycles;
   volatile ExecutionStatus executionStatus = Stopped;
 
 private:
   Memory& memory_;
-  uint8_t* instruction;
-  uint8_t* operand;
-  uint8_t* effectiveOperand;
-  uint16_t effectiveAddress;
-  bool pageBoundaryCrossed;
+  uint8_t* operandPtr_;
+  uint8_t* effectiveOperandPtr_;
+  uint16_t effectiveAddress_;
+  bool pageBoundaryCrossed_;
 
-  uint8_t operand8() { return *operand; }
-
-  uint16_t operand16() { return wordOf(operand[0], operand[1]); }
-
-  void push(uint8_t v) { memory_[registers.sp.value--] = v; }
-
-  uint8_t pull() { return memory_[++registers.sp.value]; }
+  uint8_t operand8() const { return *operandPtr_; }
+  uint16_t operand16() const { return wordOf(operandPtr_[0], operandPtr_[1]); }
+  void push(uint8_t v) { memory_[registers.sp--] = v; }
+  uint8_t pull() { return memory_[++registers.sp]; }
 
   void setEffectiveAddressAndOperand(uint16_t address) {
-    effectiveAddress = address;
-    effectiveOperand = &memory_[address];
+    effectiveAddress_ = address;
+    effectiveOperandPtr_ = &memory_[address];
   }
 
   void setEffectiveAddressAndOperand(uint16_t address, int16_t displacement) {
     const auto result = address + displacement;
-    pageBoundaryCrossed = (address ^ result) & 0xff00;
-    effectiveAddress = (address & 0xff00) | (result & 0x00ff);
-    effectiveOperand = &memory_[effectiveAddress];
+    pageBoundaryCrossed_ = (address ^ result) & 0xff00;
+    effectiveAddress_ = (address & 0xff00) | (result & 0x00ff);
+    effectiveOperandPtr_ = &memory_[effectiveAddress_];
   }
 
   void applyPageBoundaryCrossingPenalty() {
-    if (pageBoundaryCrossed) cycles++;
+    if (pageBoundaryCrossed_) cycles++;
   }
 
   void branch() {
     cycles++;
     setEffectiveAddressAndOperand(registers.pc, static_cast<int8_t>(operand8()));
-    registers.pc = effectiveAddress;
+    registers.pc = effectiveAddress_;
   }
 
   void amImplied();
@@ -136,8 +132,6 @@ private:
   void insBVS();
   void insJMP();
   void insJSR();
-
-  friend class CpuProbe;
 
 public:
   Cpu(Memory&);

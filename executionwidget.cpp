@@ -33,7 +33,7 @@ void ExecutionWidget::startContinuousExecution() {
 void ExecutionWidget::stopContinuousExecution() {
 }
 
-void ExecutionWidget::updateCpuState(CpuRegisters registers, int cycles) {
+void ExecutionWidget::updateCpuState(Registers registers, int cycles) {
   ui->regA->setValue(registers.a);
   ui->regX->setValue(registers.x);
   ui->regY->setValue(registers.y);

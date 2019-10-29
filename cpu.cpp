@@ -1,5 +1,5 @@
 #include "cpu.h"
-#include "cpu_lookuptables.h"
+#include "decodetable.h"
 
 Cpu::Cpu(Memory& memory) : memory_(memory) {
 }
@@ -9,7 +9,7 @@ void Cpu::amImplied() {
 }
 
 void Cpu::amAccumulator() {
-  effectiveOperand = &registers.a;
+  effectiveOperandPtr_ = &registers.a;
 }
 
 void Cpu::amRelative() {
@@ -17,11 +17,11 @@ void Cpu::amRelative() {
 }
 
 void Cpu::amIndirect() {
-  effectiveAddress = memory_.read16(operand16());
+  effectiveAddress_ = memory_.read16(operand16());
 }
 
 void Cpu::amImmediate() {
-  effectiveOperand = operand;
+  effectiveOperandPtr_ = operandPtr_;
 }
 
 void Cpu::amZeroPage() {
@@ -57,32 +57,32 @@ void Cpu::amAbsoluteY() {
 }
 
 void Cpu::insLDA() {
-  registers.a = *effectiveOperand;
+  registers.a = *effectiveOperandPtr_;
 }
 
 void Cpu::insLDX() {
-  registers.x = *effectiveOperand;
+  registers.x = *effectiveOperandPtr_;
 }
 
 void Cpu::insLDY() {
-  registers.y = *effectiveOperand;
+  registers.y = *effectiveOperandPtr_;
 }
 
 void Cpu::insSTA() {
-  *effectiveOperand = registers.a;
+  *effectiveOperandPtr_ = registers.a;
 }
 
 void Cpu::insSTX() {
-  *effectiveOperand = registers.x;
+  *effectiveOperandPtr_ = registers.x;
 }
 
 void Cpu::insSTY() {
-  *effectiveOperand = registers.y;
+  *effectiveOperandPtr_ = registers.y;
 }
 
 void Cpu::insADC() {
   const auto op1 = registers.a;
-  const auto op2 = *effectiveOperand;
+  const auto op2 = *effectiveOperandPtr_;
   const uint16_t result = op1 + op2 + registers.p.c;
   registers.a = loByte(result);
   registers.p.computeNZC(result);
@@ -91,7 +91,7 @@ void Cpu::insADC() {
 
 void Cpu::insSBC() {
   const auto op1 = registers.a;
-  const auto op2 = *effectiveOperand;
+  const auto op2 = *effectiveOperandPtr_;
   const uint16_t result = op1 - op2 - registers.p.c;
   registers.a = loByte(result);
   registers.p.computeNZC(result);
@@ -99,7 +99,7 @@ void Cpu::insSBC() {
 }
 
 void Cpu::insINC() {
-  registers.p.computeNZ(++(*effectiveOperand));
+  registers.p.computeNZ(++(*effectiveOperandPtr_));
 }
 
 void Cpu::insINX() {
@@ -111,7 +111,7 @@ void Cpu::insINY() {
 }
 
 void Cpu::insDEC() {
-  registers.p.computeNZ(--(*effectiveOperand));
+  registers.p.computeNZ(--(*effectiveOperandPtr_));
 }
 
 void Cpu::insDEX() {
@@ -123,55 +123,55 @@ void Cpu::insDEY() {
 }
 
 void Cpu::insASL() {
-  auto val = *effectiveOperand;
+  auto val = *effectiveOperandPtr_;
   registers.p.c = val & 0x80;
-  registers.p.computeNZ(*effectiveOperand = static_cast<uint8_t>(val << 1));
+  registers.p.computeNZ(*effectiveOperandPtr_ = static_cast<uint8_t>(val << 1));
 }
 
 void Cpu::insLSR() {
-  auto val = *effectiveOperand;
+  auto val = *effectiveOperandPtr_;
   registers.p.c = val & 0x01;
-  registers.p.computeNZ(*effectiveOperand = static_cast<uint8_t>(val >> 1));
+  registers.p.computeNZ(*effectiveOperandPtr_ = static_cast<uint8_t>(val >> 1));
 }
 
 void Cpu::insROL() {
-  const uint16_t res = static_cast<uint16_t>(*effectiveOperand << 1) | registers.p.c;
+  const uint16_t res = static_cast<uint16_t>(*effectiveOperandPtr_ << 1) | registers.p.c;
   registers.p.c = res & 0x100;
-  registers.p.computeNZ(*effectiveOperand = loByte(res));
+  registers.p.computeNZ(*effectiveOperandPtr_ = loByte(res));
 }
 
 void Cpu::insROR() {
-  const uint16_t tmp = *effectiveOperand | (registers.p.c ? 0x100 : 0x00);
+  const uint16_t tmp = *effectiveOperandPtr_ | (registers.p.c ? 0x100 : 0x00);
   registers.p.c = tmp & 0x01;
-  registers.p.computeNZ(*effectiveOperand = loByte(tmp >> 1));
+  registers.p.computeNZ(*effectiveOperandPtr_ = loByte(tmp >> 1));
 }
 
 void Cpu::insAND() {
-  registers.p.computeNZ(registers.a &= *effectiveOperand);
+  registers.p.computeNZ(registers.a &= *effectiveOperandPtr_);
 }
 
 void Cpu::insORA() {
-  registers.p.computeNZ(registers.a |= *effectiveOperand);
+  registers.p.computeNZ(registers.a |= *effectiveOperandPtr_);
 }
 
 void Cpu::insEOR() {
-  registers.p.computeNZ(registers.a ^= *effectiveOperand);
+  registers.p.computeNZ(registers.a ^= *effectiveOperandPtr_);
 }
 
 void Cpu::insCMP() {
-  registers.p.computeNZC(registers.a - *effectiveOperand);
+  registers.p.computeNZC(registers.a - *effectiveOperandPtr_);
 }
 
 void Cpu::insCPX() {
-  registers.p.computeNZC(registers.x - *effectiveOperand);
+  registers.p.computeNZC(registers.x - *effectiveOperandPtr_);
 }
 
 void Cpu::insCPY() {
-  registers.p.computeNZC(registers.y - *effectiveOperand);
+  registers.p.computeNZC(registers.y - *effectiveOperandPtr_);
 }
 
 void Cpu::insBIT() {
-  registers.p.computeNZ(registers.a & *effectiveOperand);
+  registers.p.computeNZ(registers.a & *effectiveOperandPtr_);
 }
 
 void Cpu::insSED() {
@@ -219,11 +219,11 @@ void Cpu::insTYA() {
 }
 
 void Cpu::insTSX() {
-  registers.x = registers.sp.value;
+  registers.x = registers.sp.toByte();
 }
 
 void Cpu::insTXS() {
-  registers.sp.value = registers.x;
+  registers.sp.fromByte(registers.x);
 }
 
 void Cpu::insPHA() {
@@ -279,13 +279,13 @@ void Cpu::insBVS() {
 }
 
 void Cpu::insJMP() {
-  registers.pc = effectiveAddress;
+  registers.pc = effectiveAddress_;
 }
 
 void Cpu::insJSR() {
   push(loByte(registers.pc));
   push(hiByte(registers.pc));
-  registers.pc = effectiveAddress;
+  registers.pc = effectiveAddress_;
 }
 
 void Cpu::insRTS() {
@@ -332,21 +332,21 @@ void Cpu::reset() {
 void Cpu::execute(bool continuous) {
   executionStatus = Running;
   while (executionStatus != StopRequested) {
-    instruction = &memory_[registers.pc];
-    operand = const_cast<Memory::iterator>(instruction + 1);
-    const auto& decodeEntry = OpCodeLookUpTable[*instruction];
-    const auto operation = decodeEntry.operation;
+    const auto pc = &memory_[registers.pc];
+    operandPtr_ = pc + 1;
+    const auto& entry = DecodeTable[*pc];
+    const auto insdef = entry.instruction;
 
-    if (operation->instruction == INV) {
+    if (insdef->type == INV) {
       executionStatus = InvalidOpCode;
       return;
     }
 
-    registers.pc += operation->size;
-    cycles += operation->cycles;
+    registers.pc += insdef->size;
+    cycles += insdef->cycles;
 
-    (this->*decodeEntry.prepareOperands)();
-    (this->*decodeEntry.executeInstruction)();
+    (this->*entry.prepareOperands)();
+    (this->*entry.executeInstruction)();
 
     if (!continuous) break;
   }

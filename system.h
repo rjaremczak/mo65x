@@ -19,7 +19,7 @@ public:
   QByteArray saveMemory(uint16_t first, uint16_t last);
 
 signals:
-  void cpuStateChanged(CpuRegisters, int);
+  void cpuStateChanged(Registers, int);
   void memoryContentChanged(uint16_t first, uint16_t last);
 
 public slots:

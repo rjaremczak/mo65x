@@ -15,21 +15,19 @@ SOURCES += \
     bytespinbox.cpp \
     centralwidget.cpp \
     cpu.cpp \
-    cpu_lookuptables.cpp \
     disassembler.cpp \
+    disassemblerwidget.cpp \
     executionwidget.cpp \
-    instruction.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
-    monitorwidget.cpp \
     memorywidget.cpp \
     system.cpp \
     wordspinbox.cpp
 
 HEADERS += \
-    cpu_lookuptables.h \
-    cpuregisters.h \
+    decodetable.h \
+    disassemblerwidget.h \
     executionstatus.h \
     addressingmode.h \
     bytespinbox.h \
@@ -38,20 +36,23 @@ HEADERS += \
     disassembler.h \
     executionwidget.h \
     instruction.h \
+    instructiontable.h \
     instructiontype.h \
     mainwindow.h \
     memory.h \
-    monitorwidget.h \
     memorywidget.h \
+    processorstatus.h \
+    registers.h \
+    stackpointer.h \
     system.h \
     utilities.h \
     wordspinbox.h
 
 FORMS += \
     centralwidget.ui \
+    disassemblerwidget.ui \
     executionwidget.ui \
     mainwindow.ui \
-    monitorwidget.ui \
     memorywidget.ui
 
 RESOURCES += resources.qrc

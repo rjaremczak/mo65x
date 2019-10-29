@@ -7,7 +7,7 @@
 #include "centralwidget.h"
 #include "executionwidget.h"
 #include "memorywidget.h"
-#include "monitorwidget.h"
+#include "disassemblerwidget.h"
 #include "system.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,7 +25,7 @@ public:
 private:
     Ui::MainWindow *ui;
     MemoryWidget* memoryWidget;
-    MonitorWidget* monitorWidget;
+    DisassemblerWidget* monitorWidget;
     CentralWidget* centralWidget;
     ExecutionWidget* executionWidget;
     QTimer* pollTimer;

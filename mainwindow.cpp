@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   system = new System(this);
 
-  monitorWidget = new MonitorWidget(this, system);
+  monitorWidget = new DisassemblerWidget(this, system);
   this->addDockWidget(Qt::LeftDockWidgetArea, monitorWidget);
 
   memoryWidget = new MemoryWidget(this, system);
@@ -24,9 +24,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(system, &System::cpuStateChanged, executionWidget, &ExecutionWidget::updateCpuState);
   connect(system, &System::cpuStateChanged, [&](auto registers) { monitorWidget->changeAddress(registers.pc); });
-  connect(system, &System::memoryContentChanged, monitorWidget, &MonitorWidget::updateMemoryContent);
+  connect(system, &System::memoryContentChanged, monitorWidget, &DisassemblerWidget::updateMemoryContent);
 
-  connect(monitorWidget, &MonitorWidget::addressChanged, system, &System::changePC);
+  connect(monitorWidget, &DisassemblerWidget::addressChanged, system, &System::changePC);
 
   connect(executionWidget, &ExecutionWidget::pcChanged, system, &System::changePC);
 

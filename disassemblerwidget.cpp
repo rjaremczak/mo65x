@@ -1,21 +1,21 @@
-#include "monitorwidget.h"
+#include "disassemblerwidget.h"
 #include "disassembler.h"
-#include "ui_monitorwidget.h"
+#include "ui_disassemblerwidget.h"
 #include <QFontDatabase>
 #include <QResizeEvent>
 
-MonitorWidget::MonitorWidget(QWidget* parent, System* system)
-    : QDockWidget(parent), ui(new Ui::MonitorWidget), system(system), disassembler(system->memoryView()) {
+DisassemblerWidget::DisassemblerWidget(QWidget* parent, System* system)
+    : QDockWidget(parent), ui(new Ui::DisassemblerWidget), system(system), disassembler(system->memoryView()) {
   ui->setupUi(this);
   initView();
-  connect(ui->skipInstruction, &QToolButton::clicked, this, &MonitorWidget::skipInstruction);
+  connect(ui->skipInstruction, &QToolButton::clicked, this, &DisassemblerWidget::skipInstruction);
 }
 
-MonitorWidget::~MonitorWidget() {
+DisassemblerWidget::~DisassemblerWidget() {
   delete ui;
 }
 
-void MonitorWidget::changeAddress(uint16_t pc) {
+void DisassemblerWidget::changeAddress(uint16_t pc) {
   if (firstAddress != pc) {
     firstAddress = pc;
     updateMemoryView();
@@ -23,23 +23,23 @@ void MonitorWidget::changeAddress(uint16_t pc) {
   }
 }
 
-void MonitorWidget::updateMemoryContent(uint16_t first, uint16_t last) {
+void DisassemblerWidget::updateMemoryContent(uint16_t first, uint16_t last) {
   if (firstAddress == std::clamp(firstAddress, first, last) || lastAddress == std::clamp(lastAddress, first, last)) {
     updateMemoryView();
   }
 }
 
-void MonitorWidget::resizeEvent(QResizeEvent* event) {
+void DisassemblerWidget::resizeEvent(QResizeEvent* event) {
   if (event->size().height() != event->oldSize().height()) {
     updateMemoryView();
   }
 }
 
-int MonitorWidget::rowsInView() const {
+int DisassemblerWidget::rowsInView() const {
   return 2 + ui->dumpView->height() / ui->dumpView->fontMetrics().height();
 }
 
-void MonitorWidget::initView() {
+void DisassemblerWidget::initView() {
   ui->viewModeGroup->setId(ui->viewModeAsm, Asm);
   ui->viewModeGroup->setId(ui->viewModeHex, Hex);
   ui->viewModeGroup->setId(ui->viewModeTxt, Txt);
@@ -54,7 +54,7 @@ void MonitorWidget::initView() {
   ui->dumpView->setFont(font);
 }
 
-void MonitorWidget::disassemblerView() {
+void DisassemblerWidget::disassemblerView() {
   disassembler.setAddress(firstAddress);
   QString html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
@@ -76,11 +76,11 @@ void MonitorWidget::disassemblerView() {
   lastAddress = disassembler.currentAddress();
 }
 
-void MonitorWidget::updateMemoryView() {
+void DisassemblerWidget::updateMemoryView() {
   disassemblerView();
 }
 
-void MonitorWidget::skipInstruction() {
+void DisassemblerWidget::skipInstruction() {
   disassembler.setAddress(firstAddress);
   disassembler.nextInstruction();
   changeAddress(disassembler.currentAddress());
