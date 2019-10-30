@@ -58,6 +58,25 @@ FORMS += \
 RESOURCES += resources.qrc
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+# qnx: target.path = /tmp/$${TARGET}/bin
+# else: unix:!android: target.path = /opt/$${TARGET}/bin
+# !isEmpty(target.path): INSTALLS += target
+
+test {
+  message(test build)
+
+  QT += testlib
+  TARGET = $${TARGET}_tests
+
+  SOURCES -= main.cpp
+  SOURCES += \
+    test/opcodestest.cpp \
+    test/main.cpp
+
+  HEADERS += test/opcodestest.h
+
+} else {
+  message(normal build)
+}
+
+message($${TARGET})

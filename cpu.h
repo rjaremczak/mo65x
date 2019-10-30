@@ -19,7 +19,15 @@ public:
   int cycles;
   volatile ExecutionStatus executionStatus = Stopped;
 
+  Cpu(Memory&);
+  void execute(bool continuous = false);
+  void nmi();
+  void irq();
+  void reset();
+
 private:
+  friend class OpCodesTest;
+
   Memory& memory_;
   uint8_t* operandPtr_;
   uint8_t* effectiveOperandPtr_;
@@ -140,11 +148,4 @@ private:
   void insBVS();
   void insJMP();
   void insJSR();
-
-public:
-  Cpu(Memory&);
-  void execute(bool continuous = false);
-  void nmi();
-  void irq();
-  void reset();
 };
