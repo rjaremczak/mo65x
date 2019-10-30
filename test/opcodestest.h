@@ -27,8 +27,5 @@ private slots:
   void init();
   // void cleanup();
 
-  // test functions - all functions prefixed with "test" will be ran as tests
-  // void testSomething();
-
   void testImmediateAddressingMode();
 };

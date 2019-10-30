@@ -9,7 +9,7 @@ struct ProcessorStatus {
     n = false;
     v = false;
     d = false;
-    i = false;
+    i = true;
     z = false;
     c = false;
   }
