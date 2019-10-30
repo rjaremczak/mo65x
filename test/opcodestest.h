@@ -24,9 +24,11 @@ private slots:
   // void cleanupTestCase();
 
   // functions executed by QtTest before and after each test
-  // void init();
+  void init();
   // void cleanup();
 
   // test functions - all functions prefixed with "test" will be ran as tests
   // void testSomething();
+
+  void testImmediateAddressingMode();
 };
