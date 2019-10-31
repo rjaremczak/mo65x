@@ -1,17 +1,9 @@
 #include "disassembler.h"
 #include "instruction.h"
 #include "instructiontable.h"
+#include "mnemonics.h"
 #include <QStringList>
 #include <map>
-
-static const std::map<InstructionType, const char*> Mnemonics{
-    {ADC, "ADC"}, {SBC, "SBC"}, {AND, "AND"}, {ORA, "ORA"}, {ASL, "ASL"}, {LSR, "LSR"}, {EOR, "EOR"}, {ROL, "ROL"}, {ROR, "ROR"},
-    {BIT, "BIT"}, {CMP, "CMP"}, {CPX, "CPX"}, {CPY, "CPY"}, {INC, "INC"}, {INX, "INX"}, {INY, "INY"}, {DEC, "DEC"}, {DEX, "DEX"},
-    {DEY, "DEY"}, {BCC, "BCC"}, {BCS, "BCS"}, {BEQ, "BEQ"}, {BMI, "BMI"}, {BNE, "BNE"}, {BPL, "BPL"}, {BVC, "BVC"}, {BVS, "BVS"},
-    {CLC, "CLC"}, {CLD, "CLD"}, {CLI, "CLI"}, {CLV, "CLV"}, {SEC, "SEC"}, {SED, "SED"}, {SEI, "SEI"}, {JMP, "JMP"}, {JSR, "JSR"},
-    {BRK, "BRK"}, {RTI, "RTI"}, {RTS, "RTS"}, {LDA, "LDA"}, {LDX, "LDX"}, {LDY, "LDY"}, {STA, "STA"}, {STX, "STX"}, {STY, "STY"},
-    {TAX, "TAX"}, {TAY, "TAY"}, {TSX, "TSX"}, {TXA, "TXA"}, {TYA, "TYA"}, {TXS, "TXS"}, {PHA, "PHA"}, {PHP, "PHP"}, {PLA, "PLA"},
-    {PLP, "PLP"}, {NOP, "NOP"}, {INV, "???"}};
 
 static QString formatHex8(uint8_t val) {
   return QString("%1").arg(val, 2, 16, QChar('0'));
@@ -65,7 +57,7 @@ QString Disassembler::disassemble() const {
     str.append(i < instruction.size ? formatHex8(memory[address + i]).append(" ") : "   ");
   }
   str.append(" ");
-  str.append(Mnemonics.at(instruction.type)).append(" ");
+  str.append(MnemonicTable.at(instruction.type)).append(" ");
 
   switch (instruction.addressingMode) {
   case Implied:

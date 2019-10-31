@@ -23,6 +23,7 @@ SOURCES += \
     mainwindow.cpp \
     memory.cpp \
     memorywidget.cpp \
+    mnemonics.cpp \
     system.cpp \
     wordspinbox.cpp
 
@@ -43,6 +44,7 @@ HEADERS += \
     mainwindow.h \
     memory.h \
     memorywidget.h \
+    mnemonics.h \
     processorstatus.h \
     registers.h \
     stackpointer.h \
@@ -72,10 +74,13 @@ test {
 
   SOURCES -= main.cpp
   SOURCES += \
+    test/assemblertest.cpp \
     test/opcodestest.cpp \
     test/main.cpp
 
-  HEADERS += test/opcodestest.h
+  HEADERS += \
+    test/assemblertest.h \
+    test/opcodestest.h
 
 } else {
   message(normal build)

@@ -1,34 +1,27 @@
 #pragma once
 
 #include "assembler.h"
-#include "cpu.h"
 #include <QObject>
 
-class OpCodesTest : public QObject{
+static constexpr auto AsmOrigin = 0x0800;
+
+class AssemblerTest : public QObject {
   Q_OBJECT
 
 public:
-  explicit OpCodesTest(QObject* parent = nullptr);
-
   Memory memory;
-  Cpu cpu;
   Assembler assembler;
 
-signals:
+  explicit AssemblerTest(QObject* parent = nullptr);
 
-public slots:
-
-private:
 private slots:
   // functions executed by QtTest before and after test suite
-  void initTestCase();
+  // void initTestCase();
   // void cleanupTestCase();
 
   // functions executed by QtTest before and after each test
   void init();
   // void cleanup();
 
-  void testAccumulatorMode();
-  void testImmediateMode();
-  void testZeroPageMode();
+  void testImpliedModeFromStr();
 };
