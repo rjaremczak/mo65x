@@ -9,7 +9,7 @@ const MnemonicTableType MnemonicTable{
     {TAX, "TAX"}, {TAY, "TAY"}, {TSX, "TSX"}, {TXA, "TXA"}, {TYA, "TYA"}, {TXS, "TXS"}, {PHA, "PHA"}, {PHP, "PHP"}, {PLA, "PLA"},
     {PLP, "PLP"}, {NOP, "NOP"}, {INV, "???"}};
 
-InstructionType findInstructionTypeForMnemonic(QString mnemonic) {
+InstructionType findInstructionType(QString mnemonic) {
   const auto it =
       std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return mnemonic == QString(kv.second); });
   return it != MnemonicTable.end() ? it->first : InstructionType::INV;

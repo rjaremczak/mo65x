@@ -67,7 +67,7 @@ RESOURCES += resources.qrc
 # !isEmpty(target.path): INSTALLS += target
 
 test {
-  message(test build)
+  #message(test build)
 
   QT += testlib
   TARGET = $${TARGET}_tests
@@ -83,7 +83,7 @@ test {
     test/opcodestest.h
 
 } else {
-  message(normal build)
+  #message(normal build)
 }
 
 message($${TARGET})

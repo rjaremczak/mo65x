@@ -9,4 +9,4 @@ using MnemonicTableType = std::map<InstructionType, const char*>;
 
 extern const MnemonicTableType MnemonicTable;
 
-InstructionType findInstructionTypeForMnemonic(QString mnemonic);
+InstructionType findInstructionType(QString mnemonic);

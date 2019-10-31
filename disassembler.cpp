@@ -5,11 +5,11 @@
 #include <QStringList>
 #include <map>
 
-static QString formatHex8(uint8_t val) {
+QString Disassembler::formatHex8(uint8_t val) {
   return QString("%1").arg(val, 2, 16, QChar('0'));
 }
 
-static QString formatHex16(uint16_t val) {
+QString Disassembler::formatHex16(uint16_t val) {
   return QString("%1").arg(val, 4, 16, QChar('0'));
 }
 
@@ -59,40 +59,20 @@ QString Disassembler::disassemble() const {
   str.append(" ");
   str.append(MnemonicTable.at(instruction.type)).append(" ");
 
-  switch (instruction.addressingMode) {
+  switch (instruction.mode) {
+  case NoOperands:
   case Implied:
-  case Accumulator:
-    break;
-  case Immediate:
-    str.append("#").append(formatOperand8());
-    break;
-  case Absolute:
-    str.append(formatOperand16());
-    break;
-  case AbsoluteX:
-    str.append(formatOperand16()).append(",X");
-    break;
-  case AbsoluteY:
-    str.append(formatOperand16()).append(",Y");
-    break;
-  case ZeroPage:
-    str.append(formatOperand8());
-    break;
-  case ZeroPageX:
-    str.append(formatOperand8()).append(",X");
-    break;
-  case ZeroPageY:
-    str.append(formatOperand8()).append(",Y");
-    break;
-  case IndexedIndirectX:
-    str.append("(").append(formatOperand8()).append(",X)");
-    break;
-  case IndirectIndexedY:
-    str.append("(").append(formatOperand8()).append("),Y");
-    break;
-  case Indirect:
-    str.append("(").append(formatOperand16()).append(")");
-    break;
+  case Accumulator: break;
+  case Immediate: str.append("#").append(formatOperand8()); break;
+  case Absolute: str.append(formatOperand16()); break;
+  case AbsoluteX: str.append(formatOperand16()).append(",X"); break;
+  case AbsoluteY: str.append(formatOperand16()).append(",Y"); break;
+  case ZeroPage: str.append(formatOperand8()); break;
+  case ZeroPageX: str.append(formatOperand8()).append(",X"); break;
+  case ZeroPageY: str.append(formatOperand8()).append(",Y"); break;
+  case IndexedIndirectX: str.append("(").append(formatOperand8()).append(",X)"); break;
+  case IndirectIndexedY: str.append("(").append(formatOperand8()).append("),Y"); break;
+  case Indirect: str.append("(").append(formatOperand16()).append(")"); break;
   case Relative:
     const auto displacement = static_cast<int8_t>(memory[address + 1]);
     str.append("$").append(formatHex16(static_cast<uint16_t>(address + instruction.size + displacement)));

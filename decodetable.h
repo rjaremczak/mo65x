@@ -9,8 +9,8 @@ struct DecodeEntry {
   Cpu::Handler executeInstruction = nullptr;
 };
 
-constexpr Cpu::Handler operandsHandler(AddressingMode addressingMode) {
-  switch (addressingMode) {
+constexpr Cpu::Handler operandsHandler(AddressingMode mode) {
+  switch (mode) {
   case Implied: return &Cpu::amImplied;
   case Accumulator: return &Cpu::amAccumulator;
   case Relative: return &Cpu::amRelative;
@@ -24,6 +24,7 @@ constexpr Cpu::Handler operandsHandler(AddressingMode addressingMode) {
   case Absolute: return &Cpu::amAbsolute;
   case AbsoluteX: return &Cpu::amAbsoluteX;
   case AbsoluteY: return &Cpu::amAbsoluteY;
+  case NoOperands: return nullptr;
   }
 }
 
@@ -105,7 +106,7 @@ constexpr DecodeTableType DecodeTable = [] {
   DecodeTableType dtab;
   for (size_t i = 0; i < InstructionTable.size(); i++) {
     const Instruction* ins = &InstructionTable[i];
-    dtab[i] = {ins, operandsHandler(ins->addressingMode), instructionHandler(ins->type)};
+    dtab[i] = {ins, operandsHandler(ins->mode), instructionHandler(ins->type)};
   }
   return dtab;
 }();

@@ -2,25 +2,29 @@
 
 enum AddressingMode {
 
-    // no operands
+  // no operands
 
-    Implied,
-    Accumulator,
+  Implied,
+  Accumulator,
 
-    // 8-bit operand
+  // 8-bit operand
 
-    Relative,
-    Immediate,
-    ZeroPage,
-    ZeroPageX,
-    ZeroPageY,
-    IndexedIndirectX,
-    IndirectIndexedY,
+  Relative,
+  Immediate,
+  ZeroPage,
+  ZeroPageX,
+  ZeroPageY,
+  IndexedIndirectX,
+  IndirectIndexedY,
 
-    // 16-bit operand
+  // 16-bit operand
 
-    Indirect,
-    Absolute,
-    AbsoluteX,
-    AbsoluteY
+  Indirect,
+  Absolute,
+  AbsoluteX,
+  AbsoluteY,
+
+  // no operands, implied or accumulator
+
+  NoOperands
 };

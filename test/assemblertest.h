@@ -14,6 +14,9 @@ public:
 
   explicit AssemblerTest(QObject* parent = nullptr);
 
+private:
+  void verify(const char* str, uint8_t opcode, int lo = -1, int hi = -1);
+
 private slots:
   // functions executed by QtTest before and after test suite
   // void initTestCase();
@@ -23,5 +26,8 @@ private slots:
   void init();
   // void cleanup();
 
-  void testImpliedModeFromStr();
+  void testImpliedMode();
+  void testAccumulatorMode();
+  void testImmediateMode();
+  void testZeroPageMode();
 };

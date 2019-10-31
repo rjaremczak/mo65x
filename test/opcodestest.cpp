@@ -1,4 +1,5 @@
 #include "opcodestest.h"
+#include "disassembler.h"
 #include <QTest>
 #include <algorithm>
 
@@ -39,14 +40,13 @@ void OpCodesTest::testAccumulatorMode() {
 }
 
 void OpCodesTest::testImmediateMode() {
-  assembler.enter(LDA, Immediate, 0x23);
+  assembler.enter("LDA #$23");
   cpu.execute();
   QCOMPARE(cpu.registers.a, 0x23);
 }
 
 void OpCodesTest::testZeroPageMode() {
-  assembler.enter(LDX, ZeroPage, ZeroPageByteAddress);
+  assembler.enter(LDY, ZeroPage, ZeroPageByteAddress);
   cpu.execute();
-  QCOMPARE(cpu.effectiveAddress_, ZeroPageByteAddress);
-  QCOMPARE(cpu.effectiveOperandPtr_, &memory[0xfe]);
+  QCOMPARE(cpu.registers.y, ZeroPageByte);
 }
