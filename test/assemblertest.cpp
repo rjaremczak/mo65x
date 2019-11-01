@@ -30,3 +30,11 @@ void AssemblerTest::testImmediateMode() {
 void AssemblerTest::testZeroPageMode() {
   verify("LDY $8f", 0xa4, 0x8f);
 }
+
+void AssemblerTest::testZeroPageXMode() {
+  verify("LDA $a0,X", 0xb5, 0xa0);
+}
+
+void AssemblerTest::testZeroPageYMode() {
+  verify("STX $7a,Y", 0x96, 0x7a);
+}

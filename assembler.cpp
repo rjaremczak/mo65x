@@ -18,7 +18,9 @@ struct AddressingModeInference {
 const AddressingModeEntry AddressingModeEntries[]{
     {QRegularExpression("(\\w{3})\\s*$"), NoOperands},
     {QRegularExpression("(\\w{3})\\s+#\\$([\\d|a-h|A-H]{2})\\s*$"), Immediate},
-    {QRegularExpression("(\\w{3})\\s+\\$([\\d|a-h|A-H]{2})\\s*$"), ZeroPage}};
+    {QRegularExpression("(\\w{3})\\s+\\$([\\d|a-h|A-H]{2})\\s*$"), ZeroPage},
+    {QRegularExpression(R"((\w{3})\s+\$([\d|a-h|A-H]{2})\s*,\s*X\s*$)"), ZeroPageX},
+    {QRegularExpression(R"((\w{3})\s+\$([\d|a-h|A-H]{2})\s*,\s*Y\s*$)"), ZeroPageY}};
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;
@@ -52,14 +54,16 @@ bool Assembler::assemble(InstructionType type, AddressingMode mode, uint16_t ope
 }
 
 bool Assembler::assemble(QString str) {
-  const auto inference = inferAddressingMode(str);
-  if (!inference.match.hasMatch()) return false;
+  const auto inf = inferAddressingMode(str);
+  if (!inf.match.hasMatch()) return false;
 
-  const auto type = findInstructionType(inference.match.captured(1));
-  switch (inference.mode) {
+  const auto type = findInstructionType(inf.match.captured(1));
+  switch (inf.mode) {
   case NoOperands: return assemble(type);
-  case Immediate: return assemble(type, inference.mode, inference.match.captured(2).toUShort(nullptr, 16));
-  case ZeroPage: return assemble(type, inference.mode, inference.match.captured(2).toUShort(nullptr, 16));
+  case Immediate:
+  case ZeroPage:
+  case ZeroPageX:
+  case ZeroPageY: return assemble(type, inf.mode, inf.match.captured(2).toUShort(nullptr, 16));
   default: return false;
   }
 }

@@ -30,4 +30,6 @@ private slots:
   void testAccumulatorMode();
   void testImmediateMode();
   void testZeroPageMode();
+  void testZeroPageXMode();
+  void testZeroPageYMode();
 };
