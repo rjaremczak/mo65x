@@ -21,7 +21,13 @@ const AddressingModeEntry AddressingModeEntries[]{
     {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})$)"), ZeroPage},
     {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})\s*,\s*X$)"), ZeroPageX},
     {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})\s*,\s*Y$)"), ZeroPageY},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})$)"), Absolute}};
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})$)"), Absolute},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})\s*,\s*X$)"), AbsoluteX},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})\s*,\s*Y$)"), AbsoluteY},
+    {QRegularExpression(R"(([A-Z]{3})\s+\(\$([\d|A-H]{1,4})\)\s*$)"), Indirect},
+    {QRegularExpression(R"(([A-Z]{3})\s+\(\$([\d|A-H]{1,2}),X\)$)"), IndexedIndirectX},
+    {QRegularExpression(R"(([A-Z]{3})\s+\(\$([\d|A-H]{1,2})\),Y$)"), IndirectIndexedY},
+    {QRegularExpression(R"(([A-Z]{3})\s+([+|-]?\d{1,3})$)"), Relative}};
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;
@@ -45,7 +51,7 @@ static AddressingModeInference inferAddressingMode(const char* str) {
 Assembler::Assembler(Memory& memory, uint16_t origin) : memory_(memory), address_(origin) {
 }
 
-bool Assembler::assemble(InstructionType type, AddressingMode mode, uint16_t operand) {
+bool Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
   if (const auto it = findInstruction(type, mode)) {
     memory_[address_++] = static_cast<uint8_t>(std::distance(InstructionTable.begin(), it));
     if (it->size > 1) memory_[address_++] = loByte(operand);
@@ -60,13 +66,11 @@ bool Assembler::assemble(const char* str) {
   if (!inf.match.hasMatch()) return false;
 
   const auto type = findInstructionType(inf.match.captured(1));
-  switch (inf.mode) {
-  case NoOperands: return assemble(type);
-  case Immediate:
-  case ZeroPage:
-  case ZeroPageX:
-  case ZeroPageY:
-  case Absolute: return assemble(type, inf.mode, inf.match.captured(2).toUShort(nullptr, 16));
-  default: return false;
+  if (inf.mode == Relative) {
+    return assemble(type, inf.mode, inf.match.captured(2).toInt(nullptr, 10));
+  } else if (Instruction::sizeForAddressingMode(inf.mode) > 1) {
+    return assemble(type, inf.mode, inf.match.captured(2).toInt(nullptr, 16));
+  } else {
+    return assemble(type);
   }
 }

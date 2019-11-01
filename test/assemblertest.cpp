@@ -40,6 +40,33 @@ void AssemblerTest::testZeroPageYMode() {
 }
 
 void AssemblerTest::testAbsoluteMode() {
-  // verify("STX $7a,Y", 0x96, 0x7a);
   verify("ROR $3400", 0x6e, 0x00, 0x34);
+}
+
+void AssemblerTest::testAbsoluteXMode() {
+  verify("LSR $35f0,X", 0x5e, 0xf0, 0x35);
+}
+
+void AssemblerTest::testAbsoluteYMode() {
+  verify("EOR $f7a0,Y", 0x59, 0xa0, 0xf7);
+}
+
+void AssemblerTest::testIndirectMode() {
+  verify("JMP ($ffa0)", 0x6c, 0xa0, 0xff);
+}
+
+void AssemblerTest::testIndexedIndirectXMode() {
+  verify("LDA ($8c,X)", 0xa1, 0x8c);
+}
+
+void AssemblerTest::testIndirectIndexedYMode() {
+  verify("ORA ($a7),Y", 0x11, 0xa7);
+}
+
+void AssemblerTest::testRelativeModeMinus() {
+  verify("BCC -1", 0x90, -1);
+}
+
+void AssemblerTest::testRelativeModePlus() {
+  verify("BVS +8", 0x70, 8);
 }

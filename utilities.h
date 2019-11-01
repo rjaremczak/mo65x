@@ -2,11 +2,11 @@
 
 #include <cstdint>
 
-constexpr uint8_t loByte(unsigned word) {
+constexpr uint8_t loByte(int word) {
   return word & 0xff;
 }
 
-constexpr uint8_t hiByte(unsigned word) {
+constexpr uint8_t hiByte(int word) {
   return word >> 8 & 0xff;
 }
 
