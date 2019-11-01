@@ -40,13 +40,13 @@ void OpCodesTest::testAccumulatorMode() {
 }
 
 void OpCodesTest::testImmediateMode() {
-  assembler.enter("LDA #$23");
+  assembler.assemble("LDA #$23");
   cpu.execute();
   QCOMPARE(cpu.registers.a, 0x23);
 }
 
 void OpCodesTest::testZeroPageMode() {
-  assembler.enter(LDY, ZeroPage, ZeroPageByteAddress);
+  assembler.assemble(LDY, ZeroPage, ZeroPageByteAddress);
   cpu.execute();
   QCOMPARE(cpu.registers.y, ZeroPageByte);
 }

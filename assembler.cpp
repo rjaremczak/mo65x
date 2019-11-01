@@ -20,16 +20,15 @@ const AddressingModeEntry AddressingModeEntries[]{
     {QRegularExpression("(\\w{3})\\s+#\\$([\\d|a-h|A-H]{2})\\s*$"), Immediate},
     {QRegularExpression("(\\w{3})\\s+\\$([\\d|a-h|A-H]{2})\\s*$"), ZeroPage}};
 
-static auto find(InstructionType type, AddressingMode mode) {
-  return std::find_if(InstructionTable.begin(), InstructionTable.end(),
-                      [=](const Instruction& ins) { return ins.type == type && ins.mode == mode; });
-}
+static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
+  if (type == INV) return nullptr;
 
-static auto findNoOperandsAddressingMode(InstructionType type) {
-  const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(), [=](auto ins) {
-    return ins.type == type && (ins.mode == Implied || ins.mode == Accumulator);
+  const auto mode0 = mode == NoOperands ? Implied : mode;
+  const auto mode1 = mode == NoOperands ? Accumulator : mode;
+  const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(), [=](const Instruction& ins) {
+    return ins.type == type && (ins.mode == mode0 || ins.mode == mode1);
   });
-  return it != InstructionTable.end() ? it->mode : Implied;
+  return it != InstructionTable.end() ? it : nullptr;
 }
 
 static AddressingModeInference inferAddressingMode(QString str) {
@@ -42,32 +41,25 @@ static AddressingModeInference inferAddressingMode(QString str) {
 Assembler::Assembler(Memory& memory, uint16_t origin) : memory_(memory), address_(origin) {
 }
 
-bool Assembler::enter(InstructionType type, AddressingMode mode, uint16_t operand) {
-  if (type == INV) return false;
-
-  if (mode == NoOperands) mode = findNoOperandsAddressingMode(type);
-
-  const auto it = find(type, mode);
-  if (it == InstructionTable.end()) return false;
-
-  memory_[address_++] = static_cast<uint8_t>(std::distance(InstructionTable.begin(), it));
-  if (it->size == 2) {
-    memory_[address_++] = loByte(operand);
-  } else if (it->size == 3) {
-    memory_.write16(address_ += 2, operand & 0xffff);
+bool Assembler::assemble(InstructionType type, AddressingMode mode, uint16_t operand) {
+  if (const auto it = findInstruction(type, mode)) {
+    memory_[address_++] = static_cast<uint8_t>(std::distance(InstructionTable.begin(), it));
+    if (it->size > 1) memory_[address_++] = loByte(operand);
+    if (it->size > 2) memory_[address_++] = hiByte(operand);
+    return true;
   }
-  return true;
+  return false;
 }
 
-bool Assembler::enter(QString str) {
+bool Assembler::assemble(QString str) {
   const auto inference = inferAddressingMode(str);
   if (!inference.match.hasMatch()) return false;
 
   const auto type = findInstructionType(inference.match.captured(1));
   switch (inference.mode) {
-  case NoOperands: return enter(type);
-  case Immediate: return enter(type, inference.mode, inference.match.captured(2).toUShort(nullptr, 16));
-  case ZeroPage: return enter(type, inference.mode, inference.match.captured(2).toUShort(nullptr, 16));
+  case NoOperands: return assemble(type);
+  case Immediate: return assemble(type, inference.mode, inference.match.captured(2).toUShort(nullptr, 16));
+  case ZeroPage: return assemble(type, inference.mode, inference.match.captured(2).toUShort(nullptr, 16));
   default: return false;
   }
 }

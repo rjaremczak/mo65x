@@ -5,7 +5,7 @@ AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(memor
 }
 
 void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
-  QVERIFY(assembler.enter(str));
+  QVERIFY(assembler.assemble(str));
   QCOMPARE(memory[AsmOrigin], opcode);
   if (lo >= 0) QCOMPARE(lo, memory[AsmOrigin + 1]);
   if (hi >= 0) QCOMPARE(hi, memory[AsmOrigin + 2]);
@@ -28,4 +28,5 @@ void AssemblerTest::testImmediateMode() {
 }
 
 void AssemblerTest::testZeroPageMode() {
+  verify("LDY $8f", 0xa4, 0x8f);
 }
