@@ -1,4 +1,4 @@
-#include "opcodestest.h"
+#include "instructionstest.h"
 #include "disassembler.h"
 #include <QTest>
 #include <algorithm>

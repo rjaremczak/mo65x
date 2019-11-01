@@ -1,5 +1,5 @@
 #include "assemblertest.h"
-#include "opcodestest.h"
+#include "instructionstest.h"
 #include <QtTest>
 
 int main(int argc, char** argv) {

@@ -75,12 +75,12 @@ test {
   SOURCES -= main.cpp
   SOURCES += \
     test/assemblertest.cpp \
-    test/opcodestest.cpp \
+    test/instructionstest.cpp \
     test/main.cpp
 
   HEADERS += \
     test/assemblertest.h \
-    test/opcodestest.h
+    test/instructionstest.h
 
 } else {
   #message(normal build)
