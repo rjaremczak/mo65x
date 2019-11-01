@@ -12,7 +12,7 @@ public:
   void setOrigin(uint16_t origin) { address_ = origin; }
   auto currentAddress() const { return address_; }
   bool assemble(InstructionType type, AddressingMode mode = NoOperands, uint16_t operand = 0);
-  bool assemble(QString);
+  bool assemble(const char*);
 
 private:
   Memory& memory_;

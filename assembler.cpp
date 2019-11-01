@@ -16,11 +16,12 @@ struct AddressingModeInference {
 };
 
 const AddressingModeEntry AddressingModeEntries[]{
-    {QRegularExpression("(\\w{3})\\s*$"), NoOperands},
-    {QRegularExpression("(\\w{3})\\s+#\\$([\\d|a-h|A-H]{2})\\s*$"), Immediate},
-    {QRegularExpression("(\\w{3})\\s+\\$([\\d|a-h|A-H]{2})\\s*$"), ZeroPage},
-    {QRegularExpression(R"((\w{3})\s+\$([\d|a-h|A-H]{2})\s*,\s*X\s*$)"), ZeroPageX},
-    {QRegularExpression(R"((\w{3})\s+\$([\d|a-h|A-H]{2})\s*,\s*Y\s*$)"), ZeroPageY}};
+    {QRegularExpression(R"(([A-Z]{3})$)"), NoOperands},
+    {QRegularExpression(R"(([A-Z]{3})\s+#\$([\d|A-H]{2})$)"), Immediate},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})$)"), ZeroPage},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})\s*,\s*X$)"), ZeroPageX},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})\s*,\s*Y$)"), ZeroPageY},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})$)"), Absolute}};
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;
@@ -33,9 +34,10 @@ static const Instruction* findInstruction(InstructionType type, AddressingMode m
   return it != InstructionTable.end() ? it : nullptr;
 }
 
-static AddressingModeInference inferAddressingMode(QString str) {
+static AddressingModeInference inferAddressingMode(const char* str) {
+  const auto normalized = QString(str).toUpper();
   for (auto& entry : AddressingModeEntries) {
-    if (auto match = entry.pattern.match(str); match.hasMatch()) { return {match, entry.mode}; }
+    if (auto match = entry.pattern.match(normalized); match.hasMatch()) { return {match, entry.mode}; }
   }
   return {};
 }
@@ -53,7 +55,7 @@ bool Assembler::assemble(InstructionType type, AddressingMode mode, uint16_t ope
   return false;
 }
 
-bool Assembler::assemble(QString str) {
+bool Assembler::assemble(const char* str) {
   const auto inf = inferAddressingMode(str);
   if (!inf.match.hasMatch()) return false;
 
@@ -63,7 +65,8 @@ bool Assembler::assemble(QString str) {
   case Immediate:
   case ZeroPage:
   case ZeroPageX:
-  case ZeroPageY: return assemble(type, inf.mode, inf.match.captured(2).toUShort(nullptr, 16));
+  case ZeroPageY:
+  case Absolute: return assemble(type, inf.mode, inf.match.captured(2).toUShort(nullptr, 16));
   default: return false;
   }
 }

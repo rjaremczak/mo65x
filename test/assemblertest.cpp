@@ -38,3 +38,8 @@ void AssemblerTest::testZeroPageXMode() {
 void AssemblerTest::testZeroPageYMode() {
   verify("STX $7a,Y", 0x96, 0x7a);
 }
+
+void AssemblerTest::testAbsoluteMode() {
+  // verify("STX $7a,Y", 0x96, 0x7a);
+  verify("ROR $3400", 0x6e, 0x00, 0x34);
+}

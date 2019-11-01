@@ -32,4 +32,5 @@ private slots:
   void testZeroPageMode();
   void testZeroPageXMode();
   void testZeroPageYMode();
+  void testAbsoluteMode();
 };
