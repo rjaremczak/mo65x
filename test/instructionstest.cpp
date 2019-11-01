@@ -16,6 +16,20 @@ constexpr auto AsmOrigin = 0x0800;
 OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory), assembler(memory) {
 }
 
+void OpCodesTest::test(const char* str) {
+  cpu.cycles = 0;
+  QVERIFY(assembler.assemble(str));
+  cpu.execute();
+  QCOMPARE(cpu.executionStatus, Stopped);
+}
+
+void OpCodesTest::test(InstructionType type, AddressingMode mode, int operand) {
+  cpu.cycles = 0;
+  QVERIFY(assembler.assemble(type, mode, operand));
+  cpu.execute();
+  QCOMPARE(cpu.executionStatus, Stopped);
+}
+
 void OpCodesTest::initTestCase() {
   QVERIFY(&cpu.memory_ == &memory);
   std::fill(memory.begin(), memory.end(), 0);
@@ -34,19 +48,48 @@ void OpCodesTest::init() {
   assembler.setOrigin(AsmOrigin);
 }
 
+void OpCodesTest::testImpliedMode() {
+  cpu.registers.p.i = true;
+  test(CLI);
+  QVERIFY(!cpu.registers.p.i);
+}
+
 void OpCodesTest::testAccumulatorMode() {
   cpu.amAccumulator();
   QCOMPARE(cpu.effectiveOperandPtr_, &cpu.registers.a);
 }
 
 void OpCodesTest::testImmediateMode() {
-  assembler.assemble("LDA #$23");
-  cpu.execute();
-  QCOMPARE(cpu.registers.a, 0x23);
+  cpu.operandPtr_ = &memory[0x10];
+  cpu.amImmediate();
+  QCOMPARE(cpu.effectiveOperandPtr_, &memory[0x10]);
 }
 
 void OpCodesTest::testZeroPageMode() {
-  assembler.assemble(LDY, ZeroPage, ZeroPageByteAddress);
-  cpu.execute();
-  QCOMPARE(cpu.registers.y, ZeroPageByte);
+  memory[0xa0] = 0x40;
+  memory[0x40] = 0xf8;
+  cpu.operandPtr_ = &memory[0xa0];
+  cpu.amZeroPage();
+  QCOMPARE(cpu.effectiveAddress_, 0x40);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0xf8);
+}
+
+void OpCodesTest::testZeroPageXMode() {
+  memory[0xa0] = 0x80;
+  memory[0x10] = 0xe8;
+  cpu.operandPtr_ = &memory[0xa0];
+  cpu.registers.x = 0x90;
+  cpu.amZeroPageX();
+  QCOMPARE(cpu.effectiveAddress_, 0x10);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0xe8);
+}
+
+void OpCodesTest::testASL() {
+  cpu.registers.a = 0b11000001;
+  test(ASL);
+  QCOMPARE(cpu.cycles, 2);
+  QCOMPARE(cpu.registers.a, 0b10000010);
+  QVERIFY(cpu.registers.p.c);
+  QVERIFY(!cpu.registers.p.z);
+  QVERIFY(cpu.registers.p.n);
 }

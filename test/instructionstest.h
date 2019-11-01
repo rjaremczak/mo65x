@@ -10,16 +10,15 @@ class OpCodesTest : public QObject{
 public:
   explicit OpCodesTest(QObject* parent = nullptr);
 
+private:
   Memory memory;
   Cpu cpu;
   Assembler assembler;
 
-signals:
-
-public slots:
-
-private:
 private slots:
+  void test(const char*);
+  void test(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
+
   // functions executed by QtTest before and after test suite
   void initTestCase();
   // void cleanupTestCase();
@@ -28,7 +27,11 @@ private slots:
   void init();
   // void cleanup();
 
+  void testImpliedMode();
   void testAccumulatorMode();
   void testImmediateMode();
   void testZeroPageMode();
+  void testZeroPageXMode();
+
+  void testASL();
 };
