@@ -37,8 +37,8 @@ private slots:
   void testAbsoluteXMode();
   void testAbsoluteYMode();
   void testIndirectMode();
-  // void testIndexedIndirectXMode();
-  // void testIndirectIndexedYMode();
+  void testIndexedIndirectXMode();
+  void testIndirectIndexedYMode();
   // void testRelativeModePlus();
   // void testRelativeModeMinus();
 

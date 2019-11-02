@@ -37,7 +37,7 @@ void Cpu::prepZeroPageYMode() {
 }
 
 void Cpu::prepIndexedIndirectXMode() {
-  setEffectiveAddressAndOperand(loByte(memory_.read16((operand8() + registers.x))));
+  setEffectiveAddressAndOperand(memory_.read16(loByte(operand8() + registers.x)));
 }
 
 void Cpu::prepIndirectIndexedYMode() {

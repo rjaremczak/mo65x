@@ -120,6 +120,27 @@ void OpCodesTest::testIndirectMode() {
   QCOMPARE(cpu.effectiveAddress_, 0x34f0);
 }
 
+void OpCodesTest::testIndexedIndirectXMode() {
+  memory.write16(0x82, 0xaf01);
+  memory[0x2001] = 0x70;
+  cpu.operandPtr_ = &memory[0x2001];
+  cpu.registers.x = 0x12;
+  cpu.prepIndexedIndirectXMode();
+  QCOMPARE(cpu.effectiveAddress_, 0xaf01);
+  QCOMPARE(cpu.effectiveOperandPtr_, &memory[0xaf01]);
+}
+
+void OpCodesTest::testIndirectIndexedYMode() {
+  memory.write16(0x82, 0xcf01);
+  memory[0x2001] = 0x82;
+  memory[0xcfd1] = 0xea;
+  cpu.operandPtr_ = &memory[0x2001];
+  cpu.registers.y = 0xd0;
+  cpu.prepIndirectIndexedYMode();
+  QCOMPARE(cpu.effectiveAddress_, 0xcfd1);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0xea);
+}
+
 void OpCodesTest::testASL() {
   cpu.registers.a = 0b11000001;
   test(ASL);

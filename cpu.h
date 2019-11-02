@@ -52,8 +52,8 @@ private:
     effectiveOperandPtr_ = &memory_[address];
   }
 
-  void setEffectiveAddressAndOperand(uint16_t address, int16_t displacement) {
-    const auto result = address + displacement;
+  void setEffectiveAddressAndOperand(uint16_t address, int16_t offset) {
+    const auto result = address + offset;
     pageBoundaryCrossed_ = (address ^ result) & 0xff00;
     effectiveAddress_ = (address & 0xff00) | (result & 0x00ff);
     effectiveOperandPtr_ = &memory_[effectiveAddress_];
