@@ -39,8 +39,6 @@ private slots:
   void testIndirectMode();
   void testIndexedIndirectXMode();
   void testIndirectIndexedYMode();
-  // void testRelativeModePlus();
-  // void testRelativeModeMinus();
-
+  void testPageBoundaryCrossingDetection();
   void testASL();
 };

@@ -141,6 +141,16 @@ void OpCodesTest::testIndirectIndexedYMode() {
   QCOMPARE(*cpu.effectiveOperandPtr_, 0xea);
 }
 
+void OpCodesTest::testPageBoundaryCrossingDetection() {
+  cpu.pageBoundaryCrossed_ = false;
+  cpu.setEffectiveAddressAndOperand(0x1080, 0x7f);
+  QVERIFY(!cpu.pageBoundaryCrossed_);
+  cpu.setEffectiveAddressAndOperand(0x1080, 0x80);
+  QVERIFY(cpu.pageBoundaryCrossed_);
+  cpu.setEffectiveAddressAndOperand(0x3080, 0x02);
+  QVERIFY(!cpu.pageBoundaryCrossed_);
+}
+
 void OpCodesTest::testASL() {
   cpu.registers.a = 0b11000001;
   test(ASL);

@@ -58,14 +58,17 @@ void Cpu::prepAbsoluteYMode() {
 
 void Cpu::execLDA() {
   registers.a = *effectiveOperandPtr_;
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execLDX() {
   registers.x = *effectiveOperandPtr_;
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execLDY() {
   registers.y = *effectiveOperandPtr_;
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execSTA() {
@@ -87,6 +90,7 @@ void Cpu::execADC() {
   registers.a = loByte(result);
   registers.p.computeNZC(result);
   registers.p.computeV(op1, op2, result);
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execSBC() {
@@ -96,6 +100,7 @@ void Cpu::execSBC() {
   registers.a = loByte(result);
   registers.p.computeNZC(result);
   registers.p.computeV(op1, op2, result);
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execINC() {
@@ -148,18 +153,22 @@ void Cpu::execROR() {
 
 void Cpu::execAND() {
   registers.p.computeNZ(registers.a &= *effectiveOperandPtr_);
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execORA() {
   registers.p.computeNZ(registers.a |= *effectiveOperandPtr_);
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execEOR() {
   registers.p.computeNZ(registers.a ^= *effectiveOperandPtr_);
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execCMP() {
   registers.p.computeNZC(registers.a - *effectiveOperandPtr_);
+  applyPageBoundaryCrossingPenalty();
 }
 
 void Cpu::execCPX() {
