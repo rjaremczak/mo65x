@@ -5,7 +5,6 @@ WordSpinBox::WordSpinBox(QWidget *parent) : QSpinBox(parent)
 {
     setRange(0, 65535);
     setDisplayIntegerBase(16);
-    setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 }
 
 QString WordSpinBox::textFromValue(int val) const

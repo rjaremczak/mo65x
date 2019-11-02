@@ -44,14 +44,6 @@ void DisassemblerWidget::initView() {
   ui->viewModeGroup->setId(ui->viewModeHex, Hex);
   ui->viewModeGroup->setId(ui->viewModeTxt, Txt);
   ui->viewModeAsm->setChecked(true);
-
-  auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-
-#ifdef __APPLE__
-  font.setPointSize(13);
-#endif
-
-  ui->dumpView->setFont(font);
 }
 
 void DisassemblerWidget::disassemblerView() {

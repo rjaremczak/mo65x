@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>215</width>
-    <height>282</height>
+    <width>208</width>
+    <height>266</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -47,6 +47,11 @@
       </property>
       <item row="0" column="3">
        <widget class="ByteSpinBox" name="regA">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background: darkslategray</string>
         </property>
@@ -165,6 +170,11 @@
       </item>
       <item row="0" column="1">
        <widget class="WordSpinBox" name="regPC">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background: darkslategray</string>
         </property>
@@ -189,7 +199,7 @@
        <widget class="QLabel" name="flags">
         <property name="font">
          <font>
-          <family>Monospace</family>
+          <family>Courier</family>
          </font>
         </property>
         <property name="styleSheet">
@@ -205,6 +215,11 @@
       </item>
       <item row="1" column="1">
        <widget class="WordSpinBox" name="regSP">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background: darkslategray</string>
         </property>
@@ -230,6 +245,11 @@
       </item>
       <item row="1" column="3">
        <widget class="ByteSpinBox" name="regX">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background: darkslategray</string>
         </property>
@@ -276,6 +296,11 @@
       </item>
       <item row="2" column="3">
        <widget class="ByteSpinBox" name="regY">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background: darkslategray</string>
         </property>
@@ -339,6 +364,11 @@
       </property>
       <item row="2" column="1">
        <widget class="WordSpinBox" name="vectorIRQ">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -391,6 +421,11 @@
       </item>
       <item row="3" column="1">
        <widget class="QLabel" name="cycles">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">color:lightgreen</string>
         </property>
@@ -446,6 +481,11 @@
       </item>
       <item row="0" column="1">
        <widget class="WordSpinBox" name="vectorNMI">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -494,6 +534,11 @@
       </item>
       <item row="1" column="1">
        <widget class="WordSpinBox" name="vectorReset">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>

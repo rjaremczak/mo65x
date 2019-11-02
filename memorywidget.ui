@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>215</width>
-    <height>118</height>
+    <width>237</width>
+    <height>115</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -47,6 +47,11 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -71,6 +76,11 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
@@ -97,6 +107,11 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -121,6 +136,11 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
@@ -147,6 +167,11 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
         </property>
@@ -171,6 +196,11 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">background-color:darkslategray</string>
