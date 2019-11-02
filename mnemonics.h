@@ -1,12 +1,12 @@
 #pragma once
 
 #include "instructiontype.h"
-#include <QString>
 #include <algorithm>
 #include <map>
+#include <string>
 
 using MnemonicTableType = std::map<InstructionType, const char*>;
 
 extern const MnemonicTableType MnemonicTable;
 
-InstructionType findInstructionType(QString mnemonic);
+InstructionType findInstructionType(const std::string& mnemonic);
