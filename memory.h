@@ -11,8 +11,6 @@ public:
   uint8_t& operator[](uint16_t address) { return data_[address]; }
   const uint8_t& operator[](uint16_t address) const { return data_[address]; }
 
-  auto ptr(uint16_t address) { return &data_[address]; }
-
   auto begin() { return std::begin(data_); }
   auto end() { return std::end(data_); }
 

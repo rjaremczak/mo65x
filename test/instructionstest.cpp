@@ -3,15 +3,7 @@
 #include <QTest>
 #include <algorithm>
 
-namespace {
-constexpr auto ZeroPageVectorAddress = 0x23;
-constexpr auto ZeroPageVector = 0x2f80;
-constexpr auto ZeroPageByteAddress = 0xa0;
-constexpr auto ZeroPageByte = 0xfa;
-constexpr auto MemVectorAddress = 0x2300;
-constexpr auto MemVector = 0xa800;
-constexpr auto AsmOrigin = 0x0800;
-}
+static constexpr auto AsmOrigin = 0x800;
 
 OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory), assembler(memory) {
 }
@@ -41,9 +33,6 @@ void OpCodesTest::init() {
   memory.write16(Cpu::VectorRESET, 0xFCE2);
   cpu.reset();
   QCOMPARE(cpu.registers.pc, 0xFCE2);
-  memory.write16(ZeroPageVectorAddress, ZeroPageVector);
-  memory[ZeroPageByteAddress] = ZeroPageByte;
-  memory.write16(MemVectorAddress, MemVector);
   cpu.registers.pc = AsmOrigin;
   assembler.setOrigin(AsmOrigin);
 }
@@ -121,6 +110,14 @@ void OpCodesTest::testAbsoluteYMode() {
   cpu.prepAbsoluteYMode();
   QCOMPARE(cpu.effectiveAddress_, 0xa020);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0x84);
+}
+
+void OpCodesTest::testIndirectMode() {
+  memory.write16(0xfff0, 0xfab0);
+  memory.write16(0xfab0, 0x34f0);
+  cpu.operandPtr_ = &memory[0xfff0];
+  cpu.prepIndirectMode();
+  QCOMPARE(cpu.effectiveAddress_, 0x34f0);
 }
 
 void OpCodesTest::testASL() {
