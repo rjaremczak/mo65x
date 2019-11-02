@@ -32,6 +32,15 @@ private slots:
   void testImmediateMode();
   void testZeroPageMode();
   void testZeroPageXMode();
+  void testZeroPageYMode();
+  void testAbsoluteMode();
+  void testAbsoluteXMode();
+  void testAbsoluteYMode();
+  // void testIndirectMode();
+  // void testIndexedIndirectXMode();
+  // void testIndirectIndexedYMode();
+  // void testRelativeModePlus();
+  // void testRelativeModeMinus();
 
   void testASL();
 };

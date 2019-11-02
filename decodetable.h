@@ -11,90 +11,90 @@ struct DecodeEntry {
 
 constexpr Cpu::Handler operandsHandler(AddressingMode mode) {
   switch (mode) {
-  case Implied: return &Cpu::amImplied;
-  case Accumulator: return &Cpu::amAccumulator;
-  case Relative: return &Cpu::amRelative;
-  case Immediate: return &Cpu::amImmediate;
-  case ZeroPage: return &Cpu::amZeroPage;
-  case ZeroPageX: return &Cpu::amZeroPageX;
-  case ZeroPageY: return &Cpu::amZeroPageY;
-  case IndexedIndirectX: return &Cpu::amIndexedIndirectX;
-  case IndirectIndexedY: return &Cpu::amIndirectIndexedY;
-  case Indirect: return &Cpu::amIndirect;
-  case Absolute: return &Cpu::amAbsolute;
-  case AbsoluteX: return &Cpu::amAbsoluteX;
-  case AbsoluteY: return &Cpu::amAbsoluteY;
+  case Implied: return &Cpu::prepImpliedMode;
+  case Accumulator: return &Cpu::prepAccumulatorMode;
+  case Relative: return &Cpu::prepRelativeMode;
+  case Immediate: return &Cpu::prepImmediateMode;
+  case ZeroPage: return &Cpu::prepZeroPageMode;
+  case ZeroPageX: return &Cpu::prepZeroPageXMode;
+  case ZeroPageY: return &Cpu::prepZeroPageYMode;
+  case IndexedIndirectX: return &Cpu::prepIndexedIndirectXMode;
+  case IndirectIndexedY: return &Cpu::prepIndirectIndexedYMode;
+  case Indirect: return &Cpu::prepIndirectMode;
+  case Absolute: return &Cpu::prepAbsoluteMode;
+  case AbsoluteX: return &Cpu::prepAbsoluteXMode;
+  case AbsoluteY: return &Cpu::prepAbsoluteYMode;
   case NoOperands: return nullptr;
   }
 }
 
 constexpr Cpu::Handler instructionHandler(InstructionType instruction) {
   switch (instruction) {
-  case LDA: return &Cpu::insLDA;
-  case LDX: return &Cpu::insLDX;
-  case LDY: return &Cpu::insLDY;
-  case STA: return &Cpu::insSTA;
-  case STX: return &Cpu::insSTX;
-  case STY: return &Cpu::insSTY;
+  case LDA: return &Cpu::execLDA;
+  case LDX: return &Cpu::execLDX;
+  case LDY: return &Cpu::execLDY;
+  case STA: return &Cpu::execSTA;
+  case STX: return &Cpu::execSTX;
+  case STY: return &Cpu::execSTY;
 
-  case ADC: return &Cpu::insADC;
-  case SBC: return &Cpu::insSBC;
-  case INC: return &Cpu::insINC;
-  case INX: return &Cpu::insINX;
-  case INY: return &Cpu::insINY;
-  case DEC: return &Cpu::insDEC;
-  case DEX: return &Cpu::insDEX;
-  case DEY: return &Cpu::insDEY;
+  case ADC: return &Cpu::execADC;
+  case SBC: return &Cpu::execSBC;
+  case INC: return &Cpu::execINC;
+  case INX: return &Cpu::execINX;
+  case INY: return &Cpu::execINY;
+  case DEC: return &Cpu::execDEC;
+  case DEX: return &Cpu::execDEX;
+  case DEY: return &Cpu::execDEY;
 
-  case ASL: return &Cpu::insASL;
-  case LSR: return &Cpu::insLSR;
-  case ROL: return &Cpu::insROL;
-  case ROR: return &Cpu::insROR;
+  case ASL: return &Cpu::execASL;
+  case LSR: return &Cpu::execLSR;
+  case ROL: return &Cpu::execROL;
+  case ROR: return &Cpu::execROR;
 
-  case AND: return &Cpu::insAND;
-  case ORA: return &Cpu::insORA;
-  case EOR: return &Cpu::insEOR;
+  case AND: return &Cpu::execAND;
+  case ORA: return &Cpu::execORA;
+  case EOR: return &Cpu::execEOR;
 
-  case CMP: return &Cpu::insCMP;
-  case CPX: return &Cpu::insCPX;
-  case CPY: return &Cpu::insCPY;
-  case BIT: return &Cpu::insBIT;
+  case CMP: return &Cpu::execCMP;
+  case CPX: return &Cpu::execCPX;
+  case CPY: return &Cpu::execCPY;
+  case BIT: return &Cpu::execBIT;
 
-  case SED: return &Cpu::insSED;
-  case SEI: return &Cpu::insSEI;
-  case SEC: return &Cpu::insSEC;
-  case CLC: return &Cpu::insCLC;
-  case CLD: return &Cpu::insCLD;
-  case CLI: return &Cpu::insCLI;
-  case CLV: return &Cpu::insCLV;
+  case SED: return &Cpu::execSED;
+  case SEI: return &Cpu::execSEI;
+  case SEC: return &Cpu::execSEC;
+  case CLC: return &Cpu::execCLC;
+  case CLD: return &Cpu::execCLD;
+  case CLI: return &Cpu::execCLI;
+  case CLV: return &Cpu::execCLV;
 
-  case TAX: return &Cpu::insTAX;
-  case TXA: return &Cpu::insTXA;
-  case TAY: return &Cpu::insTAY;
-  case TYA: return &Cpu::insTYA;
-  case TSX: return &Cpu::insTSX;
-  case TXS: return &Cpu::insTXS;
+  case TAX: return &Cpu::execTAX;
+  case TXA: return &Cpu::execTXA;
+  case TAY: return &Cpu::execTAY;
+  case TYA: return &Cpu::execTYA;
+  case TSX: return &Cpu::execTSX;
+  case TXS: return &Cpu::execTXS;
 
-  case PHA: return &Cpu::insPHA;
-  case PLA: return &Cpu::insPLA;
-  case PHP: return &Cpu::insPHP;
-  case PLP: return &Cpu::insPLP;
+  case PHA: return &Cpu::execPHA;
+  case PLA: return &Cpu::execPLA;
+  case PHP: return &Cpu::execPHP;
+  case PLP: return &Cpu::execPLP;
 
-  case RTS: return &Cpu::insRTS;
-  case RTI: return &Cpu::insRTI;
-  case BRK: return &Cpu::insBRK;
-  case NOP: return &Cpu::insNOP;
+  case RTS: return &Cpu::execRTS;
+  case RTI: return &Cpu::execRTI;
+  case BRK: return &Cpu::execBRK;
+  case NOP: return &Cpu::execNOP;
 
-  case BCC: return &Cpu::insBCC;
-  case BCS: return &Cpu::insBCS;
-  case BEQ: return &Cpu::insBEQ;
-  case BMI: return &Cpu::insBMI;
-  case BNE: return &Cpu::insBNE;
-  case BPL: return &Cpu::insBPL;
-  case BVC: return &Cpu::insBVC;
-  case BVS: return &Cpu::insBVS;
-  case JMP: return &Cpu::insJMP;
-  case JSR: return &Cpu::insJSR;
+  case BCC: return &Cpu::execBCC;
+  case BCS: return &Cpu::execBCS;
+  case BEQ: return &Cpu::execBEQ;
+  case BMI: return &Cpu::execBMI;
+  case BNE: return &Cpu::execBNE;
+  case BPL: return &Cpu::execBPL;
+  case BVC: return &Cpu::execBVC;
+  case BVS: return &Cpu::execBVS;
+  case JMP: return &Cpu::execJMP;
+  case JSR: return &Cpu::execJSR;
 
   case INV: return nullptr;
   }

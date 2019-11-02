@@ -75,7 +75,8 @@ QString Disassembler::disassemble() const {
   case Indirect: str.append("(").append(formatOperand16()).append(")"); break;
   case Relative:
     const auto displacement = static_cast<int8_t>(memory_[address_ + 1]);
-    str.append("$").append(formatHex16(static_cast<uint16_t>(address_ + instruction_.size + displacement)));
+    if (displacement < 0) str.append("+");
+    str.append(QString::number(displacement));
     break;
   }
   return str.toUpper();

@@ -4,83 +4,83 @@
 Cpu::Cpu(Memory& memory) : memory_(memory) {
 }
 
-void Cpu::amImplied() {
+void Cpu::prepImpliedMode() {
   // nothing to do
 }
 
-void Cpu::amAccumulator() {
+void Cpu::prepAccumulatorMode() {
   effectiveOperandPtr_ = &registers.a;
 }
 
-void Cpu::amRelative() {
+void Cpu::prepRelativeMode() {
   // all handled by branch instructions
 }
 
-void Cpu::amIndirect() {
+void Cpu::prepIndirectMode() {
   effectiveAddress_ = memory_.read16(operand16());
 }
 
-void Cpu::amImmediate() {
+void Cpu::prepImmediateMode() {
   effectiveOperandPtr_ = operandPtr_;
 }
 
-void Cpu::amZeroPage() {
+void Cpu::prepZeroPageMode() {
   setEffectiveAddressAndOperand(operand8());
 }
 
-void Cpu::amZeroPageX() {
+void Cpu::prepZeroPageXMode() {
   setEffectiveAddressAndOperand(operand8(), registers.x);
 }
 
-void Cpu::amZeroPageY() {
+void Cpu::prepZeroPageYMode() {
   setEffectiveAddressAndOperand(operand8(), registers.y);
 }
 
-void Cpu::amIndexedIndirectX() {
+void Cpu::prepIndexedIndirectXMode() {
   setEffectiveAddressAndOperand(loByte(memory_.read16((operand8() + registers.x))));
 }
 
-void Cpu::amIndirectIndexedY() {
+void Cpu::prepIndirectIndexedYMode() {
   setEffectiveAddressAndOperand(memory_.read16(operand8()), registers.y);
 }
 
-void Cpu::amAbsolute() {
+void Cpu::prepAbsoluteMode() {
   setEffectiveAddressAndOperand(operand16());
 }
 
-void Cpu::amAbsoluteX() {
+void Cpu::prepAbsoluteXMode() {
   setEffectiveAddressAndOperand(operand16(), registers.x);
 }
 
-void Cpu::amAbsoluteY() {
+void Cpu::prepAbsoluteYMode() {
   setEffectiveAddressAndOperand(operand16(), registers.y);
 }
 
-void Cpu::insLDA() {
+void Cpu::execLDA() {
   registers.a = *effectiveOperandPtr_;
 }
 
-void Cpu::insLDX() {
+void Cpu::execLDX() {
   registers.x = *effectiveOperandPtr_;
 }
 
-void Cpu::insLDY() {
+void Cpu::execLDY() {
   registers.y = *effectiveOperandPtr_;
 }
 
-void Cpu::insSTA() {
+void Cpu::execSTA() {
   *effectiveOperandPtr_ = registers.a;
 }
 
-void Cpu::insSTX() {
+void Cpu::execSTX() {
   *effectiveOperandPtr_ = registers.x;
 }
 
-void Cpu::insSTY() {
+void Cpu::execSTY() {
   *effectiveOperandPtr_ = registers.y;
 }
 
-void Cpu::insADC() {
+void Cpu::execADC() {
   const auto op1 = registers.a;
   const auto op2 = *effectiveOperandPtr_;
   const uint16_t result = op1 + op2 + registers.p.c;
@@ -89,7 +89,7 @@ void Cpu::insADC() {
   registers.p.computeV(op1, op2, result);
 }
 
-void Cpu::insSBC() {
+void Cpu::execSBC() {
   const auto op1 = registers.a;
   const auto op2 = *effectiveOperandPtr_;
   const uint16_t result = op1 - op2 - registers.p.c;
@@ -98,205 +98,205 @@ void Cpu::insSBC() {
   registers.p.computeV(op1, op2, result);
 }
 
-void Cpu::insINC() {
+void Cpu::execINC() {
   registers.p.computeNZ(++(*effectiveOperandPtr_));
 }
 
-void Cpu::insINX() {
+void Cpu::execINX() {
   registers.p.computeNZ(++registers.x);
 }
 
-void Cpu::insINY() {
+void Cpu::execINY() {
   registers.p.computeNZ(++registers.y);
 }
 
-void Cpu::insDEC() {
+void Cpu::execDEC() {
   registers.p.computeNZ(--(*effectiveOperandPtr_));
 }
 
-void Cpu::insDEX() {
+void Cpu::execDEX() {
   registers.p.computeNZ(--registers.x);
 }
 
-void Cpu::insDEY() {
+void Cpu::execDEY() {
   registers.p.computeNZ(--registers.y);
 }
 
-void Cpu::insASL() {
+void Cpu::execASL() {
   auto val = *effectiveOperandPtr_;
   registers.p.c = val & 0x80;
   registers.p.computeNZ(*effectiveOperandPtr_ = static_cast<uint8_t>(val << 1));
 }
 
-void Cpu::insLSR() {
+void Cpu::execLSR() {
   auto val = *effectiveOperandPtr_;
   registers.p.c = val & 0x01;
   registers.p.computeNZ(*effectiveOperandPtr_ = static_cast<uint8_t>(val >> 1));
 }
 
-void Cpu::insROL() {
+void Cpu::execROL() {
   const uint16_t res = static_cast<uint16_t>(*effectiveOperandPtr_ << 1) | registers.p.c;
   registers.p.c = res & 0x100;
   registers.p.computeNZ(*effectiveOperandPtr_ = loByte(res));
 }
 
-void Cpu::insROR() {
+void Cpu::execROR() {
   const uint16_t tmp = *effectiveOperandPtr_ | (registers.p.c ? 0x100 : 0x00);
   registers.p.c = tmp & 0x01;
   registers.p.computeNZ(*effectiveOperandPtr_ = loByte(tmp >> 1));
 }
 
-void Cpu::insAND() {
+void Cpu::execAND() {
   registers.p.computeNZ(registers.a &= *effectiveOperandPtr_);
 }
 
-void Cpu::insORA() {
+void Cpu::execORA() {
   registers.p.computeNZ(registers.a |= *effectiveOperandPtr_);
 }
 
-void Cpu::insEOR() {
+void Cpu::execEOR() {
   registers.p.computeNZ(registers.a ^= *effectiveOperandPtr_);
 }
 
-void Cpu::insCMP() {
+void Cpu::execCMP() {
   registers.p.computeNZC(registers.a - *effectiveOperandPtr_);
 }
 
-void Cpu::insCPX() {
+void Cpu::execCPX() {
   registers.p.computeNZC(registers.x - *effectiveOperandPtr_);
 }
 
-void Cpu::insCPY() {
+void Cpu::execCPY() {
   registers.p.computeNZC(registers.y - *effectiveOperandPtr_);
 }
 
-void Cpu::insBIT() {
+void Cpu::execBIT() {
   registers.p.computeNZ(registers.a & *effectiveOperandPtr_);
 }
 
-void Cpu::insSED() {
+void Cpu::execSED() {
   registers.p.d = true;
 }
 
-void Cpu::insSEI() {
+void Cpu::execSEI() {
   registers.p.i = true;
 }
 
-void Cpu::insSEC() {
+void Cpu::execSEC() {
   registers.p.c = true;
 }
 
-void Cpu::insCLC() {
+void Cpu::execCLC() {
   registers.p.c = false;
 }
 
-void Cpu::insCLD() {
+void Cpu::execCLD() {
   registers.p.d = false;
 }
 
-void Cpu::insCLI() {
+void Cpu::execCLI() {
   registers.p.i = false;
 }
 
-void Cpu::insCLV() {
+void Cpu::execCLV() {
   registers.p.v = false;
 }
 
-void Cpu::insTAX() {
+void Cpu::execTAX() {
   registers.p.computeNZ(registers.x = registers.a);
 }
 
-void Cpu::insTXA() {
+void Cpu::execTXA() {
   registers.p.computeNZ(registers.a = registers.x);
 }
 
-void Cpu::insTAY() {
+void Cpu::execTAY() {
   registers.p.computeNZ(registers.y = registers.a);
 }
 
-void Cpu::insTYA() {
+void Cpu::execTYA() {
   registers.p.computeNZ(registers.a = registers.y);
 }
 
-void Cpu::insTSX() {
+void Cpu::execTSX() {
   registers.x = registers.sp.toByte();
 }
 
-void Cpu::insTXS() {
+void Cpu::execTXS() {
   registers.sp.fromByte(registers.x);
 }
 
-void Cpu::insPHA() {
+void Cpu::execPHA() {
   push8(registers.a);
 }
 
-void Cpu::insPLA() {
+void Cpu::execPLA() {
   registers.a = pull8();
 }
 
-void Cpu::insPHP() {
+void Cpu::execPHP() {
   push8(registers.p);
 }
 
-void Cpu::insPLP() {
+void Cpu::execPLP() {
   registers.p = pull8();
 }
 
-void Cpu::insNOP() {
+void Cpu::execNOP() {
   // literally do nothing :-)
 }
 
-void Cpu::insBCC() {
+void Cpu::execBCC() {
   if (!registers.p.c) branch();
 }
 
-void Cpu::insBCS() {
+void Cpu::execBCS() {
   if (registers.p.c) branch();
 }
 
-void Cpu::insBEQ() {
+void Cpu::execBEQ() {
   if (registers.p.z) branch();
 }
 
-void Cpu::insBMI() {
+void Cpu::execBMI() {
   if (registers.p.n) branch();
 }
 
-void Cpu::insBNE() {
+void Cpu::execBNE() {
   if (!registers.p.z) branch();
 }
 
-void Cpu::insBPL() {
+void Cpu::execBPL() {
   if (!registers.p.n) branch();
 }
 
-void Cpu::insBVC() {
+void Cpu::execBVC() {
   if (!registers.p.v) branch();
 }
 
-void Cpu::insBVS() {
+void Cpu::execBVS() {
   if (registers.p.v) branch();
 }
 
-void Cpu::insJMP() {
+void Cpu::execJMP() {
   registers.pc = effectiveAddress_;
 }
 
-void Cpu::insJSR() {
+void Cpu::execJSR() {
   push16(registers.pc);
   registers.pc = effectiveAddress_;
 }
 
-void Cpu::insRTS() {
+void Cpu::execRTS() {
   registers.pc = pull16();
 }
 
-void Cpu::insRTI() {
+void Cpu::execRTI() {
   registers.p = pull8();
   registers.pc = pull16() + 1;
 }
 
-void Cpu::insBRK() {
+void Cpu::execBRK() {
   registers.pc++;
   push16(registers.pc);
   push8(registers.p.withBreakFlag());

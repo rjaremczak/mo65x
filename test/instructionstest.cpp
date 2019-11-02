@@ -55,13 +55,13 @@ void OpCodesTest::testImpliedMode() {
 }
 
 void OpCodesTest::testAccumulatorMode() {
-  cpu.amAccumulator();
+  cpu.prepAccumulatorMode();
   QCOMPARE(cpu.effectiveOperandPtr_, &cpu.registers.a);
 }
 
 void OpCodesTest::testImmediateMode() {
   cpu.operandPtr_ = &memory[0x10];
-  cpu.amImmediate();
+  cpu.prepImmediateMode();
   QCOMPARE(cpu.effectiveOperandPtr_, &memory[0x10]);
 }
 
@@ -69,7 +69,7 @@ void OpCodesTest::testZeroPageMode() {
   memory[0xa0] = 0x40;
   memory[0x40] = 0xf8;
   cpu.operandPtr_ = &memory[0xa0];
-  cpu.amZeroPage();
+  cpu.prepZeroPageMode();
   QCOMPARE(cpu.effectiveAddress_, 0x40);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0xf8);
 }
@@ -79,9 +79,48 @@ void OpCodesTest::testZeroPageXMode() {
   memory[0x10] = 0xe8;
   cpu.operandPtr_ = &memory[0xa0];
   cpu.registers.x = 0x90;
-  cpu.amZeroPageX();
+  cpu.prepZeroPageXMode();
   QCOMPARE(cpu.effectiveAddress_, 0x10);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0xe8);
+}
+
+void OpCodesTest::testZeroPageYMode() {
+  memory[0xa0] = 0x80;
+  memory[0xb1] = 0xe8;
+  cpu.operandPtr_ = &memory[0xa0];
+  cpu.registers.y = 0x31;
+  cpu.prepZeroPageYMode();
+  QCOMPARE(cpu.effectiveAddress_, 0xb1);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0xe8);
+}
+
+void OpCodesTest::testAbsoluteMode() {
+  memory[0x20fa] = 0xf0;
+  memory.write16(0x1002, 0x20fa);
+  cpu.operandPtr_ = &memory[0x1002];
+  cpu.prepAbsoluteMode();
+  QCOMPARE(cpu.effectiveAddress_, 0x20fa);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0xf0);
+}
+
+void OpCodesTest::testAbsoluteXMode() {
+  memory[0x20b0] = 0x34;
+  memory.write16(0x1002, 0x20a0);
+  cpu.operandPtr_ = &memory[0x1002];
+  cpu.registers.x = 0x10;
+  cpu.prepAbsoluteXMode();
+  QCOMPARE(cpu.effectiveAddress_, 0x20b0);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0x34);
+}
+
+void OpCodesTest::testAbsoluteYMode() {
+  memory[0xa020] = 0x84;
+  memory.write16(0x2002, 0xa010);
+  cpu.operandPtr_ = &memory[0x2002];
+  cpu.registers.y = 0x10;
+  cpu.prepAbsoluteYMode();
+  QCOMPARE(cpu.effectiveAddress_, 0xa020);
+  QCOMPARE(*cpu.effectiveOperandPtr_, 0x84);
 }
 
 void OpCodesTest::testASL() {
