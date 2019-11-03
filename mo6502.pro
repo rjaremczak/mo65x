@@ -76,11 +76,13 @@ test {
   SOURCES += \
     test/assemblertest.cpp \
     test/instructionstest.cpp \
+    test/flagstest.cpp \
     test/main.cpp
 
   HEADERS += \
     test/assemblertest.h \
-    test/instructionstest.h
+    test/instructionstest.h \
+    test/flagstest.h
 
 } else {
   #message(normal build)

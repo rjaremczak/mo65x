@@ -5,26 +5,21 @@
 struct ProcessorStatus {
   bool n, v, d, i, z, c;
 
-  void reset() {
-    n = false;
-    v = false;
-    d = false;
-    i = true;
-    z = false;
-    c = false;
-  }
+  void computeN(unsigned result) { n = result & 0x80; }
+  void computeZ(unsigned result) { z = !result; }
+  void computeC(unsigned result) { c = result & 0x100; }
+  void computeV(uint8_t op1, uint8_t op2, uint8_t result) { v = (op1 ^ result) & (op2 ^ result) & 0x80; }
 
   void computeNZ(unsigned result) {
-    n = result & 0x80;
-    z = !result;
+    computeN(result);
+    computeZ(result);
   }
 
   void computeNZC(unsigned result) {
-    computeNZ(result);
-    c = result & 0x100;
+    computeN(result);
+    computeZ(result);
+    computeC(result);
   }
-
-  void computeV(unsigned op1, unsigned op2, unsigned result) { v = (op1 ^ result) & (op2 ^ result) & 0x80; }
 
   void operator=(uint8_t v) {
     n = v & 0x80;

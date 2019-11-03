@@ -332,7 +332,12 @@ void Cpu::reset() {
   registers.x = 0;
   registers.y = 0;
   registers.sp = 0xfd;
-  registers.p.reset();
+  registers.p.n = false;
+  registers.p.v = false;
+  registers.p.d = false;
+  registers.p.i = true;
+  registers.p.z = false;
+  registers.p.c = false;
 }
 
 void Cpu::execute(bool continuous) {
