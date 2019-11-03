@@ -2,8 +2,8 @@
 
 #include "instruction.h"
 #include "memory.h"
+#include <QString>
 #include <set>
-#include <string>
 
 class Assembler
 {

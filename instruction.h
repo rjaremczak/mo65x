@@ -25,6 +25,7 @@ struct Instruction {
     case AbsoluteX:
     case AbsoluteY: return 3;
     }
+    return 0;
   }
 
   InstructionType type = INV;
