@@ -52,6 +52,12 @@ private:
     effectiveOperandPtr_ = &memory_[address];
   }
 
+  void setZeroPageEffectiveAddressAndOperand(uint8_t address, uint8_t offset) {
+    const uint8_t result = address + offset;
+    effectiveAddress_ = result;
+    effectiveOperandPtr_ = &memory_[effectiveAddress_];
+  }
+
   void setEffectiveAddressAndOperand(uint16_t address, int16_t offset) {
     const auto result = address + offset;
     pageBoundaryCrossed_ = (address ^ result) & 0xff00;

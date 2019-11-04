@@ -16,8 +16,9 @@ private:
   Assembler assembler;
 
 private slots:
-  void test(const char*);
-  void test(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
+  void exec(const char*, int cycles = -1);
+  void exec(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
+  void verifyNZCV(bool n, bool z, bool c, bool v);
 
   // functions executed by QtTest before and after test suite
   void initTestCase();
@@ -40,5 +41,8 @@ private slots:
   void testIndexedIndirectXMode();
   void testIndirectIndexedYMode();
   void testPageBoundaryCrossingDetection();
+
+  void testADC();
+  void testAND();
   void testASL();
 };

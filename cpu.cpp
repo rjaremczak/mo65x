@@ -29,15 +29,15 @@ void Cpu::prepZeroPageMode() {
 }
 
 void Cpu::prepZeroPageXMode() {
-  setEffectiveAddressAndOperand(operand8(), registers.x);
+  setZeroPageEffectiveAddressAndOperand(operand8(), registers.x);
 }
 
 void Cpu::prepZeroPageYMode() {
-  setEffectiveAddressAndOperand(operand8(), registers.y);
+  setZeroPageEffectiveAddressAndOperand(operand8(), registers.y);
 }
 
 void Cpu::prepIndexedIndirectXMode() {
-  setEffectiveAddressAndOperand(memory_.read16(loByte(operand8() + registers.x)));
+  setEffectiveAddressAndOperand(memory_.read16(static_cast<uint8_t>((operand8() + registers.x))));
 }
 
 void Cpu::prepIndirectIndexedYMode() {
