@@ -21,4 +21,5 @@ private slots:
   void testNegative();
   void testZero();
   void testCarry();
+  void testOverflow();
 };

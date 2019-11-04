@@ -33,4 +33,21 @@ void FlagsTest::testCarry() {
   QCOMPARE(p.c, false);
   p.computeC(0b011111111);
   QCOMPARE(p.c, false);
+  p.computeC(130);
+  QCOMPARE(p.c, false);
+  p.computeC(300);
+  QCOMPARE(p.c, true);
+}
+
+void FlagsTest::testOverflow() {
+  p.computeV(static_cast<int8_t>(120), static_cast<int8_t>(10), 130);
+  QCOMPARE(p.v, true);
+  p.computeV(200, 100, static_cast<uint8_t>(300));
+  QCOMPARE(p.v, false);
+  p.computeV(static_cast<int8_t>(120), static_cast<int8_t>(7), 127);
+  QCOMPARE(p.v, false);
+  p.computeV(static_cast<uint8_t>(-120), static_cast<uint8_t>(-10), static_cast<uint8_t>(-130));
+  QCOMPARE(p.v, true);
+  p.computeV(static_cast<uint8_t>(-120), static_cast<uint8_t>(7), 127);
+  QCOMPARE(p.v, false);
 }
