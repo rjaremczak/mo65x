@@ -34,8 +34,6 @@ private:
   uint16_t effectiveAddress_;
   bool pageBoundaryCrossed_;
 
-  uint16_t operand16() const { return wordOf(operandPtr_[0], operandPtr_[1]); }
-
   void push8(uint8_t b) { memory_[regs.sp.value--] = b; }
   uint8_t pull8() { return memory_[++regs.sp.value]; }
 

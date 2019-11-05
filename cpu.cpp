@@ -175,7 +175,7 @@ void Cpu::execEOR() {
 }
 
 void Cpu::execCMP() {
-  regs.p.computeNZC(regs.a - *effectiveOperandPtr_);
+  regs.p.computeNZC((uint16_t)regs.a - *effectiveOperandPtr_);
   addCycleOnPageBoundaryCrossing();
 }
 
@@ -188,7 +188,10 @@ void Cpu::execCPY() {
 }
 
 void Cpu::execBIT() {
-  regs.p.computeNZ(regs.a & *effectiveOperandPtr_);
+  const auto operand = *effectiveOperandPtr_;
+  regs.p.zero = !(regs.a & operand);
+  regs.p.negative = operand & 0x80;
+  regs.p.overflow = operand & 0x40;
 }
 
 void Cpu::execSED() {

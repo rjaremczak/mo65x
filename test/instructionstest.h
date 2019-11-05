@@ -15,9 +15,12 @@ private:
   Cpu cpu;
   Assembler assembler;
 
-private slots:
-  void exec(const char*, int cycles = -1);
+  void exec(const char*, int cycles);
   void verifyANZCV(uint8_t acc, bool n, bool z, bool c, bool v);
+  void verifyBranchTaken();
+  void verifyBranchNotTaken();
+
+private slots:
 
   // functions executed by QtTest before and after test suite
   void initTestCase();
@@ -48,6 +51,31 @@ private slots:
   void testADC();
   void testAND();
   void testASL();
-  void testBCC();
-  void testBCCNotTaken();
+
+  void testBCC_taken();
+  void testBCC_notTaken();
+  void testBCS_taken();
+  void testBCS_notTaken();
+  void testBEQ_taken();
+  void testBEQ_notTaken();
+  void testBNE_taken();
+  void testBNE_notTaken();
+  void testBMI_taken();
+  void testBMI_notTaken();
+  void testBPL_taken();
+  void testBPL_notTaken();
+  void testBVC_taken();
+  void testBVC_notTaken();
+  void testBVS_taken();
+  void testBVS_notTaken();
+
+  void testBIT();
+  void testCMP();
+
+  void testCLC();
+  void testSEC();
+  void testCLD();
+  void testSED();
+  void testCLI();
+  void testSEI();
 };
