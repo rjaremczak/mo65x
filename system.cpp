@@ -24,17 +24,17 @@ QByteArray System::saveMemory(uint16_t first, uint16_t last) {
 }
 
 void System::checkCpuState() {
-  emit cpuStateChanged(cpu.registers, cpu.cycles);
+  emit cpuStateChanged(cpu.regs, cpu.cycles);
 }
 
 void System::changePC(uint16_t pc) {
-  if (cpu.registers.pc != pc) {
-    cpu.registers.pc = pc;
-    emit cpuStateChanged(cpu.registers, cpu.cycles);
+  if (cpu.regs.pc != pc) {
+    cpu.regs.pc = pc;
+    emit cpuStateChanged(cpu.regs, cpu.cycles);
   }
 }
 
 void System::executeSingleStep() {
   cpu.execute();
-  emit cpuStateChanged(cpu.registers, cpu.cycles);
+  emit cpuStateChanged(cpu.regs, cpu.cycles);
 }

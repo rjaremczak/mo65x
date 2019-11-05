@@ -41,14 +41,14 @@ void ExecutionWidget::updateCpuState(Registers registers, int cycles) {
   ui->regPC->setValue(registers.pc);
 
   QString str;
-  str.append(flagStr(registers.p.n, "N"));
-  str.append(flagStr(registers.p.v, "V"));
+  str.append(flagStr(registers.p.negative, "N"));
+  str.append(flagStr(registers.p.overflow, "V"));
   str.append(flagStr(false, "."));
   str.append(flagStr(false, "B"));
-  str.append(flagStr(registers.p.d, "D"));
-  str.append(flagStr(registers.p.i, "I"));
-  str.append(flagStr(registers.p.z, "Z"));
-  str.append(flagStr(registers.p.c, "C"));
+  str.append(flagStr(registers.p.decimal, "D"));
+  str.append(flagStr(registers.p.interrupt, "I"));
+  str.append(flagStr(registers.p.zero, "Z"));
+  str.append(flagStr(registers.p.carry, "C"));
   ui->flags->setText(str);
 
   ui->cycles->setNum(cycles);

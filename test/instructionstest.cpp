@@ -16,19 +16,12 @@ void OpCodesTest::exec(const char* str, int cycles) {
   if (cycles > 0) QCOMPARE(cpu.cycles, cycles);
 }
 
-void OpCodesTest::exec(InstructionType type, AddressingMode mode, int operand) {
-  cpu.cycles = 0;
-  QVERIFY(assembler.assemble(type, mode, operand));
-  cpu.execute();
-  QCOMPARE(cpu.executionStatus, Stopped);
-}
-
 void OpCodesTest::verifyANZCV(uint8_t acc, bool n, bool z, bool c, bool v) {
-  QCOMPARE(cpu.registers.a, acc);
-  QCOMPARE(cpu.registers.p.n, n);
-  QCOMPARE(cpu.registers.p.z, z);
-  QCOMPARE(cpu.registers.p.c, c);
-  QCOMPARE(cpu.registers.p.v, v);
+  QCOMPARE(cpu.regs.a, acc);
+  QCOMPARE(cpu.regs.p.negative, n);
+  QCOMPARE(cpu.regs.p.zero, z);
+  QCOMPARE(cpu.regs.p.carry, c);
+  QCOMPARE(cpu.regs.p.overflow, v);
 }
 
 void OpCodesTest::initTestCase() {
@@ -38,24 +31,28 @@ void OpCodesTest::initTestCase() {
 }
 
 void OpCodesTest::init() {
-  cpu.registers.pc = 0x0000;
+  assembler.setOrigin(AsmOrigin);
+  cpu.regs.pc = AsmOrigin;
+  cpu.regs.p = 0;
+  cpu.cycles = 0;
+  // cpu.pageBoundaryCrossed_ = false;
+}
+
+void OpCodesTest::testReset() {
   memory.write16(Cpu::VectorRESET, 0xFCE2);
   cpu.reset();
-  QCOMPARE(cpu.registers.pc, 0xFCE2);
-  assembler.setOrigin(AsmOrigin);
-  cpu.registers.pc = AsmOrigin;
-  cpu.registers.p = 0;
+  QCOMPARE(cpu.regs.pc, 0xFCE2);
 }
 
 void OpCodesTest::testImpliedMode() {
-  cpu.registers.p.i = true;
-  exec(CLI);
-  QVERIFY(!cpu.registers.p.i);
+  cpu.regs.p.interrupt = true;
+  exec("CLI", 2);
+  QVERIFY(!cpu.regs.p.interrupt);
 }
 
 void OpCodesTest::testAccumulatorMode() {
   cpu.prepAccumulatorMode();
-  QCOMPARE(cpu.effectiveOperandPtr_, &cpu.registers.a);
+  QCOMPARE(cpu.effectiveOperandPtr_, &cpu.regs.a);
 }
 
 void OpCodesTest::testImmediateMode() {
@@ -77,7 +74,7 @@ void OpCodesTest::testZeroPageXMode() {
   memory[0xa0] = 0x80;
   memory[0x10] = 0xe8;
   cpu.operandPtr_ = &memory[0xa0];
-  cpu.registers.x = 0x90;
+  cpu.regs.x = 0x90;
   cpu.prepZeroPageXMode();
   QCOMPARE(cpu.effectiveAddress_, 0x10);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0xe8);
@@ -87,7 +84,7 @@ void OpCodesTest::testZeroPageYMode() {
   memory[0xa0] = 0x80;
   memory[0xb1] = 0xe8;
   cpu.operandPtr_ = &memory[0xa0];
-  cpu.registers.y = 0x31;
+  cpu.regs.y = 0x31;
   cpu.prepZeroPageYMode();
   QCOMPARE(cpu.effectiveAddress_, 0xb1);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0xe8);
@@ -106,7 +103,7 @@ void OpCodesTest::testAbsoluteXMode() {
   memory[0x20b0] = 0x34;
   memory.write16(0x1002, 0x20a0);
   cpu.operandPtr_ = &memory[0x1002];
-  cpu.registers.x = 0x10;
+  cpu.regs.x = 0x10;
   cpu.prepAbsoluteXMode();
   QCOMPARE(cpu.effectiveAddress_, 0x20b0);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0x34);
@@ -116,7 +113,7 @@ void OpCodesTest::testAbsoluteYMode() {
   memory[0xa020] = 0x84;
   memory.write16(0x2002, 0xa010);
   cpu.operandPtr_ = &memory[0x2002];
-  cpu.registers.y = 0x10;
+  cpu.regs.y = 0x10;
   cpu.prepAbsoluteYMode();
   QCOMPARE(cpu.effectiveAddress_, 0xa020);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0x84);
@@ -134,7 +131,7 @@ void OpCodesTest::testIndexedIndirectXMode() {
   memory.write16(0x82, 0xaf01);
   memory[0x2001] = 0x70;
   cpu.operandPtr_ = &memory[0x2001];
-  cpu.registers.x = 0x12;
+  cpu.regs.x = 0x12;
   cpu.prepIndexedIndirectXMode();
   QCOMPARE(cpu.effectiveAddress_, 0xaf01);
   QCOMPARE(cpu.effectiveOperandPtr_, &memory[0xaf01]);
@@ -145,7 +142,7 @@ void OpCodesTest::testIndirectIndexedYMode() {
   memory.write16(vector, 0xcf81);
   memory[0xd001] = 0xea;
   cpu.operandPtr_ = &vector;
-  cpu.registers.y = 0x80;
+  cpu.regs.y = 0x80;
   cpu.prepIndirectIndexedYMode();
   QCOMPARE(cpu.effectiveAddress_, 0xd001);
   QCOMPARE(*cpu.effectiveOperandPtr_, 0xea);
@@ -161,26 +158,52 @@ void OpCodesTest::testPageBoundaryCrossingDetection() {
   QVERIFY(!cpu.pageBoundaryCrossed_);
 }
 
+void OpCodesTest::testBranchForward() {
+  int8_t d = 13;
+  cpu.operandPtr_ = reinterpret_cast<uint8_t*>(&d);
+  cpu.execBranch();
+  QCOMPARE(cpu.regs.pc, AsmOrigin + 13);
+  QCOMPARE(cpu.cycles, 1);
+}
+
+void OpCodesTest::testBranchBackward() {
+  int8_t d = -100;
+  cpu.regs.pc += 120;
+  cpu.operandPtr_ = reinterpret_cast<uint8_t*>(&d);
+  cpu.execBranch();
+  QCOMPARE(cpu.regs.pc, AsmOrigin + 20);
+  QCOMPARE(cpu.cycles, 1);
+}
+
+void OpCodesTest::testBranchWithPageBoundaryCrossed() {
+  int8_t d = 13;
+  cpu.regs.pc += 250;
+  cpu.operandPtr_ = reinterpret_cast<uint8_t*>(&d);
+  cpu.execBranch();
+  QCOMPARE(cpu.regs.pc, AsmOrigin + 263);
+  QCOMPARE(cpu.cycles, 2);
+}
+
 void OpCodesTest::testADC() {
-  cpu.registers.a = 0x03;
+  cpu.regs.a = 0x03;
   exec("ADC #$f0", 2);
   verifyANZCV(0xf3, 1, 0, 0, 0);
 
-  cpu.registers.p = 0;
-  cpu.registers.p.c = true;
-  cpu.registers.a = 0xf0;
+  cpu.regs.p = 0;
+  cpu.regs.p.carry = true;
+  cpu.regs.a = 0xf0;
   memory[0x2000] = 0x0f;
   exec("ADC $2000", 4);
   verifyANZCV(0x00, 0, 1, 1, 0);
 }
 
 void OpCodesTest::testAND() {
-  cpu.registers.a = 0x84;
+  cpu.regs.a = 0x84;
   exec("AND #$fb", 2);
   verifyANZCV(0x80, 1, 0, 0, 0);
 
-  cpu.registers.a = 0x84;
-  cpu.registers.y = 0x12;
+  cpu.regs.a = 0x84;
+  cpu.regs.y = 0x12;
   memory.write16(0x70, 0x20f0);
   memory[0x2102] = 0xfb;
   exec("AND ($70),Y", 6);
@@ -188,12 +211,25 @@ void OpCodesTest::testAND() {
 }
 
 void OpCodesTest::testASL() {
-  cpu.registers.a = 0b11000001;
+  cpu.regs.a = 0b11000001;
   exec("ASL", 2);
   verifyANZCV(0b10000010, 1, 0, 1, 0);
 
   memory[0xf002] = 0b01000001;
-  cpu.registers.x = 0x12;
+  cpu.regs.x = 0x12;
   exec("ASL $eff0,X", 7);
   verifyANZCV(0b10000010, 1, 0, 0, 0);
+}
+
+void OpCodesTest::testBCC() {
+  cpu.regs.p.carry = false;
+  exec("BCC +3");
+  QCOMPARE(cpu.regs.pc, AsmOrigin + 2 + 3);
+  QCOMPARE(cpu.cycles, 3);
+}
+
+void OpCodesTest::testBCCNotTaken() {
+  cpu.regs.p.carry = false;
+  exec("BCC +13");
+  QCOMPARE(cpu.regs.pc, AsmOrigin + 2 + 13);
 }

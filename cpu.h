@@ -15,7 +15,7 @@ public:
   friend constexpr Handler operandsHandler(AddressingMode);
   friend constexpr Handler instructionHandler(InstructionType);
 
-  Registers registers;
+  Registers regs;
   int cycles;
   volatile ExecutionStatus executionStatus = Stopped;
 
@@ -36,8 +36,8 @@ private:
 
   uint16_t operand16() const { return wordOf(operandPtr_[0], operandPtr_[1]); }
 
-  void push8(uint8_t b) { memory_[registers.sp.value--] = b; }
-  uint8_t pull8() { return memory_[++registers.sp.value]; }
+  void push8(uint8_t b) { memory_[regs.sp.value--] = b; }
+  uint8_t pull8() { return memory_[++regs.sp.value]; }
 
   void push16(uint16_t w) {
     push8(hiByte(w));
@@ -58,14 +58,15 @@ private:
 
   void setEffectiveOperandPtrToAddress() { effectiveOperandPtr_ = &memory_[effectiveAddress_]; }
 
-  void applyPageBoundaryCrossingPenalty() {
+  void addCycleOnPageBoundaryCrossing() {
     if (pageBoundaryCrossed_) cycles++;
   }
 
   void execBranch() {
     cycles++;
-    calculateEffectiveAddress(registers.pc, static_cast<int8_t>(*operandPtr_));
-    registers.pc = effectiveAddress_;
+    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr_));
+    addCycleOnPageBoundaryCrossing();
+    regs.pc = effectiveAddress_;
   }
 
   void prepImpliedMode();
