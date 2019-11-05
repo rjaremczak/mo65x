@@ -23,7 +23,8 @@ void OpCodesTest::exec(InstructionType type, AddressingMode mode, int operand) {
   QCOMPARE(cpu.executionStatus, Stopped);
 }
 
-void OpCodesTest::verifyNZCV(bool n, bool z, bool c, bool v) {
+void OpCodesTest::verifyANZCV(uint8_t acc, bool n, bool z, bool c, bool v) {
+  QCOMPARE(cpu.registers.a, acc);
   QCOMPARE(cpu.registers.p.n, n);
   QCOMPARE(cpu.registers.p.z, z);
   QCOMPARE(cpu.registers.p.c, c);
@@ -152,49 +153,47 @@ void OpCodesTest::testIndirectIndexedYMode() {
 
 void OpCodesTest::testPageBoundaryCrossingDetection() {
   cpu.pageBoundaryCrossed_ = false;
-  cpu.setEffectiveAddressAndOperand(0x1080, 0x7f);
+  cpu.calculateEffectiveAddress(0x1080, 0x7f);
   QVERIFY(!cpu.pageBoundaryCrossed_);
-  cpu.setEffectiveAddressAndOperand(0x1080, 0x80);
+  cpu.calculateEffectiveAddress(0x1080, 0x80);
   QVERIFY(cpu.pageBoundaryCrossed_);
-  cpu.setEffectiveAddressAndOperand(0x3080, 0x02);
+  cpu.calculateEffectiveAddress(0x3080, 0x02);
   QVERIFY(!cpu.pageBoundaryCrossed_);
 }
 
 void OpCodesTest::testADC() {
   cpu.registers.a = 0x03;
   exec("ADC #$f0", 2);
-  QCOMPARE(cpu.registers.a, 0xf3);
-  verifyNZCV(1, 0, 0, 0);
+  verifyANZCV(0xf3, 1, 0, 0, 0);
 
   cpu.registers.p = 0;
   cpu.registers.p.c = true;
   cpu.registers.a = 0xf0;
   memory[0x2000] = 0x0f;
   exec("ADC $2000", 4);
-  QCOMPARE(cpu.registers.a, 0x00);
-  verifyNZCV(0, 1, 1, 0);
+  verifyANZCV(0x00, 0, 1, 1, 0);
 }
 
 void OpCodesTest::testAND() {
   cpu.registers.a = 0x84;
   exec("AND #$fb", 2);
-  QCOMPARE(cpu.registers.a, 0x80);
-  verifyNZCV(1, 0, 0, 0);
+  verifyANZCV(0x80, 1, 0, 0, 0);
 
   cpu.registers.a = 0x84;
   cpu.registers.y = 0x12;
   memory.write16(0x70, 0x20f0);
   memory[0x2102] = 0xfb;
   exec("AND ($70),Y", 6);
-  QCOMPARE(cpu.registers.a, 0x80);
-  verifyNZCV(1, 0, 0, 0);
+  verifyANZCV(0x80, 1, 0, 0, 0);
 }
 
 void OpCodesTest::testASL() {
   cpu.registers.a = 0b11000001;
   exec("ASL", 2);
-  QCOMPARE(cpu.registers.a, 0b10000010);
-  QVERIFY(cpu.registers.p.c);
-  QVERIFY(!cpu.registers.p.z);
-  QVERIFY(cpu.registers.p.n);
+  verifyANZCV(0b10000010, 1, 0, 1, 0);
+
+  memory[0xf002] = 0b01000001;
+  cpu.registers.x = 0x12;
+  exec("ASL $eff0,X", 7);
+  verifyANZCV(0b10000010, 1, 0, 0, 0);
 }

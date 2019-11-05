@@ -18,7 +18,7 @@ private:
 private slots:
   void exec(const char*, int cycles = -1);
   void exec(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
-  void verifyNZCV(bool n, bool z, bool c, bool v);
+  void verifyANZCV(uint8_t acc, bool n, bool z, bool c, bool v);
 
   // functions executed by QtTest before and after test suite
   void initTestCase();

@@ -17,7 +17,7 @@ void Cpu::prepRelativeMode() {
 }
 
 void Cpu::prepIndirectMode() {
-  effectiveAddress_ = memory_.read16(operand16());
+  effectiveAddress_ = memory_.read16(fromLittleEndian(operandPtr_));
 }
 
 void Cpu::prepImmediateMode() {
@@ -25,35 +25,43 @@ void Cpu::prepImmediateMode() {
 }
 
 void Cpu::prepZeroPageMode() {
-  setEffectiveAddressAndOperand(operand8());
+  effectiveAddress_ = *operandPtr_;
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepZeroPageXMode() {
-  setZeroPageEffectiveAddressAndOperand(operand8(), registers.x);
+  calculateZeroPageEffectiveAddress(*operandPtr_, registers.x);
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepZeroPageYMode() {
-  setZeroPageEffectiveAddressAndOperand(operand8(), registers.y);
+  calculateZeroPageEffectiveAddress(*operandPtr_, registers.y);
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndexedIndirectXMode() {
-  setEffectiveAddressAndOperand(memory_.read16(static_cast<uint8_t>((operand8() + registers.x))));
+  effectiveAddress_ = memory_.read16(static_cast<uint8_t>((*operandPtr_ + registers.x)));
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndirectIndexedYMode() {
-  setEffectiveAddressAndOperand(memory_.read16(operand8()), registers.y);
+  calculateEffectiveAddress(memory_.read16(*operandPtr_), registers.y);
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteMode() {
-  setEffectiveAddressAndOperand(operand16());
+  effectiveAddress_ = fromLittleEndian(operandPtr_);
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteXMode() {
-  setEffectiveAddressAndOperand(operand16(), registers.x);
+  calculateEffectiveAddress(fromLittleEndian(operandPtr_), registers.x);
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteYMode() {
-  setEffectiveAddressAndOperand(operand16(), registers.y);
+  calculateEffectiveAddress(fromLittleEndian(operandPtr_), registers.y);
+  setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::execLDA() {
@@ -228,11 +236,11 @@ void Cpu::execTYA() {
 }
 
 void Cpu::execTSX() {
-  registers.x = registers.sp.toByte();
+  registers.x = registers.sp.value;
 }
 
 void Cpu::execTXS() {
-  registers.sp.fromByte(registers.x);
+  registers.sp.value = registers.x;
 }
 
 void Cpu::execPHA() {
@@ -256,35 +264,35 @@ void Cpu::execNOP() {
 }
 
 void Cpu::execBCC() {
-  if (!registers.p.c) branch();
+  if (!registers.p.c) execBranch();
 }
 
 void Cpu::execBCS() {
-  if (registers.p.c) branch();
+  if (registers.p.c) execBranch();
 }
 
 void Cpu::execBEQ() {
-  if (registers.p.z) branch();
+  if (registers.p.z) execBranch();
 }
 
 void Cpu::execBMI() {
-  if (registers.p.n) branch();
+  if (registers.p.n) execBranch();
 }
 
 void Cpu::execBNE() {
-  if (!registers.p.z) branch();
+  if (!registers.p.z) execBranch();
 }
 
 void Cpu::execBPL() {
-  if (!registers.p.n) branch();
+  if (!registers.p.n) execBranch();
 }
 
 void Cpu::execBVC() {
-  if (!registers.p.v) branch();
+  if (!registers.p.v) execBranch();
 }
 
 void Cpu::execBVS() {
-  if (registers.p.v) branch();
+  if (registers.p.v) execBranch();
 }
 
 void Cpu::execJMP() {
@@ -331,7 +339,7 @@ void Cpu::reset() {
   registers.a = 0;
   registers.x = 0;
   registers.y = 0;
-  registers.sp = 0xfd;
+  registers.sp.value = 0xfd;
   registers.p.n = false;
   registers.p.v = false;
   registers.p.d = false;

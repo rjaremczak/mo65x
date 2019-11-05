@@ -34,11 +34,10 @@ private:
   uint16_t effectiveAddress_;
   bool pageBoundaryCrossed_;
 
-  uint8_t operand8() const { return *operandPtr_; }
   uint16_t operand16() const { return wordOf(operandPtr_[0], operandPtr_[1]); }
 
-  void push8(uint8_t b) { memory_[registers.sp--] = b; }
-  uint8_t pull8() { return memory_[++registers.sp]; }
+  void push8(uint8_t b) { memory_[registers.sp.value--] = b; }
+  uint8_t pull8() { return memory_[++registers.sp.value]; }
 
   void push16(uint16_t w) {
     push8(hiByte(w));
@@ -47,31 +46,25 @@ private:
 
   uint16_t pull16() { return wordOf(pull8(), pull8()); }
 
-  void setEffectiveAddressAndOperand(uint16_t address) {
-    effectiveAddress_ = address;
-    effectiveOperandPtr_ = &memory_[address];
-  }
-
-  void setZeroPageEffectiveAddressAndOperand(uint8_t address, uint8_t offset) {
+  void calculateZeroPageEffectiveAddress(uint8_t address, uint8_t offset) {
     const uint8_t result = address + offset;
     effectiveAddress_ = result;
-    effectiveOperandPtr_ = &memory_[effectiveAddress_];
   }
 
-  void setEffectiveAddressAndOperand(uint16_t address, int16_t offset) {
-    const auto result = address + offset;
-    pageBoundaryCrossed_ = (address ^ result) & 0xff00;
-    effectiveAddress_ = (address & 0xff00) | (result & 0x00ff);
-    effectiveOperandPtr_ = &memory_[effectiveAddress_];
+  void calculateEffectiveAddress(uint16_t address, int16_t offset) {
+    effectiveAddress_ = static_cast<uint16_t>(address + offset);
+    pageBoundaryCrossed_ = (address ^ effectiveAddress_) & 0xff00;
   }
+
+  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr_ = &memory_[effectiveAddress_]; }
 
   void applyPageBoundaryCrossingPenalty() {
     if (pageBoundaryCrossed_) cycles++;
   }
 
-  void branch() {
+  void execBranch() {
     cycles++;
-    setEffectiveAddressAndOperand(registers.pc, static_cast<int8_t>(operand8()));
+    calculateEffectiveAddress(registers.pc, static_cast<int8_t>(*operandPtr_));
     registers.pc = effectiveAddress_;
   }
 
