@@ -55,7 +55,7 @@ constexpr Cpu::Handler instructionHandler(InstructionType instruction) {
   case ORA: return &Cpu::execORA;
   case EOR: return &Cpu::execEOR;
 
-  case CMP: return &Cpu::execCMP;
+  case CMP: return &Cpu::execCompare;
   case CPX: return &Cpu::execCPX;
   case CPY: return &Cpu::execCPY;
   case BIT: return &Cpu::execBIT;

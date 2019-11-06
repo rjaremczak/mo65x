@@ -65,17 +65,17 @@ void Cpu::prepAbsoluteYMode() {
 }
 
 void Cpu::execLDA() {
-  regs.a = *effectiveOperandPtr_;
+  regs.p.computeNZ(regs.a = *effectiveOperandPtr_);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execLDX() {
-  regs.x = *effectiveOperandPtr_;
+  regs.p.computeNZ(regs.x = *effectiveOperandPtr_);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execLDY() {
-  regs.y = *effectiveOperandPtr_;
+  regs.p.computeNZ(regs.y = *effectiveOperandPtr_);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
@@ -92,11 +92,13 @@ void Cpu::execSTY() {
 }
 
 void Cpu::execADC() {
-  execADC(*effectiveOperandPtr_);
+  execAddWithCarry(*effectiveOperandPtr_);
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execSBC() {
-  execADC(*effectiveOperandPtr_ ^ 0xff);
+  execAddWithCarry(*effectiveOperandPtr_ ^ 0xff);
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execINC() {
@@ -162,17 +164,17 @@ void Cpu::execEOR() {
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
-void Cpu::execCMP() {
-  execCMP(regs.a);
+void Cpu::execCompare() {
+  execCompare(regs.a);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execCPX() {
-  execCMP(regs.x);
+  execCompare(regs.x);
 }
 
 void Cpu::execCPY() {
-  execCMP(regs.y);
+  execCompare(regs.y);
 }
 
 void Cpu::execBIT() {

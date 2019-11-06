@@ -431,6 +431,64 @@ void OpCodesTest::testINY() {
   TEST_YNZC(0xa0, 1, 0, 0);
 }
 
+void OpCodesTest::testLDA() {
+  TEST_INST("LDA #$23", 2);
+  TEST_ANZC(0x23, 0, 0, 0);
+
+  memory.write16(0xf0, 0x2080);
+  cpu.regs.y = 0x92;
+  memory[0x2112] = 0xf4;
+  TEST_INST("LDA ($f0),Y", 6);
+  TEST_ANZC(0xf4, 1, 0, 0);
+}
+
+void OpCodesTest::testLDX() {
+  TEST_INST("LDX #$23", 2);
+  TEST_XNZC(0x23, 0, 0, 0);
+
+  memory[0x2112] = 0xf4;
+  cpu.regs.y = 0x13;
+  TEST_INST("LDX $20ff,Y", 5);
+  TEST_XNZC(0xf4, 1, 0, 0);
+}
+
+void OpCodesTest::testLDY() {
+  TEST_INST("LDY #$23", 2);
+  TEST_YNZC(0x23, 0, 0, 0);
+
+  memory[0xeaf0] = 0xf4;
+  cpu.regs.x = 0xf0;
+  TEST_INST("LDY $EA00,X", 4);
+  TEST_YNZC(0xf4, 1, 0, 0);
+}
+
+void OpCodesTest::testSTA() {
+}
+
+void OpCodesTest::testSTX() {
+}
+
+void OpCodesTest::testSTY() {
+}
+
+void OpCodesTest::testTXA() {
+}
+
+void OpCodesTest::testTAX() {
+}
+
+void OpCodesTest::testTYA() {
+}
+
+void OpCodesTest::testTAY() {
+}
+
+void OpCodesTest::testTSX() {
+}
+
+void OpCodesTest::testTXS() {
+}
+
 void OpCodesTest::testBCC_taken() {
   cpu.regs.p.carry = false;
   TEST_INST("BCC +3", 3);

@@ -58,6 +58,19 @@ private slots:
   void testINX();
   void testINY();
 
+  void testLDA();
+  void testLDX();
+  void testLDY();
+  void testSTA();
+  void testSTX();
+  void testSTY();
+  void testTXA();
+  void testTAX();
+  void testTYA();
+  void testTAY();
+  void testTSX();
+  void testTXS();
+
   void testBCC_taken();
   void testBCC_notTaken();
   void testBCS_taken();
