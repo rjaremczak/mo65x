@@ -17,10 +17,10 @@ struct AddressingModeInference {
 
 const AddressingModeEntry AddressingModeEntries[]{
     {QRegularExpression(R"(([A-Z]{3})$)"), NoOperands},
-    {QRegularExpression(R"(([A-Z]{3})\s+#\$([\d|A-H]{2})$)"), Immediate},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})$)"), ZeroPage},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})\s*,\s*X$)"), ZeroPageX},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{2})\s*,\s*Y$)"), ZeroPageY},
+    {QRegularExpression(R"(([A-Z]{3})\s+#\$([\d|A-H]{1,2})$)"), Immediate},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{1,2})$)"), ZeroPage},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{1,2})\s*,\s*X$)"), ZeroPageX},
+    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{1,2})\s*,\s*Y$)"), ZeroPageY},
     {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})$)"), Absolute},
     {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})\s*,\s*X$)"), AbsoluteX},
     {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})\s*,\s*Y$)"), AbsoluteY},

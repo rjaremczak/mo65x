@@ -48,6 +48,9 @@ private slots:
   void testEOR();
   void testASL();
   void testLSR();
+  void testORA();
+  void testROL();
+  void testROR();
   void testDEC();
   void testDEX();
   void testDEY();

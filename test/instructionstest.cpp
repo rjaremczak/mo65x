@@ -321,6 +321,54 @@ void OpCodesTest::testLSR() {
   TEST_MEMNZC(0xf0, 0, 0, 1, 1);
 }
 
+void OpCodesTest::testORA() {
+  cpu.regs.a = 0b11000001;
+  TEST_INST("ORA #$02", 2);
+  TEST_ANZC(0xc3, 1, 0, 0);
+
+  cpu.regs.a = 0b01000000;
+  TEST_INST("ORA #$23", 2);
+  TEST_ANZC(0x63, 0, 0, 0);
+
+  cpu.regs.a = 0;
+  TEST_INST("ORA #$0", 2);
+  TEST_ANZC(0, 0, 1, 0);
+}
+
+void OpCodesTest::testROL() {
+  cpu.regs.p.carry = true;
+  cpu.regs.a = 0b11000001;
+  TEST_INST("ROL", 2);
+  TEST_ANZC(0b10000011, 1, 0, 1);
+
+  cpu.regs.p.carry = false;
+  cpu.regs.a = 0b01000001;
+  TEST_INST("ROL", 2);
+  TEST_ANZC(0b10000010, 1, 0, 0);
+
+  cpu.regs.p.carry = false;
+  cpu.regs.a = 0b10000000;
+  TEST_INST("ROL", 2);
+  TEST_ANZC(0, 0, 1, 1);
+}
+
+void OpCodesTest::testROR() {
+  cpu.regs.p.carry = true;
+  cpu.regs.a = 0b11000001;
+  TEST_INST("ROR", 2);
+  TEST_ANZC(0b11100000, 1, 0, 1);
+
+  cpu.regs.p.carry = false;
+  cpu.regs.a = 0b01000000;
+  TEST_INST("ROR", 2);
+  TEST_ANZC(0b00100000, 0, 0, 0);
+
+  cpu.regs.p.carry = false;
+  cpu.regs.a = 1;
+  TEST_INST("ROR", 2);
+  TEST_ANZC(0, 0, 1, 1);
+}
+
 void OpCodesTest::testDEC() {
   memory[0x3102] = 0x00;
   cpu.regs.x = 0x82;
