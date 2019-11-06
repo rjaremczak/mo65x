@@ -175,7 +175,10 @@ void Cpu::execEOR() {
 }
 
 void Cpu::execCMP() {
-  regs.p.computeNZC((uint16_t)regs.a - *effectiveOperandPtr_);
+  // const uint16_t operand = (*effectiveOperandPtr_ ^ 0xff) + 1U;
+  // const uint16_t result = regs.a + operand;
+  // const auto result = subtract(regs.a, *effectiveOperandPtr_);
+  regs.p.computeNZC(regs.a + (*effectiveOperandPtr_ ^ 0xff) + 1U);
   addCycleOnPageBoundaryCrossing();
 }
 

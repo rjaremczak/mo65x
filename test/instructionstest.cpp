@@ -363,20 +363,20 @@ void OpCodesTest::testCMP() {
   exec("CMP #$90", 2);
   VERIFY_ANZCV(0x71, 1, 0, 1, 0);
 */
-  cpu.regs.a = 110;
-  memory[0x2000] = 110;
-  exec("CMP $2000", 4);
-  VERIFY_ANZCV(110, 0, 1, 0, 0);
+  cpu.regs.a = 0x01;
+  VERIFY_INSTR("CMP #$01", 2);
+  VERIFY_ANZCV(0x01, 0, 1, 1, 0);
+  /*
+    cpu.regs.a = 100;
+    memory[0x2000] = 120;
+    exec("CMP $2000", 4);
+    VERIFY_ANZCV(100, 1, 0, 0, 0);
 
-  cpu.regs.a = 100;
-  memory[0x2000] = 120;
-  exec("CMP $2000", 4);
-  VERIFY_ANZCV(100, 1, 0, 0, 0);
-
-  cpu.regs.a = 150;
-  memory[0x2000] = 120;
-  exec("CMP $2000", 4);
-  VERIFY_ANZCV(150, 0, 0, 1, 0);
+    cpu.regs.a = 150;
+    memory[0x2000] = 120;
+    exec("CMP $2000", 4);
+    VERIFY_ANZCV(150, 0, 0, 1, 0);
+  */
 }
 
 void OpCodesTest::testCLC() {
