@@ -66,17 +66,17 @@ void Cpu::prepAbsoluteYMode() {
 
 void Cpu::execLDA() {
   regs.a = *effectiveOperandPtr_;
-  addCycleOnPageBoundaryCrossing();
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execLDX() {
   regs.x = *effectiveOperandPtr_;
-  addCycleOnPageBoundaryCrossing();
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execLDY() {
   regs.y = *effectiveOperandPtr_;
-  addCycleOnPageBoundaryCrossing();
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execSTA() {
@@ -92,23 +92,11 @@ void Cpu::execSTY() {
 }
 
 void Cpu::execADC() {
-  const auto op1 = regs.a;
-  const auto op2 = *effectiveOperandPtr_;
-  const uint16_t result = op1 + op2 + regs.p.carry;
-  regs.a = loByte(result);
-  regs.p.computeNZC(result);
-  regs.p.computeV(op1, op2, result);
-  addCycleOnPageBoundaryCrossing();
+  execADC(*effectiveOperandPtr_);
 }
 
 void Cpu::execSBC() {
-  const auto op1 = regs.a;
-  const auto op2 = *effectiveOperandPtr_;
-  const uint16_t result = op1 - op2 - regs.p.carry;
-  regs.a = loByte(result);
-  regs.p.computeNZC(result);
-  regs.p.computeV(op1, op2, result);
-  addCycleOnPageBoundaryCrossing();
+  execADC(*effectiveOperandPtr_ ^ 0xff);
 }
 
 void Cpu::execINC() {
@@ -161,25 +149,22 @@ void Cpu::execROR() {
 
 void Cpu::execAND() {
   regs.p.computeNZ(regs.a &= *effectiveOperandPtr_);
-  addCycleOnPageBoundaryCrossing();
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execORA() {
   regs.p.computeNZ(regs.a |= *effectiveOperandPtr_);
-  addCycleOnPageBoundaryCrossing();
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execEOR() {
   regs.p.computeNZ(regs.a ^= *effectiveOperandPtr_);
-  addCycleOnPageBoundaryCrossing();
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execCMP() {
-  // const uint16_t operand = (*effectiveOperandPtr_ ^ 0xff) + 1U;
-  // const uint16_t result = regs.a + operand;
-  // const auto result = subtract(regs.a, *effectiveOperandPtr_);
-  regs.p.computeNZC(regs.a + (*effectiveOperandPtr_ ^ 0xff) + 1U);
-  addCycleOnPageBoundaryCrossing();
+  regs.p.computeNZC(regs.a + (*effectiveOperandPtr_ ^ 0xff) + uint8_t(1));
+  applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execCPX() {

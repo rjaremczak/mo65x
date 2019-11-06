@@ -56,15 +56,23 @@ private:
 
   void setEffectiveOperandPtrToAddress() { effectiveOperandPtr_ = &memory_[effectiveAddress_]; }
 
-  void addCycleOnPageBoundaryCrossing() {
-    if (pageBoundaryCrossed_) cycles++;
+  void applyExtraCycleOnPageBoundaryCrossing() {
+    if (pageBoundaryCrossed_) ++cycles;
   }
 
   void execBranch() {
     cycles++;
     calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr_));
-    addCycleOnPageBoundaryCrossing();
     regs.pc = effectiveAddress_;
+    applyExtraCycleOnPageBoundaryCrossing();
+  }
+
+  void execADC(uint8_t operand) {
+    const uint16_t result = regs.a + operand + uint8_t(regs.p.carry);
+    regs.p.computeNZC(result);
+    regs.p.computeV(regs.a, operand, result);
+    regs.a = loByte(result);
+    applyExtraCycleOnPageBoundaryCrossing();
   }
 
   void prepImpliedMode();

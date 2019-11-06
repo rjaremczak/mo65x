@@ -1,7 +1,7 @@
 #include "assemblertest.h"
 #include "flagstest.h"
 #include "instructionstest.h"
-#include <QtTest>
+#include <QTest>
 
 int main(int argc, char** argv) {
   QApplication app(argc, argv);

@@ -8,7 +8,7 @@ struct ProcessorStatus {
   void computeN(uint16_t result) { negative = result & 0x80; }
   void computeZ(uint16_t result) { zero = !(result & 0xff); }
   void computeC(uint16_t result) { carry = result & 0xff00; }
-  void computeV(uint16_t op1, unsigned op2, unsigned result) { overflow = (op1 ^ result) & (op2 ^ result) & 0x80; }
+  void computeV(uint16_t op1, uint16_t op2, uint16_t result) { overflow = (op1 ^ result) & (op2 ^ result) & 0x80; }
 
   void computeNZ(uint16_t result) {
     computeN(result);

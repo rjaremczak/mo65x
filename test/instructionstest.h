@@ -43,6 +43,7 @@ private slots:
   void testBranchWithPageBoundaryCrossed();
 
   void testADC();
+  void testSBC();
   void testAND();
   void testASL();
 
