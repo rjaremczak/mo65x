@@ -15,13 +15,7 @@ private:
   Cpu cpu;
   Assembler assembler;
 
-  void exec(const char*, int cycles);
-  void verifyANZCV(uint8_t acc, bool n, bool z, bool c, bool v);
-  void verifyBranchTaken();
-  void verifyBranchNotTaken();
-
 private slots:
-
   // functions executed by QtTest before and after test suite
   void initTestCase();
   // void cleanupTestCase();

@@ -10,36 +10,25 @@
   QCOMPARE(cpu.regs.p.carry, c);                                                                                                 \
   QCOMPARE(cpu.regs.p.overflow, v)
 
+#define TEST_INST(instr, numCycles)                                                                                              \
+  cpu.cycles = 0;                                                                                                                \
+  QVERIFY(assembler.assemble(instr));                                                                                            \
+  cpu.execute();                                                                                                                 \
+  QCOMPARE(cpu.executionStatus, Stopped);                                                                                        \
+  QCOMPARE(cpu.cycles, numCycles)
+
+#define VERIFY_BRANCH_TAKEN()                                                                                                    \
+  const auto base = assembler.address();                                                                                         \
+  QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr_);                                                                                \
+  QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
+
+#define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
+  QCOMPARE(cpu.regs.pc, assembler.address());                                                                                    \
+  QCOMPARE(cpu.cycles, 2)
+
 static constexpr auto AsmOrigin = 0x800;
 
 OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory), assembler(memory) {
-}
-
-void OpCodesTest::exec(const char* str, int cycles) {
-  cpu.cycles = 0;
-  QVERIFY(assembler.assemble(str));
-  cpu.execute();
-  QCOMPARE(cpu.executionStatus, Stopped);
-  QCOMPARE(cpu.cycles, cycles);
-}
-
-void OpCodesTest::verifyANZCV(uint8_t acc, bool n, bool z, bool c, bool v) {
-  QCOMPARE(cpu.regs.a, acc);
-  QCOMPARE(cpu.regs.p.negative, n);
-  QCOMPARE(cpu.regs.p.zero, z);
-  QCOMPARE(cpu.regs.p.carry, c);
-  QCOMPARE(cpu.regs.p.overflow, v);
-}
-
-void OpCodesTest::verifyBranchTaken() {
-  const auto base = assembler.address();
-  QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr_);
-  QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3);
-}
-
-void OpCodesTest::verifyBranchNotTaken() {
-  QCOMPARE(cpu.regs.pc, assembler.address());
-  QCOMPARE(cpu.cycles, 2);
 }
 
 void OpCodesTest::initTestCase() {
@@ -63,7 +52,7 @@ void OpCodesTest::testReset() {
 
 void OpCodesTest::testImpliedMode() {
   cpu.regs.p.interrupt = true;
-  exec("CLI", 2);
+  TEST_INST("CLI", 2);
   QVERIFY(!cpu.regs.p.interrupt);
 }
 
@@ -203,214 +192,205 @@ void OpCodesTest::testBranchWithPageBoundaryCrossed() {
 
 void OpCodesTest::testADC() {
   cpu.regs.a = 0x03;
-  exec("ADC #$f0", 2);
-  verifyANZCV(0xf3, 1, 0, 0, 0);
+  TEST_INST("ADC #$f0", 2);
+  VERIFY_ANZCV(0xf3, 1, 0, 0, 0);
 
   cpu.regs.p = 0;
   cpu.regs.p.carry = true;
   cpu.regs.a = 0xf0;
   memory[0x2000] = 0x0f;
-  exec("ADC $2000", 4);
-  verifyANZCV(0x00, 0, 1, 1, 0);
+  TEST_INST("ADC $2000", 4);
+  VERIFY_ANZCV(0x00, 0, 1, 1, 0);
 }
 
 void OpCodesTest::testAND() {
   cpu.regs.a = 0x84;
-  exec("AND #$fb", 2);
-  verifyANZCV(0x80, 1, 0, 0, 0);
+  TEST_INST("AND #$fb", 2);
+  VERIFY_ANZCV(0x80, 1, 0, 0, 0);
 
   cpu.regs.a = 0x84;
   cpu.regs.y = 0x12;
   memory.write16(0x70, 0x20f0);
   memory[0x2102] = 0xfb;
-  exec("AND ($70),Y", 6);
-  verifyANZCV(0x80, 1, 0, 0, 0);
+  TEST_INST("AND ($70),Y", 6);
+  VERIFY_ANZCV(0x80, 1, 0, 0, 0);
 }
 
 void OpCodesTest::testASL() {
   cpu.regs.a = 0b11000001;
-  exec("ASL", 2);
-  verifyANZCV(0b10000010, 1, 0, 1, 0);
+  TEST_INST("ASL", 2);
+  VERIFY_ANZCV(0b10000010, 1, 0, 1, 0);
 
   memory[0xf002] = 0b01000001;
   cpu.regs.x = 0x12;
-  exec("ASL $eff0,X", 7);
-  verifyANZCV(0b10000010, 1, 0, 0, 0);
+  TEST_INST("ASL $eff0,X", 7);
+  VERIFY_ANZCV(0b10000010, 1, 0, 0, 0);
 }
 
 void OpCodesTest::testBCC_taken() {
   cpu.regs.p.carry = false;
-  exec("BCC +3", 3);
-  verifyBranchTaken();
+  TEST_INST("BCC +3", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBCC_notTaken() {
   cpu.regs.p.carry = true;
-  exec("BCC +13", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BCC +13", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBCS_taken() {
   cpu.regs.p.carry = true;
-  exec("BCS +33", 3);
-  verifyBranchTaken();
+  TEST_INST("BCS +33", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBCS_notTaken() {
   cpu.regs.p.carry = false;
-  exec("BCS +13", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BCS +13", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBEQ_taken() {
   cpu.regs.p.zero = true;
-  exec("BEQ +103", 3);
-  verifyBranchTaken();
+  TEST_INST("BEQ +103", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBEQ_notTaken() {
   cpu.regs.p.zero = false;
-  exec("BEQ -2", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BEQ -2", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBNE_taken() {
   cpu.regs.p.zero = false;
-  exec("BNE +43", 3);
-  verifyBranchTaken();
+  TEST_INST("BNE +43", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBNE_notTaken() {
   cpu.regs.p.zero = true;
-  exec("BNE -27", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BNE -27", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBMI_taken() {
   cpu.regs.p.negative = true;
-  exec("BMI +32", 3);
-  verifyBranchTaken();
+  TEST_INST("BMI +32", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBMI_notTaken() {
   cpu.regs.p.negative = false;
-  exec("BMI -42", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BMI -42", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBPL_taken() {
   cpu.regs.p.negative = false;
-  exec("BPL +2", 3);
-  verifyBranchTaken();
+  TEST_INST("BPL +2", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBPL_notTaken() {
   cpu.regs.p.negative = true;
-  exec("BPL -82", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BPL -82", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBVC_taken() {
   cpu.regs.p.overflow = false;
-  exec("BVC +29", 3);
-  verifyBranchTaken();
+  TEST_INST("BVC +29", 3);
+  VERIFY_BRANCH_TAKEN();
 }
-
-#define VERIFY_INSTR(instr, numCycles)                                                                                           \
-  cpu.cycles = 0;                                                                                                                \
-  QVERIFY(assembler.assemble(instr));                                                                                            \
-  cpu.execute();                                                                                                                 \
-  QCOMPARE(cpu.executionStatus, Stopped);                                                                                        \
-  QCOMPARE(cpu.cycles, numCycles)
 
 void OpCodesTest::testBVC_notTaken() {
   cpu.regs.p.overflow = true;
-  VERIFY_INSTR("BVC +29", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BVC +29", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBVS_taken() {
   cpu.regs.p.overflow = true;
-  exec("BVS +29", 3);
-  verifyBranchTaken();
+  TEST_INST("BVS +29", 3);
+  VERIFY_BRANCH_TAKEN();
 }
 
 void OpCodesTest::testBVS_notTaken() {
   cpu.regs.p.overflow = false;
-  exec("BVS +29", 2);
-  verifyBranchNotTaken();
+  TEST_INST("BVS +29", 2);
+  TEST_BRANCH_NOT_TAKEN();
 }
 
 void OpCodesTest::testBIT() {
   cpu.regs.a = 0x81;
   memory[0x2001] = 0x41;
-  exec("BIT $2001", 4);
+  TEST_INST("BIT $2001", 4);
   VERIFY_ANZCV(0x81, 0, 0, 0, 1);
 
   cpu.regs.a = 0x41;
   memory[0x20] = 0x02;
-  exec("BIT $20", 3);
+  TEST_INST("BIT $20", 3);
   VERIFY_ANZCV(0x41, 0, 1, 0, 0);
 }
 
 void OpCodesTest::testCMP() {
-  /*
   cpu.regs.a = 0x81;
-  exec("CMP #$80", 2);
-  VERIFY_ANZCV(0x81, 0, 0, 0, 0);
+  TEST_INST("CMP #$80", 2);
+  VERIFY_ANZCV(0x81, 0, 0, 1, 0);
 
   cpu.regs.a = 0x71;
-  exec("CMP #$90", 2);
-  VERIFY_ANZCV(0x71, 1, 0, 1, 0);
-*/
-  cpu.regs.a = 0x01;
-  VERIFY_INSTR("CMP #$01", 2);
-  VERIFY_ANZCV(0x01, 0, 1, 1, 0);
-  /*
-    cpu.regs.a = 100;
-    memory[0x2000] = 120;
-    exec("CMP $2000", 4);
-    VERIFY_ANZCV(100, 1, 0, 0, 0);
+  TEST_INST("CMP #$90", 2);
+  VERIFY_ANZCV(0x71, 1, 0, 0, 0);
 
-    cpu.regs.a = 150;
-    memory[0x2000] = 120;
-    exec("CMP $2000", 4);
-    VERIFY_ANZCV(150, 0, 0, 1, 0);
-  */
+  cpu.regs.a = 0x01;
+  TEST_INST("CMP #$01", 2);
+  VERIFY_ANZCV(0x01, 0, 1, 1, 0);
+
+  cpu.regs.a = uint8_t(-100);
+  memory[0x2000] = uint8_t(-110);
+  TEST_INST("CMP $2000", 4);
+  VERIFY_ANZCV(uint8_t(-100), 0, 0, 1, 0);
+
+  cpu.regs.a = 150;
+  memory[0x2000] = 120;
+  TEST_INST("CMP $2000", 4);
+  VERIFY_ANZCV(150, 0, 0, 1, 0);
 }
 
 void OpCodesTest::testCLC() {
   cpu.regs.p.carry = true;
-  exec("CLC", 2);
+  TEST_INST("CLC", 2);
   QCOMPARE(cpu.regs.p.carry, false);
 }
 
 void OpCodesTest::testSEC() {
   cpu.regs.p.carry = false;
-  exec("SEC", 2);
+  TEST_INST("SEC", 2);
   QCOMPARE(cpu.regs.p.carry, true);
 }
 
 void OpCodesTest::testCLD() {
   cpu.regs.p.decimal = true;
-  exec("CLD", 2);
+  TEST_INST("CLD", 2);
   QCOMPARE(cpu.regs.p.decimal, false);
 }
 
 void OpCodesTest::testSED() {
   cpu.regs.p.decimal = false;
-  exec("SED", 2);
+  TEST_INST("SED", 2);
   QCOMPARE(cpu.regs.p.decimal, true);
 }
 
 void OpCodesTest::testCLI() {
   cpu.regs.p.interrupt = true;
-  exec("CLI", 2);
+  TEST_INST("CLI", 2);
   QCOMPARE(cpu.regs.p.interrupt, false);
 }
 
 void OpCodesTest::testSEI() {
   cpu.regs.p.interrupt = false;
-  exec("SEI", 2);
+  TEST_INST("SEI", 2);
   QCOMPARE(cpu.regs.p.interrupt, true);
 }
