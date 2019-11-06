@@ -50,6 +50,7 @@
   QCOMPARE(cpu.cycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;
+static constexpr auto InitialSP = 0x1fd;
 
 OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory), assembler(memory) {
 }
@@ -62,7 +63,11 @@ void OpCodesTest::initTestCase() {
 
 void OpCodesTest::init() {
   assembler.setOrigin(AsmOrigin);
+  cpu.regs.a = 0;
+  cpu.regs.x = 0;
+  cpu.regs.y = 0;
   cpu.regs.pc = AsmOrigin;
+  cpu.regs.sp.fromWord(InitialSP);
   cpu.regs.p = 0;
   cpu.cycles = 0;
 }
@@ -463,27 +468,83 @@ void OpCodesTest::testLDY() {
 }
 
 void OpCodesTest::testSTA() {
+  cpu.regs.a = 0x8a;
+  TEST_INST("STA $2300", 4);
+  TEST_MEMNZ(0x2300, 0x8a, 0, 0);
+
+  cpu.regs.a = 0x00;
+  TEST_INST("STA $2300", 4);
+  TEST_MEMNZ(0x2300, 0x00, 0, 0);
 }
 
 void OpCodesTest::testSTX() {
+  cpu.regs.x = 0x8a;
+  TEST_INST("STX $3300", 4);
+  TEST_MEMNZ(0x3300, 0x8a, 0, 0);
+
+  cpu.regs.x = 0x00;
+  TEST_INST("STX $3300", 4);
+  TEST_MEMNZ(0x3300, 0x00, 0, 0);
 }
 
 void OpCodesTest::testSTY() {
+  cpu.regs.y = 0x8a;
+  TEST_INST("STY $3300", 4);
+  TEST_MEMNZ(0x3300, 0x8a, 0, 0);
+
+  cpu.regs.y = 0x00;
+  TEST_INST("STY $3300", 4);
+  TEST_MEMNZ(0x3300, 0x00, 0, 0);
 }
 
 void OpCodesTest::testTXA() {
+  cpu.regs.x = 0xcf;
+  TEST_INST("TXA", 2);
+  TEST_ANZC(0xcf, 1, 0, 0);
+
+  cpu.regs.x = 0;
+  TEST_INST("TXA", 2);
+  TEST_ANZC(0, 0, 1, 0);
 }
 
 void OpCodesTest::testTAX() {
+  cpu.regs.a = 0xcf;
+  TEST_INST("TAX", 2);
+  TEST_XNZC(0xcf, 1, 0, 0);
+
+  cpu.regs.a = 0;
+  TEST_INST("TAX", 2);
+  TEST_XNZC(0, 0, 1, 0);
 }
 
 void OpCodesTest::testTYA() {
+  cpu.regs.y = 0xcf;
+  TEST_INST("TYA", 2);
+  TEST_ANZC(0xcf, 1, 0, 0);
+
+  cpu.regs.y = 0;
+  TEST_INST("TYA", 2);
+  TEST_ANZC(0, 0, 1, 0);
 }
 
 void OpCodesTest::testTAY() {
+  cpu.regs.a = 0xcf;
+  TEST_INST("TAY", 2);
+  TEST_YNZC(0xcf, 1, 0, 0);
+
+  cpu.regs.a = 0;
+  TEST_INST("TAY", 2);
+  TEST_YNZC(0, 0, 1, 0);
 }
 
 void OpCodesTest::testTSX() {
+  cpu.regs.p = 0xff;
+  TEST_INST("TSX", 2);
+  TEST_XNZC(0xff, 1, 0, 0);
+
+  cpu.regs.p = 0x00;
+  TEST_INST("TSX", 2);
+  TEST_XNZC(0, 0, 1, 0);
 }
 
 void OpCodesTest::testTXS() {
