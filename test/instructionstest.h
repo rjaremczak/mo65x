@@ -45,7 +45,15 @@ private slots:
   void testADC();
   void testSBC();
   void testAND();
+  void testEOR();
   void testASL();
+  void testLSR();
+  void testDEC();
+  void testDEX();
+  void testDEY();
+  void testINC();
+  void testINX();
+  void testINY();
 
   void testBCC_taken();
   void testBCC_notTaken();
@@ -66,6 +74,8 @@ private slots:
 
   void testBIT();
   void testCMP();
+  void testCPX();
+  void testCPY();
 
   void testCLC();
   void testSEC();

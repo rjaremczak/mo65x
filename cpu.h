@@ -67,13 +67,15 @@ private:
     applyExtraCycleOnPageBoundaryCrossing();
   }
 
-  void execADC(uint8_t operand) {
-    const uint16_t result = regs.a + operand + uint8_t(regs.p.carry);
+  void execADC(uint8_t op2) {
+    const uint16_t result = regs.a + op2 + uint8_t(regs.p.carry);
     regs.p.computeNZC(result);
-    regs.p.computeV(regs.a, operand, result);
+    regs.p.computeV(regs.a, op2, result);
     regs.a = loByte(result);
     applyExtraCycleOnPageBoundaryCrossing();
   }
+
+  void execCMP(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr_ ^ 0xff) + uint8_t(1)); }
 
   void prepImpliedMode();
   void prepAccumulatorMode();

@@ -163,16 +163,16 @@ void Cpu::execEOR() {
 }
 
 void Cpu::execCMP() {
-  regs.p.computeNZC(regs.a + (*effectiveOperandPtr_ ^ 0xff) + uint8_t(1));
+  execCMP(regs.a);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execCPX() {
-  regs.p.computeNZC(regs.x - *effectiveOperandPtr_);
+  execCMP(regs.x);
 }
 
 void Cpu::execCPY() {
-  regs.p.computeNZC(regs.y - *effectiveOperandPtr_);
+  execCMP(regs.y);
 }
 
 void Cpu::execBIT() {

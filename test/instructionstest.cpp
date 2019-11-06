@@ -3,12 +3,35 @@
 #include <QTest>
 #include <algorithm>
 
-#define TEST_ANZCV(acc, n, z, c, v)                                                                                              \
-  QCOMPARE(cpu.regs.a, uint8_t(acc));                                                                                            \
+#define TEST_NZC(n, z, c)                                                                                                        \
   QCOMPARE(cpu.regs.p.negative, n);                                                                                              \
   QCOMPARE(cpu.regs.p.zero, z);                                                                                                  \
-  QCOMPARE(cpu.regs.p.carry, c);                                                                                                 \
+  QCOMPARE(cpu.regs.p.carry, c)
+
+#define TEST_ANZC(rega, n, z, c)                                                                                                 \
+  QCOMPARE(cpu.regs.a, uint8_t(rega));                                                                                           \
+  TEST_NZC(n, z, c)
+
+#define TEST_ANZCV(rega, n, z, c, v)                                                                                             \
+  TEST_ANZC(rega, n, z, c);                                                                                                      \
   QCOMPARE(cpu.regs.p.overflow, v)
+
+#define TEST_XNZC(regx, n, z, c)                                                                                                 \
+  QCOMPARE(cpu.regs.x, uint8_t(regx));                                                                                           \
+  TEST_NZC(n, z, c)
+
+#define TEST_YNZC(regy, n, z, c)                                                                                                 \
+  QCOMPARE(cpu.regs.y, uint8_t(regy));                                                                                           \
+  TEST_NZC(n, z, c)
+
+#define TEST_MEMNZ(addr, val, n, z)                                                                                              \
+  QCOMPARE(memory[addr], val);                                                                                                   \
+  QCOMPARE(cpu.regs.p.negative, n);                                                                                              \
+  QCOMPARE(cpu.regs.p.zero, z)
+
+#define TEST_MEMNZC(addr, val, n, z, c)                                                                                          \
+  TEST_MEMNZ(addr, val, n, z);                                                                                                   \
+  QCOMPARE(cpu.regs.p.carry, c)
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
@@ -216,7 +239,7 @@ void OpCodesTest::testADC() {
 
   setup(false, uint8_t(-20), uint8_t(-100));
   TEST_INST("ADC $2000", 4);
-  TEST_ANZCV(uint8_t(-120), 1, 0, 1, 0);
+  TEST_ANZCV(-120, 1, 0, 1, 0);
 }
 
 void OpCodesTest::testSBC() {
@@ -261,6 +284,18 @@ void OpCodesTest::testAND() {
   TEST_ANZCV(0x80, 1, 0, 0, 0);
 }
 
+void OpCodesTest::testEOR() {
+  cpu.regs.a = 0b11011110;
+  memory[0x2102] = 0b01001101;
+  TEST_INST("EOR $2102", 4);
+  TEST_ANZCV(0b10010011, 1, 0, 0, 0);
+
+  cpu.regs.a = 0b01001101;
+  memory[0x21] = 0b01001101;
+  TEST_INST("EOR $21", 3);
+  TEST_ANZCV(0, 0, 1, 0, 0);
+}
+
 void OpCodesTest::testASL() {
   cpu.regs.a = 0b11000001;
   TEST_INST("ASL", 2);
@@ -270,6 +305,82 @@ void OpCodesTest::testASL() {
   cpu.regs.x = 0x12;
   TEST_INST("ASL $eff0,X", 7);
   TEST_ANZCV(0b10000010, 1, 0, 0, 0);
+}
+
+void OpCodesTest::testLSR() {
+  cpu.regs.a = 0b11000001;
+  TEST_INST("LSR", 2);
+  TEST_ANZC(0b01100000, 0, 0, 1);
+
+  memory[0xf002] = 0b10000010;
+  TEST_INST("LSR $f002", 6);
+  TEST_MEMNZC(0xf002, 0b01000001, 0, 0, 0);
+
+  memory[0xf0] = 1;
+  TEST_INST("LSR $f0", 5);
+  TEST_MEMNZC(0xf0, 0, 0, 1, 1);
+}
+
+void OpCodesTest::testDEC() {
+  memory[0x3102] = 0x00;
+  cpu.regs.x = 0x82;
+  TEST_INST("DEC $3080,X", 7);
+  TEST_MEMNZ(0x3102, 0xff, 1, 0);
+
+  memory[0x31] = 0x01;
+  TEST_INST("DEC $31", 5);
+  TEST_MEMNZ(0x31, 0x00, 0, 1);
+}
+
+void OpCodesTest::testDEX() {
+  cpu.regs.x = 0;
+  TEST_INST("DEX", 2);
+  TEST_XNZC(0xff, 1, 0, 0);
+
+  cpu.regs.x = 1;
+  TEST_INST("DEX", 2);
+  TEST_XNZC(0, 0, 1, 0);
+}
+
+void OpCodesTest::testDEY() {
+  cpu.regs.y = 0;
+  TEST_INST("DEY", 2);
+  TEST_YNZC(0xff, 1, 0, 0);
+
+  cpu.regs.y = 1;
+  TEST_INST("DEY", 2);
+  TEST_YNZC(0, 0, 1, 0);
+}
+
+void OpCodesTest::testINC() {
+  memory[0x3102] = 0xff;
+  cpu.regs.x = 0x82;
+  TEST_INST("INC $3080,X", 7);
+  TEST_MEMNZ(0x3102, 0x0, 0, 1);
+
+  memory[0x31] = 0x7f;
+  TEST_INST("INC $31", 5);
+  TEST_MEMNZ(0x31, 0x80, 1, 0);
+}
+
+void OpCodesTest::testINX() {
+  cpu.regs.x = 0xff;
+  TEST_INST("INX", 2);
+  TEST_XNZC(0, 0, 1, 0);
+
+  cpu.regs.x = 0x7f;
+  TEST_INST("INX", 2);
+  TEST_XNZC(0x80, 1, 0, 0);
+}
+
+void OpCodesTest::testINY() {
+  cpu.regs.y = 0xff;
+  TEST_INST("INY", 2);
+  TEST_YNZC(0, 0, 1, 0);
+
+  cpu.regs.y = 0x9f;
+  TEST_INST("INY", 2);
+  TEST_YNZC(0xa0, 1, 0, 0);
 }
 
 void OpCodesTest::testBCC_taken() {
@@ -396,12 +507,35 @@ void OpCodesTest::testCMP() {
   cpu.regs.a = uint8_t(-100);
   memory[0x2000] = uint8_t(-110);
   TEST_INST("CMP $2000", 4);
-  TEST_ANZCV(uint8_t(-100), 0, 0, 1, 0);
+  TEST_ANZCV(-100, 0, 0, 1, 0);
 
   cpu.regs.a = 150;
   memory[0x2000] = 120;
   TEST_INST("CMP $2000", 4);
   TEST_ANZCV(150, 0, 0, 1, 0);
+}
+
+void OpCodesTest::testCPX() {
+  cpu.regs.x = uint8_t(-100);
+  memory[0x2000] = uint8_t(-110);
+  TEST_INST("CPX $2000", 4);
+  TEST_XNZC(-100, 0, 0, 1);
+
+  cpu.regs.x = 150;
+  memory[0x20] = 120;
+  TEST_INST("CPX $20", 3);
+  TEST_XNZC(150, 0, 0, 1);
+}
+
+void OpCodesTest::testCPY() {
+  cpu.regs.y = 0x71;
+  TEST_INST("CPY #$90", 2);
+  TEST_YNZC(0x71, 1, 0, 0);
+
+  cpu.regs.y = uint8_t(-100);
+  memory[0x2000] = uint8_t(-110);
+  TEST_INST("CPY $2000", 4);
+  TEST_YNZC(-100, 0, 0, 1);
 }
 
 void OpCodesTest::testCLC() {
