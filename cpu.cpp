@@ -241,7 +241,7 @@ void Cpu::execPHA() {
 }
 
 void Cpu::execPLA() {
-  regs.a = pull();
+  regs.p.computeNZ(regs.a = pull());
 }
 
 void Cpu::execPHP() {

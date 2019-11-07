@@ -677,7 +677,28 @@ void OpCodesTest::testPHA() {
 }
 
 void OpCodesTest::testPLA() {
+  cpu.regs.sp.offset = 0x80;
+  memory[0x181] = 0xab;
   TEST_INST("PLA", 4);
+  TEST_ANZC(0xab, 1, 0, 0);
+  QCOMPARE(static_cast<uint16_t>(cpu.regs.sp), 0x181);
+}
+
+void OpCodesTest::testPHP() {
+  const auto addr = cpu.regs.sp;
+  memory[addr] = 0;
+  cpu.regs.p = 0b11001100;
+  TEST_INST("PHP", 3);
+  QCOMPARE(cpu.regs.sp, addr - 1);
+  QCOMPARE(memory[addr], 0b11001100);
+}
+
+void OpCodesTest::testPLP() {
+  cpu.regs.sp.offset = 0x80;
+  memory[0x181] = 0b00001100;
+  TEST_INST("PLP", 4);
+  QCOMPARE(cpu.regs.p, 0b00001100);
+  QCOMPARE(static_cast<uint16_t>(cpu.regs.sp), 0x181);
 }
 
 void OpCodesTest::testBIT() {

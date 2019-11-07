@@ -92,6 +92,8 @@ private slots:
   void testJMP_indirect();
   void testPHA();
   void testPLA();
+  void testPHP();
+  void testPLP();
 
   void testBIT();
   void testCMP();
