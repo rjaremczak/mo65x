@@ -298,17 +298,16 @@ void Cpu::execJSR() {
 }
 
 void Cpu::execRTS() {
-  regs.pc = pullWord();
+  regs.pc = pullWord() + 1;
 }
 
 void Cpu::execRTI() {
   regs.p = pull();
-  regs.pc = pullWord() + 1;
+  regs.pc = pullWord();
 }
 
 void Cpu::execBRK() {
-  regs.pc++;
-  pushWord(regs.pc);
+  pushWord(regs.pc + 1);
   push(regs.p | ProcessorStatus::BreakBitMask);
   regs.pc = memory_.read16(VectorIRQ);
 }

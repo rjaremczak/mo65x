@@ -716,7 +716,7 @@ void OpCodesTest::testJSR() {
 }
 
 void OpCodesTest::testRTS() {
-  cpu.pushWord(0x8003);
+  cpu.pushWord(0x8002);
   TEST_INST("RTS", 6);
   QCOMPARE(cpu.regs.pc, 0x8003);
 }
@@ -735,6 +735,11 @@ void OpCodesTest::testBRK() {
 }
 
 void OpCodesTest::testRTI() {
+  cpu.pushWord(0x8003);
+  cpu.push(0b11010101);
+  TEST_INST("RTI", 6);
+  QCOMPARE(cpu.regs.pc, 0x8003);
+  QCOMPARE(cpu.regs.p, 0b11000101);
 }
 
 void OpCodesTest::testBIT() {
