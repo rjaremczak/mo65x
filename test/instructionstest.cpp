@@ -657,6 +657,17 @@ void OpCodesTest::testBVS_notTaken() {
   TEST_BRANCH_NOT_TAKEN();
 }
 
+void OpCodesTest::testJMP_absolute() {
+  TEST_INST("JMP $3fa0", 3);
+  QCOMPARE(cpu.regs.pc, 0x3fa0);
+}
+
+void OpCodesTest::testJMP_indirect() {
+  memory.write16(0xa000, 0x1f80);
+  TEST_INST("JMP ($a000)", 5);
+  QCOMPARE(cpu.regs.pc, 0x1f80);
+}
+
 void OpCodesTest::testBIT() {
   cpu.regs.a = 0x81;
   memory[0x2001] = 0x41;

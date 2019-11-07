@@ -73,7 +73,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0x68] = {PLA, Implied, 4};
   arr[0x69] = {ADC, Immediate, 2};
   arr[0x6a] = {ROR, Accumulator, 2};
-  arr[0x6c] = {JMP, Indirect, 6};
+  arr[0x6c] = {JMP, Indirect, 5};
   arr[0x6d] = {ADC, Absolute, 4};
   arr[0x6e] = {ROR, Absolute, 6};
 

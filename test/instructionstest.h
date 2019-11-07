@@ -88,6 +88,9 @@ private slots:
   void testBVS_taken();
   void testBVS_notTaken();
 
+  void testJMP_absolute();
+  void testJMP_indirect();
+
   void testBIT();
   void testCMP();
   void testCPX();
