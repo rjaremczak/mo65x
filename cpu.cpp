@@ -229,7 +229,7 @@ void Cpu::execTYA() {
 }
 
 void Cpu::execTSX() {
-  regs.x = regs.sp.value;
+  regs.p.computeNZ(regs.x = regs.sp.value);
 }
 
 void Cpu::execTXS() {

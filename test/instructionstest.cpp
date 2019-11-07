@@ -538,11 +538,11 @@ void OpCodesTest::testTAY() {
 }
 
 void OpCodesTest::testTSX() {
-  cpu.regs.p = 0xff;
+  cpu.regs.sp.value = 0x8f;
   TEST_INST("TSX", 2);
-  TEST_XNZC(0xff, 1, 0, 0);
+  TEST_XNZC(0x8f, 1, 0, 0);
 
-  cpu.regs.p = 0x00;
+  cpu.regs.sp.value = 0x00;
   TEST_INST("TSX", 2);
   TEST_XNZC(0, 0, 1, 0);
 }

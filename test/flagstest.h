@@ -18,6 +18,7 @@ private:
 
 private slots:
   void init();
+  void testBits();
   void testNegative();
   void testZero();
   void testCarry();

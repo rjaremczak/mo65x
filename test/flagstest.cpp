@@ -7,6 +7,11 @@ FlagsTest::FlagsTest(QObject* parent) : QObject(parent) {
 void FlagsTest::init() {
 }
 
+void FlagsTest::testBits() {
+  p = 0b11111111;
+  QCOMPARE(p.toByte(), 0b11001111);
+}
+
 void FlagsTest::testNegative() {
   p.computeN(0b10000000);
   QCOMPARE(p.negative, true);

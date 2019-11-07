@@ -3,7 +3,19 @@
 #include <cstdint>
 
 struct ProcessorStatus {
-  bool negative, overflow, decimal, interrupt, zero, carry;
+  const uint8_t NegativeBitMask = 0x80;
+  const uint8_t OverflowBitMask = 0x40;
+  const uint8_t DecimalBitMask = 0x08;
+  const uint8_t InterruptBitMask = 0x04;
+  const uint8_t ZeroBitMask = 0x02;
+  const uint8_t CarryBitMask = 0x01;
+
+  bool negative;
+  bool overflow;
+  bool decimal;
+  bool interrupt;
+  bool zero;
+  bool carry;
 
   void computeN(uint16_t result) { negative = result & 0x80; }
   void computeZ(uint16_t result) { zero = !(result & 0xff); }
@@ -22,17 +34,21 @@ struct ProcessorStatus {
   }
 
   void operator=(uint8_t v) {
-    this->negative = v & 0x80;
-    this->overflow = v & 0x40;
-    this->decimal = v & 0x08;
-    this->interrupt = v & 0x04;
-    this->zero = v & 0x02;
-    this->carry = v & 0x01;
+    this->negative = v & NegativeBitMask;
+    this->overflow = v & OverflowBitMask;
+    this->decimal = v & DecimalBitMask;
+    this->interrupt = v & InterruptBitMask;
+    this->zero = v & ZeroBitMask;
+    this->carry = v & CarryBitMask;
   }
 
   operator uint8_t() const {
-    return static_cast<uint8_t>(negative << 7 | overflow << 6 | 0x20 | decimal << 3 | interrupt << 2 | zero << 1 | carry);
+    return (negative ? NegativeBitMask : 0) | (overflow ? OverflowBitMask : 0) | (decimal ? DecimalBitMask : 0) |
+           (interrupt ? InterruptBitMask : 0) | (zero ? ZeroBitMask : 0) | (carry ? CarryBitMask : 0);
   }
+
+  void fromByte(uint8_t b) { *this = b; }
+  uint8_t toByte() const { return *this; }
 
   uint8_t withBreakFlag() const { return operator uint8_t() | 0x10; }
 };
