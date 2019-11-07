@@ -17,7 +17,7 @@ void Cpu::prepRelativeMode() {
 }
 
 void Cpu::prepIndirectMode() {
-  effectiveAddress_ = memory_.read16(fromLittleEndian(operandPtr_));
+  effectiveAddress_ = memory_.read16(little_endian_word(operandPtr_));
 }
 
 void Cpu::prepImmediateMode() {
@@ -50,17 +50,17 @@ void Cpu::prepIndirectIndexedYMode() {
 }
 
 void Cpu::prepAbsoluteMode() {
-  effectiveAddress_ = fromLittleEndian(operandPtr_);
+  effectiveAddress_ = little_endian_word(operandPtr_);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteXMode() {
-  calculateEffectiveAddress(fromLittleEndian(operandPtr_), regs.x);
+  calculateEffectiveAddress(little_endian_word(operandPtr_), regs.x);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteYMode() {
-  calculateEffectiveAddress(fromLittleEndian(operandPtr_), regs.y);
+  calculateEffectiveAddress(little_endian_word(operandPtr_), regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
@@ -140,13 +140,13 @@ void Cpu::execLSR() {
 void Cpu::execROL() {
   const uint16_t res = static_cast<uint16_t>(*effectiveOperandPtr_ << 1) | regs.p.carry;
   regs.p.carry = res & 0x100;
-  regs.p.computeNZ(*effectiveOperandPtr_ = loByte(res));
+  regs.p.computeNZ(*effectiveOperandPtr_ = static_cast<uint8_t>(res));
 }
 
 void Cpu::execROR() {
   const uint16_t tmp = *effectiveOperandPtr_ | (regs.p.carry ? 0x100 : 0x00);
   regs.p.carry = tmp & 0x01;
-  regs.p.computeNZ(*effectiveOperandPtr_ = loByte(tmp >> 1));
+  regs.p.computeNZ(*effectiveOperandPtr_ = static_cast<uint8_t>(tmp >> 1));
 }
 
 void Cpu::execAND() {
@@ -293,7 +293,7 @@ void Cpu::execJMP() {
 }
 
 void Cpu::execJSR() {
-  pushWord(regs.pc);
+  pushWord(regs.pc - 1);
   regs.pc = effectiveAddress_;
 }
 
@@ -309,7 +309,7 @@ void Cpu::execRTI() {
 void Cpu::execBRK() {
   regs.pc++;
   pushWord(regs.pc);
-  push(regs.p.withBreakFlag());
+  push(regs.p | ProcessorStatus::BreakBitMask);
   regs.pc = memory_.read16(VectorIRQ);
 }
 

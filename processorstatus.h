@@ -3,12 +3,13 @@
 #include <cstdint>
 
 struct ProcessorStatus {
-  const uint8_t NegativeBitMask = 0x80;
-  const uint8_t OverflowBitMask = 0x40;
-  const uint8_t DecimalBitMask = 0x08;
-  const uint8_t InterruptBitMask = 0x04;
-  const uint8_t ZeroBitMask = 0x02;
-  const uint8_t CarryBitMask = 0x01;
+  static constexpr uint8_t NegativeBitMask = 0x80;
+  static constexpr uint8_t OverflowBitMask = 0x40;
+  static constexpr uint8_t BreakBitMask = 0x10;
+  static constexpr uint8_t DecimalBitMask = 0x08;
+  static constexpr uint8_t InterruptBitMask = 0x04;
+  static constexpr uint8_t ZeroBitMask = 0x02;
+  static constexpr uint8_t CarryBitMask = 0x01;
 
   bool negative;
   bool overflow;
@@ -49,6 +50,4 @@ struct ProcessorStatus {
 
   void fromByte(uint8_t b) { *this = b; }
   uint8_t toByte() const { return *this; }
-
-  uint8_t withBreakFlag() const { return operator uint8_t() | 0x10; }
 };

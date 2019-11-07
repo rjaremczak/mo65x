@@ -50,7 +50,7 @@
   QCOMPARE(cpu.cycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;
-static constexpr auto StackPointerOffset = 0xfd;
+static constexpr auto StackPointerOffset = 0xff;
 
 OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory), assembler(memory) {
 }
@@ -216,6 +216,11 @@ void OpCodesTest::testBranchWithPageBoundaryCrossed() {
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 263);
   QCOMPARE(cpu.cycles, 2);
+}
+
+void OpCodesTest::testWordPushPull() {
+  cpu.pushWord(0x203a);
+  QCOMPARE(cpu.pullWord(), 0x203a);
 }
 
 void OpCodesTest::testADC() {
@@ -669,10 +674,10 @@ void OpCodesTest::testJMP_indirect() {
 }
 
 void OpCodesTest::testPHA() {
-  const auto addr = cpu.regs.sp;
+  const auto addr = cpu.regs.sp.address();
   cpu.regs.a = 0x1f;
   TEST_INST("PHA", 3);
-  QCOMPARE(cpu.regs.sp, addr - 1);
+  QCOMPARE(cpu.regs.sp.address(), addr - 1);
   QCOMPARE(memory[addr], 0x1f);
 }
 
@@ -681,15 +686,15 @@ void OpCodesTest::testPLA() {
   memory[0x181] = 0xab;
   TEST_INST("PLA", 4);
   TEST_ANZC(0xab, 1, 0, 0);
-  QCOMPARE(static_cast<uint16_t>(cpu.regs.sp), 0x181);
+  QCOMPARE(cpu.regs.sp.address(), 0x181);
 }
 
 void OpCodesTest::testPHP() {
-  const auto addr = cpu.regs.sp;
+  const auto addr = cpu.regs.sp.address();
   memory[addr] = 0;
   cpu.regs.p = 0b11001100;
   TEST_INST("PHP", 3);
-  QCOMPARE(cpu.regs.sp, addr - 1);
+  QCOMPARE(cpu.regs.sp.address(), addr - 1);
   QCOMPARE(memory[addr], 0b11001100);
 }
 
@@ -698,7 +703,38 @@ void OpCodesTest::testPLP() {
   memory[0x181] = 0b00001100;
   TEST_INST("PLP", 4);
   QCOMPARE(cpu.regs.p, 0b00001100);
-  QCOMPARE(static_cast<uint16_t>(cpu.regs.sp), 0x181);
+  QCOMPARE(cpu.regs.sp.address(), 0x181);
+}
+
+void OpCodesTest::testJSR() {
+  auto sp0 = cpu.regs.sp.address();
+  auto pc0 = cpu.regs.pc + 2;
+  TEST_INST("JSR $f000", 6);
+  QCOMPARE(memory[cpu.regs.sp.address() + 1], uint8_t(pc0));
+  QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0 >> 8));
+  QCOMPARE(cpu.regs.sp.address(), sp0 - 2);
+}
+
+void OpCodesTest::testRTS() {
+  cpu.pushWord(0x8003);
+  TEST_INST("RTS", 6);
+  QCOMPARE(cpu.regs.pc, 0x8003);
+}
+
+void OpCodesTest::testBRK() {
+  memory.write16(Cpu::VectorIRQ, 0xabcd);
+  cpu.regs.p = 0b11001111;
+  auto sp0 = cpu.regs.sp.address();
+  auto pc0 = cpu.regs.pc + 2;
+  TEST_INST("BRK", 7);
+  QCOMPARE(memory[cpu.regs.sp.address() + 1], 0b11011111);
+  QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
+  QCOMPARE(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
+  QCOMPARE(cpu.regs.sp.address(), sp0 - 3);
+  QCOMPARE(cpu.regs.pc, 0xabcd);
+}
+
+void OpCodesTest::testRTI() {
 }
 
 void OpCodesTest::testBIT() {

@@ -41,6 +41,7 @@ private slots:
   void testBranchForward();
   void testBranchBackward();
   void testBranchWithPageBoundaryCrossed();
+  void testWordPushPull();
 
   void testADC();
   void testSBC();
@@ -94,6 +95,10 @@ private slots:
   void testPLA();
   void testPHP();
   void testPLP();
+  void testJSR();
+  void testRTS();
+  void testBRK();
+  void testRTI();
 
   void testBIT();
   void testCMP();

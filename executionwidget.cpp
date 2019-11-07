@@ -37,7 +37,7 @@ void ExecutionWidget::updateCpuState(Registers registers, int cycles) {
   ui->regA->setValue(registers.a);
   ui->regX->setValue(registers.x);
   ui->regY->setValue(registers.y);
-  ui->regSP->setValue(registers.sp);
+  ui->regSP->setValue(registers.sp.address());
   ui->regPC->setValue(registers.pc);
 
   QString str;
