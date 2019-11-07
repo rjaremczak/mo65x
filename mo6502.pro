@@ -31,7 +31,6 @@ HEADERS += \
     assembler.h \
     decodetable.h \
     disassemblerwidget.h \
-    executionstatus.h \
     addressingmode.h \
     bytespinbox.h \
     centralwidget.h \

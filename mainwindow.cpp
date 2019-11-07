@@ -6,8 +6,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   system = new System(this);
 
-  monitorWidget = new DisassemblerWidget(this, system);
-  this->addDockWidget(Qt::LeftDockWidgetArea, monitorWidget);
+  disassemblerWidget = new DisassemblerWidget(this, system);
+  this->addDockWidget(Qt::LeftDockWidgetArea, disassemblerWidget);
 
   memoryWidget = new MemoryWidget(this, system);
   this->addDockWidget(Qt::RightDockWidgetArea, memoryWidget);
@@ -19,18 +19,18 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   this->setCentralWidget(centralWidget);
 
   pollTimer = new QTimer(this);
-  connect(pollTimer, &QTimer::timeout, system, &System::checkCpuState);
+  connect(pollTimer, &QTimer::timeout, system, &System::cpuStateChanged);
   // pollTimer->start(1000);
 
   connect(system, &System::cpuStateChanged, executionWidget, &ExecutionWidget::updateCpuState);
-  connect(system, &System::cpuStateChanged, [&](auto registers) { monitorWidget->changeAddress(registers.pc); });
-  connect(system, &System::memoryContentChanged, monitorWidget, &DisassemblerWidget::updateMemoryContent);
+  connect(system, &System::cpuStateChanged, [&] { disassemblerWidget->changeAddress(system->cpu().regs.pc); });
+  connect(system, &System::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateMemoryContent);
 
-  connect(monitorWidget, &DisassemblerWidget::addressChanged, system, &System::changePC);
+  connect(disassemblerWidget, &DisassemblerWidget::addressChanged, system, &System::changeExecutionAddress);
 
-  connect(executionWidget, &ExecutionWidget::pcChanged, system, &System::changePC);
+  connect(executionWidget, &ExecutionWidget::pcChanged, system, &System::changeExecutionAddress);
 
-  system->checkCpuState();
+  emit system->cpuStateChanged();
 }
 
 MainWindow::~MainWindow() {

@@ -25,7 +25,7 @@ public:
 private:
     Ui::MainWindow *ui;
     MemoryWidget* memoryWidget;
-    DisassemblerWidget* monitorWidget;
+    DisassemblerWidget* disassemblerWidget;
     CentralWidget* centralWidget;
     ExecutionWidget* executionWidget;
     QTimer* pollTimer;

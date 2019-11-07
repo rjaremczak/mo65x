@@ -37,7 +37,7 @@
   cpu.cycles = 0;                                                                                                                \
   QVERIFY(assembler.assemble(instr));                                                                                            \
   cpu.execute();                                                                                                                 \
-  QCOMPARE(cpu.executionStatus, Stopped);                                                                                        \
+  QCOMPARE(cpu.state_, Cpu::Stopped);                                                                                            \
   QCOMPARE(cpu.cycles, numCycles)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
@@ -70,6 +70,20 @@ void OpCodesTest::init() {
   cpu.regs.sp.offset = StackPointerOffset;
   cpu.regs.p = 0;
   cpu.cycles = 0;
+}
+
+void OpCodesTest::testIRQ() {
+  memory.write16(Cpu::VectorIRQ, 0xabcd);
+  cpu.regs.p = 0b11001111;
+  auto sp0 = cpu.regs.sp.address();
+  auto pc0 = cpu.regs.pc;
+  cpu.irq();
+  QCOMPARE(cpu.regs.p.interrupt, true);
+  QCOMPARE(memory[cpu.regs.sp.address() + 1], 0b11001111);
+  QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
+  QCOMPARE(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
+  QCOMPARE(cpu.regs.sp.address(), sp0 - 3);
+  QCOMPARE(cpu.regs.pc, 0xabcd);
 }
 
 void OpCodesTest::testReset() {
@@ -727,6 +741,7 @@ void OpCodesTest::testBRK() {
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc + 2;
   TEST_INST("BRK", 7);
+  QCOMPARE(cpu.regs.p.interrupt, true);
   QCOMPARE(memory[cpu.regs.sp.address() + 1], 0b11011111);
   QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
   QCOMPARE(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
@@ -735,11 +750,17 @@ void OpCodesTest::testBRK() {
 }
 
 void OpCodesTest::testRTI() {
+  cpu.regs.p.interrupt = true;
   cpu.pushWord(0x8003);
-  cpu.push(0b11010101);
+  cpu.push(0b11010011);
   TEST_INST("RTI", 6);
+  QCOMPARE(cpu.regs.p.interrupt, false);
   QCOMPARE(cpu.regs.pc, 0x8003);
-  QCOMPARE(cpu.regs.p, 0b11000101);
+  QCOMPARE(uint8_t(cpu.regs.p), 0b11000011);
+}
+
+void OpCodesTest::testNOP() {
+  TEST_INST("NOP", 2);
 }
 
 void OpCodesTest::testBIT() {

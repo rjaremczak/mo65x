@@ -304,11 +304,13 @@ void Cpu::execRTS() {
 void Cpu::execRTI() {
   regs.p = pull();
   regs.pc = pullWord();
+  regs.p.interrupt = false;
 }
 
 void Cpu::execBRK() {
   pushWord(regs.pc + 1);
   push(regs.p | ProcessorStatus::BreakBitMask);
+  regs.p.interrupt = true;
   regs.pc = memory_.read16(VectorIRQ);
 }
 
@@ -341,16 +343,16 @@ void Cpu::reset() {
 }
 
 void Cpu::execute(bool continuous) {
-  executionStatus = Running;
-  while (executionStatus != StopRequested) {
+  state_ = Running;
+  while (state_ == Running) {
     pageBoundaryCrossed_ = false;
-    const auto pc = &memory_[regs.pc];
-    operandPtr_ = pc + 1;
-    const auto& entry = DecodeTable[*pc];
+    const auto pcPtr = &memory_[regs.pc];
+    operandPtr_ = pcPtr + 1;
+    const auto& entry = DecodeTable[*pcPtr];
     const auto ins = entry.instruction;
 
     if (ins->type == INV) {
-      executionStatus = InvalidOpCode;
+      state_ = InvalidOpCode;
       return;
     }
 
@@ -362,5 +364,5 @@ void Cpu::execute(bool continuous) {
 
     if (!continuous) break;
   }
-  executionStatus = Stopped;
+  state_ = Stopped;
 }

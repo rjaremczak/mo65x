@@ -1,6 +1,5 @@
 #pragma once
 
-#include "executionstatus.h"
 #include "instruction.h"
 #include "memory.h"
 #include "registers.h"
@@ -9,6 +8,7 @@
 
 class Cpu {
 public:
+  enum State { Stopped, InvalidOpCode, Running, PendingStop };
   enum : uint16_t { VectorNMI = 0xfffa, VectorRESET = 0xfffc, VectorIRQ = 0xfffe };
   using Handler = void (Cpu::*)();
 
@@ -17,16 +17,17 @@ public:
 
   Registers regs;
   int cycles;
-  volatile ExecutionStatus executionStatus = Stopped;
 
   Cpu(Memory&);
   void execute(bool continuous = false);
-  void nmi();
-  void irq();
-  void reset();
+  State state() const { return state_; }
 
 private:
   friend class OpCodesTest;
+
+  volatile bool requestedIRQ_ = false;
+  volatile bool requestedNMI_ = false;
+  volatile State state_ = Stopped;
 
   Memory& memory_;
   uint8_t* operandPtr_;
@@ -82,6 +83,10 @@ private:
   }
 
   void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr_ ^ 0xff) + uint8_t(1)); }
+
+  void nmi();
+  void irq();
+  void reset();
 
   void prepImpliedMode();
   void prepAccumulatorMode();

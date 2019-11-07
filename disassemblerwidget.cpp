@@ -5,7 +5,7 @@
 #include <QResizeEvent>
 
 DisassemblerWidget::DisassemblerWidget(QWidget* parent, System* system)
-    : QDockWidget(parent), ui(new Ui::DisassemblerWidget), system(system), disassembler(system->memoryView()) {
+    : QDockWidget(parent), ui(new Ui::DisassemblerWidget), system(system), disassembler(system->memory()) {
   ui->setupUi(this);
   initView();
   connect(ui->skipInstruction, &QToolButton::clicked, this, &DisassemblerWidget::skipInstruction);

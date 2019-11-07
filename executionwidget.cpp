@@ -5,8 +5,10 @@ static QString flagStr(bool flagStatus, const char* flagCode) {
   return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
 }
 
-static std::map<ExecutionStatus, const char*> ExecutionStatusStr{
-    {Stopped, "Stopped"}, {InvalidOpCode, "Invalid OpCode"}, {Running, "Running"}, {StopRequested, "Stop Requested"}};
+static std::map<Cpu::State, const char*> ExecutionStatusStr{{Cpu::Stopped, "Stopped"},
+                                                            {Cpu::InvalidOpCode, "Invalid OpCode"},
+                                                            {Cpu::Running, "Running"},
+                                                            {Cpu::PendingStop, "Stop Requested"}};
 
 ExecutionWidget::ExecutionWidget(QWidget* parent, System* system)
     : QDockWidget(parent), system(system), ui(new Ui::ExecutionWidget) {
@@ -33,24 +35,26 @@ void ExecutionWidget::startContinuousExecution() {
 void ExecutionWidget::stopContinuousExecution() {
 }
 
-void ExecutionWidget::updateCpuState(Registers registers, int cycles) {
-  ui->regA->setValue(registers.a);
-  ui->regX->setValue(registers.x);
-  ui->regY->setValue(registers.y);
-  ui->regSP->setValue(registers.sp.address());
-  ui->regPC->setValue(registers.pc);
+void ExecutionWidget::updateCpuState() {
+  const auto regs = system->cpu().regs;
+
+  ui->regA->setValue(regs.a);
+  ui->regX->setValue(regs.x);
+  ui->regY->setValue(regs.y);
+  ui->regSP->setValue(regs.sp.address());
+  ui->regPC->setValue(regs.pc);
 
   QString str;
-  str.append(flagStr(registers.p.negative, "N"));
-  str.append(flagStr(registers.p.overflow, "V"));
+  str.append(flagStr(regs.p.negative, "N"));
+  str.append(flagStr(regs.p.overflow, "V"));
   str.append(flagStr(false, "."));
   str.append(flagStr(false, "B"));
-  str.append(flagStr(registers.p.decimal, "D"));
-  str.append(flagStr(registers.p.interrupt, "I"));
-  str.append(flagStr(registers.p.zero, "Z"));
-  str.append(flagStr(registers.p.carry, "C"));
+  str.append(flagStr(regs.p.decimal, "D"));
+  str.append(flagStr(regs.p.interrupt, "I"));
+  str.append(flagStr(regs.p.zero, "Z"));
+  str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  ui->cycles->setNum(cycles);
-  setWindowTitle(QString("Execution : %1").arg(ExecutionStatusStr[system->executionStatus()]));
+  ui->cycles->setNum(system->cpu().cycles);
+  setWindowTitle(QString("Execution : %1").arg(ExecutionStatusStr[system->cpu().state()]));
 }

@@ -24,6 +24,7 @@ private slots:
   void init();
   // void cleanup();
 
+  void testIRQ();
   void testReset();
   void testImpliedMode();
   void testAccumulatorMode();
@@ -99,6 +100,7 @@ private slots:
   void testRTS();
   void testBRK();
   void testRTI();
+  void testNOP();
 
   void testBIT();
   void testCMP();
