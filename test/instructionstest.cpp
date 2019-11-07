@@ -548,6 +548,17 @@ void OpCodesTest::testTSX() {
 }
 
 void OpCodesTest::testTXS() {
+  cpu.regs.x = 0x81;
+  TEST_INST("TXS", 2);
+  QCOMPARE(cpu.regs.sp.value, 0x81);
+  QCOMPARE(cpu.regs.p.negative, false);
+  QCOMPARE(cpu.regs.p.zero, false);
+
+  cpu.regs.x = 0;
+  TEST_INST("TXS", 2);
+  QCOMPARE(cpu.regs.sp.value, 0);
+  QCOMPARE(cpu.regs.p.negative, false);
+  QCOMPARE(cpu.regs.p.zero, false);
 }
 
 void OpCodesTest::testBCC_taken() {
