@@ -229,27 +229,27 @@ void Cpu::execTYA() {
 }
 
 void Cpu::execTSX() {
-  regs.p.computeNZ(regs.x = regs.sp.value);
+  regs.p.computeNZ(regs.x = regs.sp.offset);
 }
 
 void Cpu::execTXS() {
-  regs.sp.value = regs.x;
+  regs.sp.offset = regs.x;
 }
 
 void Cpu::execPHA() {
-  push8(regs.a);
+  push(regs.a);
 }
 
 void Cpu::execPLA() {
-  regs.a = pull8();
+  regs.a = pull();
 }
 
 void Cpu::execPHP() {
-  push8(regs.p);
+  push(regs.p);
 }
 
 void Cpu::execPLP() {
-  regs.p = pull8();
+  regs.p = pull();
 }
 
 void Cpu::execNOP() {
@@ -293,36 +293,36 @@ void Cpu::execJMP() {
 }
 
 void Cpu::execJSR() {
-  push16(regs.pc);
+  pushWord(regs.pc);
   regs.pc = effectiveAddress_;
 }
 
 void Cpu::execRTS() {
-  regs.pc = pull16();
+  regs.pc = pullWord();
 }
 
 void Cpu::execRTI() {
-  regs.p = pull8();
-  regs.pc = pull16() + 1;
+  regs.p = pull();
+  regs.pc = pullWord() + 1;
 }
 
 void Cpu::execBRK() {
   regs.pc++;
-  push16(regs.pc);
-  push8(regs.p.withBreakFlag());
+  pushWord(regs.pc);
+  push(regs.p.withBreakFlag());
   regs.pc = memory_.read16(VectorIRQ);
 }
 
 void Cpu::irq() {
-  push16(regs.pc);
-  push8(regs.p);
+  pushWord(regs.pc);
+  push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory_.read16(VectorIRQ);
 }
 
 void Cpu::nmi() {
-  push16(regs.pc);
-  push8(regs.p);
+  pushWord(regs.pc);
+  push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory_.read16(VectorNMI);
 }
@@ -332,7 +332,7 @@ void Cpu::reset() {
   regs.a = 0;
   regs.x = 0;
   regs.y = 0;
-  regs.sp.value = 0xfd;
+  regs.sp.offset = 0xfd;
   regs.p.negative = false;
   regs.p.overflow = false;
   regs.p.decimal = false;

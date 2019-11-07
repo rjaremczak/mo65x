@@ -90,6 +90,8 @@ private slots:
 
   void testJMP_absolute();
   void testJMP_indirect();
+  void testPHA();
+  void testPLA();
 
   void testBIT();
   void testCMP();

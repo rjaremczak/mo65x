@@ -34,15 +34,22 @@ private:
   uint16_t effectiveAddress_;
   bool pageBoundaryCrossed_;
 
-  void push8(uint8_t b) { memory_[regs.sp.value--] = b; }
-  uint8_t pull8() { return memory_[++regs.sp.value]; }
-
-  void push16(uint16_t w) {
-    push8(hiByte(w));
-    push8(loByte(w));
+  void push(uint8_t b) {
+    memory_[regs.sp] = b;
+    regs.sp.decrement();
   }
 
-  uint16_t pull16() { return wordOf(pull8(), pull8()); }
+  uint8_t pull() {
+    regs.sp.increment();
+    return memory_[regs.sp];
+  }
+
+  void pushWord(uint16_t w) {
+    push(hiByte(w));
+    push(loByte(w));
+  }
+
+  uint16_t pullWord() { return wordOf(pull(), pull()); }
 
   void calculateZeroPageEffectiveAddress(uint8_t address, uint8_t offset) {
     const uint8_t result = address + offset;

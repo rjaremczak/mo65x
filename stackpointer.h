@@ -2,15 +2,12 @@
 
 #include <cstdint>
 
-class StackPointer {
-public:
-  uint8_t value;
+struct StackPointer {
+  const uint16_t base = 0x100;
+  uint8_t offset;
 
-  StackPointer() = default;
+  void decrement() { --offset; }
+  void increment() { ++offset; }
 
-  uint16_t toWord() const { return value | 0x100; }
-  void fromWord(uint16_t word) { value = static_cast<uint8_t>(word); }
-
-private:
-  StackPointer(uint8_t sp) : value(sp) {}
+  operator uint16_t() const { return base | offset; }
 };

@@ -50,7 +50,7 @@
   QCOMPARE(cpu.cycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;
-static constexpr auto InitialSP = 0x1fd;
+static constexpr auto StackPointerOffset = 0xfd;
 
 OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory), assembler(memory) {
 }
@@ -67,7 +67,7 @@ void OpCodesTest::init() {
   cpu.regs.x = 0;
   cpu.regs.y = 0;
   cpu.regs.pc = AsmOrigin;
-  cpu.regs.sp.fromWord(InitialSP);
+  cpu.regs.sp.offset = StackPointerOffset;
   cpu.regs.p = 0;
   cpu.cycles = 0;
 }
@@ -538,11 +538,11 @@ void OpCodesTest::testTAY() {
 }
 
 void OpCodesTest::testTSX() {
-  cpu.regs.sp.value = 0x8f;
+  cpu.regs.sp.offset = 0x8f;
   TEST_INST("TSX", 2);
   TEST_XNZC(0x8f, 1, 0, 0);
 
-  cpu.regs.sp.value = 0x00;
+  cpu.regs.sp.offset = 0x00;
   TEST_INST("TSX", 2);
   TEST_XNZC(0, 0, 1, 0);
 }
@@ -550,13 +550,13 @@ void OpCodesTest::testTSX() {
 void OpCodesTest::testTXS() {
   cpu.regs.x = 0x81;
   TEST_INST("TXS", 2);
-  QCOMPARE(cpu.regs.sp.value, 0x81);
+  QCOMPARE(cpu.regs.sp.offset, 0x81);
   QCOMPARE(cpu.regs.p.negative, false);
   QCOMPARE(cpu.regs.p.zero, false);
 
   cpu.regs.x = 0;
   TEST_INST("TXS", 2);
-  QCOMPARE(cpu.regs.sp.value, 0);
+  QCOMPARE(cpu.regs.sp.offset, 0);
   QCOMPARE(cpu.regs.p.negative, false);
   QCOMPARE(cpu.regs.p.zero, false);
 }
@@ -666,6 +666,18 @@ void OpCodesTest::testJMP_indirect() {
   memory.write16(0xa000, 0x1f80);
   TEST_INST("JMP ($a000)", 5);
   QCOMPARE(cpu.regs.pc, 0x1f80);
+}
+
+void OpCodesTest::testPHA() {
+  const auto addr = cpu.regs.sp;
+  cpu.regs.a = 0x1f;
+  TEST_INST("PHA", 3);
+  QCOMPARE(cpu.regs.sp, addr - 1);
+  QCOMPARE(memory[addr], 0x1f);
+}
+
+void OpCodesTest::testPLA() {
+  TEST_INST("PLA", 4);
 }
 
 void OpCodesTest::testBIT() {
