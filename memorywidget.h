@@ -23,7 +23,7 @@ private slots:
 
 private:
   Ui::MemoryWidget* ui;
-  System* system_;
+  System* system;
 };
 
 #endif // MEMORYWIDGET_H

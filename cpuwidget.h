@@ -34,8 +34,8 @@ protected:
 private:
   const Memory& memory;
   Disassembler disassembler;
-  uint16_t disassemblerFirstAddress_;
-  uint16_t disassemblerLastAddress_;
+  uint16_t disassemblerFirstAddress;
+  uint16_t disassemblerLastAddress;
 
   int rowsInView() const;
 

@@ -11,9 +11,9 @@ public:
   explicit OpCodesTest(QObject* parent = nullptr);
 
 private:
+  Assembler assembler;
   Memory memory;
   Cpu cpu;
-  Assembler assembler;
 
 private slots:
   // functions executed by QtTest before and after test suite

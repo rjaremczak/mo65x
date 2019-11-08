@@ -3,7 +3,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-MemoryWidget::MemoryWidget(QWidget* parent, System* system) : QDockWidget(parent), ui(new Ui::MemoryWidget), system_(system) {
+MemoryWidget::MemoryWidget(QWidget* parent, System* system) : QDockWidget(parent), ui(new Ui::MemoryWidget), system(system) {
   ui->setupUi(this);
 
   connect(ui->loadMemory, &QToolButton::clicked, this, &MemoryWidget::loadMemoryFromFile);
@@ -21,7 +21,7 @@ void MemoryWidget::loadMemoryFromFile() {
     if (fileName.isEmpty()) {
       QMessageBox::warning(this, title, "file load error");
     } else {
-      auto size = system_->loadMemory(first, fileContent);
+      auto size = system->loadMemory(first, fileContent);
       if (size == static_cast<size_t>(fileContent.size())) {
         QMessageBox::information(this, title, QString::asprintf("Loaded %d B at address 0x%04X", fileContent.size(), first));
       } else {
@@ -32,5 +32,5 @@ void MemoryWidget::loadMemoryFromFile() {
 }
 
 void MemoryWidget::fillMemory() {
-  system_->fillMemory(ui->fillMemoryFirst->wordValue(), ui->fillMemoryLast->wordValue(), ui->fillMemoryValue->byteValue());
+  system->fillMemory(ui->fillMemoryFirst->wordValue(), ui->fillMemoryLast->wordValue(), ui->fillMemoryValue->byteValue());
 }

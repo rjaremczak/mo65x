@@ -24,8 +24,8 @@ CpuWidget::~CpuWidget() {
 }
 
 void CpuWidget::updateMemoryContent(uint16_t first, uint16_t last) {
-  if (disassemblerFirstAddress_ == std::clamp(disassemblerFirstAddress_, first, last) ||
-      disassemblerLastAddress_ == std::clamp(disassemblerLastAddress_, first, last)) {
+  if (disassemblerFirstAddress == std::clamp(disassemblerFirstAddress, first, last) ||
+      disassemblerLastAddress == std::clamp(disassemblerLastAddress, first, last)) {
     updateDisassemblerView();
   }
 }
@@ -57,8 +57,8 @@ void CpuWidget::updateState(CpuInfo info) {
   ui->ioPortData->setValue(memory[IOPortData]);
 
   ui->regPC->setValue(regs.pc);
-  if (disassemblerFirstAddress_ != regs.pc) {
-    disassemblerFirstAddress_ = regs.pc;
+  if (disassemblerFirstAddress != regs.pc) {
+    disassemblerFirstAddress = regs.pc;
     updateDisassemblerView();
   }
 }
@@ -72,7 +72,7 @@ int CpuWidget::rowsInView() const {
 }
 
 void CpuWidget::updateDisassemblerView() {
-  disassembler.setOrigin(disassemblerFirstAddress_);
+  disassembler.setOrigin(disassemblerFirstAddress);
   QString html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
   if (rows--) {
@@ -90,11 +90,11 @@ void CpuWidget::updateDisassemblerView() {
   }
   html.append("</div>");
   ui->disassemblerView->setHtml(html);
-  disassemblerLastAddress_ = disassembler.currentAddress();
+  disassemblerLastAddress = disassembler.currentAddress();
 }
 
 void CpuWidget::skipInstruction() {
-  disassembler.setOrigin(disassemblerFirstAddress_);
+  disassembler.setOrigin(disassemblerFirstAddress);
   disassembler.nextInstruction();
   emit programCounterChangeRequested(disassembler.currentAddress());
 }
