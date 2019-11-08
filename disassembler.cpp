@@ -22,17 +22,17 @@ QString Disassembler::formatOperand16() const {
 }
 
 Disassembler::Disassembler(const Memory& memory, uint16_t pc) : memory_(memory) {
-  setAddress(pc);
+  setOrigin(pc);
 }
 
-void Disassembler::setAddress(uint16_t addr) {
+void Disassembler::setOrigin(uint16_t addr) {
   address_ = addr;
   opcode_ = memory_[addr];
   instruction_ = InstructionTable[opcode_];
 }
 
 void Disassembler::nextInstruction() {
-  setAddress(address_ + instruction_.size);
+  setOrigin(address_ + instruction_.size);
 }
 
 QString Disassembler::dumpBytes(uint16_t n) const {

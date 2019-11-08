@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ExecutionWidget</class>
- <widget class="QDockWidget" name="ExecutionWidget">
+ <class>CpuWidget</class>
+ <widget class="QDockWidget" name="CpuWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>208</width>
-    <height>266</height>
+    <width>266</width>
+    <height>514</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>524287</width>
+    <height>10000</height>
+   </size>
   </property>
   <property name="styleSheet">
    <string notr="true">QDockWidget {color: orange}  QDockWidget::title {text-align: left;
@@ -18,19 +24,34 @@
    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
   </property>
   <property name="allowedAreas">
-   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   <set>Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>Execution</string>
+   <string>CPU</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+    <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
     <item>
      <layout class="QGridLayout" name="cpuLayout">
       <property name="sizeConstraint">
@@ -359,9 +380,106 @@
       <property name="sizeConstraint">
        <enum>QLayout::SetMaximumSize</enum>
       </property>
-      <property name="spacing">
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing">
        <number>2</number>
       </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>NMI ($FFFA)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="goNMI">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>NMI</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>I/O Config ($00)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="WordSpinBox" name="vectorNMI">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:darkslategray</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="maximum">
+         <number>65535</number>
+        </property>
+        <property name="value">
+         <number>65535</number>
+        </property>
+        <property name="displayIntegerBase">
+         <number>16</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>IRQ/BRK ($FFFE)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="cycles">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:lightgreen</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="margin">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="1">
        <widget class="WordSpinBox" name="vectorIRQ">
         <property name="font">
@@ -396,73 +514,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QToolButton" name="goReset">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>RST</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>Cycles Counter</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="cycles">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:lightgreen</string>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="margin">
-         <number>2</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QToolButton" name="goIRQ">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>IRQ</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>IRQ/BRK ($FFFE)</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="2">
        <widget class="QToolButton" name="cyclesClear">
         <property name="sizePolicy">
@@ -479,38 +530,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="WordSpinBox" name="vectorNMI">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color:darkslategray</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-        <property name="value">
-         <number>65535</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="goNMI">
+      <item row="1" column="2">
+       <widget class="QToolButton" name="goReset">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -518,17 +539,20 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>NMI</string>
+         <string>RST</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
+      <item row="2" column="2">
+       <widget class="QToolButton" name="goIRQ">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>NMI ($FFFA)</string>
+         <string>IRQ</string>
         </property>
        </widget>
       </item>
@@ -556,6 +580,74 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>Cycles Counter</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="ByteSpinBox" name="ioPortDirection">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:darkslategray</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="maximum">
+         <number>255</number>
+        </property>
+        <property name="displayIntegerBase">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <widget class="ByteSpinBox" name="ioPortData">
+        <property name="font">
+         <font>
+          <family>Courier</family>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:darkslategray</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="maximum">
+         <number>255</number>
+        </property>
+        <property name="displayIntegerBase">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>I/O Data ($01)</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -566,11 +658,49 @@
      </widget>
     </item>
     <item>
+     <widget class="QTextBrowser" name="disassemblerView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Courier</family>
+       </font>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="executionBox">
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QToolButton" name="executeSingleStep">
         <property name="text">
          <string>Step</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="skipInstruction">
+        <property name="text">
+         <string>Skip</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>

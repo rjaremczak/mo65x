@@ -14,37 +14,6 @@
    <string>mo6502</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menu_View">
-    <property name="title">
-     <string>View</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_Tools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuMemory">
-    <property name="title">
-     <string>Memory</string>
-    </property>
-    <addaction name="actionMemoryLoadFromFile"/>
-    <addaction name="actionMemorySaveTo"/>
-    <addaction name="actionMemoryFill"/>
-   </widget>
-   <addaction name="menu_View"/>
-   <addaction name="menu_Tools"/>
-   <addaction name="menuMemory"/>
-  </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionShow_Memory">
    <property name="text">

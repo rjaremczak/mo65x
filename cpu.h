@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cpuinfo.h"
+#include "executionstate.h"
 #include "instruction.h"
 #include "memory.h"
 #include "registers.h"
@@ -8,26 +10,27 @@
 
 class Cpu {
 public:
-  enum State { Stopped, InvalidOpCode, Running, PendingStop };
-  enum : uint16_t { VectorNMI = 0xfffa, VectorRESET = 0xfffc, VectorIRQ = 0xfffe };
+  constexpr static uint16_t IOPortConfig = 0x00;
+  constexpr static uint16_t IOPortData = 0x01;
+  constexpr static uint16_t VectorNMI = 0xfffa;
+  constexpr static uint16_t VectorRESET = 0xfffc;
+  constexpr static uint16_t VectorIRQ = 0xfffe;
+
   using Handler = void (Cpu::*)();
 
   friend constexpr Handler operandsHandler(AddressingMode);
   friend constexpr Handler instructionHandler(InstructionType);
 
+  volatile ExecutionState state = ExecutionState::Stopped;
   Registers regs;
   int cycles;
 
   Cpu(Memory&);
   void execute(bool continuous = false);
-  State state() const { return state_; }
+  CpuInfo info() const { return {state, regs, cycles}; }
 
 private:
   friend class OpCodesTest;
-
-  volatile bool requestedIRQ_ = false;
-  volatile bool requestedNMI_ = false;
-  volatile State state_ = Stopped;
 
   Memory& memory_;
   uint8_t* operandPtr_;

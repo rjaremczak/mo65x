@@ -1,12 +1,11 @@
 #pragma once
 
-#include <cstdint>
+#include "cpudefs.h"
 
 struct StackPointer {
-  const uint16_t base = 0x100;
   uint8_t offset;
 
-  uint16_t address() const { return base | offset; }
+  uint16_t address() const { return StackPointerBase | offset; }
   void decrement() { --offset; }
   void increment() { ++offset; }
 };

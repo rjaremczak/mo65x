@@ -5,31 +5,30 @@
 #include <QTimer>
 
 #include "centralwidget.h"
-#include "executionwidget.h"
+#include "cpuwidget.h"
 #include "memorywidget.h"
-#include "disassemblerwidget.h"
 #include "system.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui {
+class MainWindow;
+}
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+  Q_OBJECT
+  Ui::MainWindow* ui;
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+  MainWindow(QWidget* parent = nullptr);
+  ~MainWindow();
 
 private:
-    Ui::MainWindow *ui;
-    MemoryWidget* memoryWidget;
-    DisassemblerWidget* disassemblerWidget;
-    CentralWidget* centralWidget;
-    ExecutionWidget* executionWidget;
-    QTimer* pollTimer;
-    System* system;
+  MemoryWidget* memoryWidget;
+  CentralWidget* centralWidget;
+  CpuWidget* cpuWidget;
+  QTimer* pollTimer;
+  System* system;
 };
 
 #endif // MAINWINDOW_H

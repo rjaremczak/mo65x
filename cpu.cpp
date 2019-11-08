@@ -343,8 +343,8 @@ void Cpu::reset() {
 }
 
 void Cpu::execute(bool continuous) {
-  state_ = Running;
-  while (state_ == Running) {
+  state = ExecutionState::Running;
+  while (state == ExecutionState::Running) {
     pageBoundaryCrossed_ = false;
     const auto pcPtr = &memory_[regs.pc];
     operandPtr_ = pcPtr + 1;
@@ -352,7 +352,7 @@ void Cpu::execute(bool continuous) {
     const auto ins = entry.instruction;
 
     if (ins->type == INV) {
-      state_ = InvalidOpCode;
+      state = ExecutionState::InvalidOpCode;
       return;
     }
 
@@ -364,5 +364,5 @@ void Cpu::execute(bool continuous) {
 
     if (!continuous) break;
   }
-  state_ = Stopped;
+  state = ExecutionState::Stopped;
 }

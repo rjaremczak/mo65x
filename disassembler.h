@@ -11,7 +11,7 @@ public:
 
   Disassembler(const Memory&, uint16_t addr = 0);
 
-  void setAddress(uint16_t);
+  void setOrigin(uint16_t);
   uint16_t currentAddress() const { return address_; }
   void nextInstruction();
 
