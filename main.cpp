@@ -1,8 +1,9 @@
 #include "mainwindow.h"
 
 #include <QApplication>
-#include <QStyleFactory>
 #include <QFile>
+#include <QScreen>
+#include <QStyleFactory>
 
 int main(int argc, char *argv[])
 {
@@ -14,7 +15,8 @@ int main(int argc, char *argv[])
     a.setStyleSheet(qss.readAll());
 
     MainWindow w;
-    //QObject::connect(&a, &QCoreApplication::aboutToQuit, &w, &MainWindow::prepareToQuit);
+    QRect scr = QGuiApplication::primaryScreen()->geometry();
+    w.move((scr.width() - w.width()) / 2, (scr.height() - w.height()) / 2);
     w.show();
     return a.exec();
 }

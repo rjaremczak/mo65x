@@ -1,4 +1,4 @@
-QT       += core gui widgets
+QT       += core gui widgets testlib
 
 CONFIG += c++17
 CONFIG += strict_c++
@@ -13,6 +13,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     assembler.cpp \
+    assemblerwidget.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
     cpu.cpp \
@@ -24,10 +25,14 @@ SOURCES += \
     memorywidget.cpp \
     mnemonics.cpp \
     system.cpp \
-    wordspinbox.cpp
+    wordspinbox.cpp \
+    test/assemblertest.cpp \
+    test/instructionstest.cpp \
+    test/flagstest.cpp
 
 HEADERS += \
     assembler.h \
+    assemblerwidget.h \
     cpudefs.h \
     cpuinfo.h \
     cpuwidget.h \
@@ -50,9 +55,13 @@ HEADERS += \
     stackpointer.h \
     system.h \
     utilities.h \
-    wordspinbox.h
+    wordspinbox.h \
+    test/assemblertest.h \
+    test/instructionstest.h \
+    test/flagstest.h
 
 FORMS += \
+    assemblerwidget.ui \
     centralwidget.ui \
     cpuwidget.ui \
     mainwindow.ui \
@@ -68,20 +77,10 @@ RESOURCES += resources.qrc
 test {
   #message(test build)
 
-  QT += testlib
   TARGET = $${TARGET}_tests
 
   SOURCES -= main.cpp
-  SOURCES += \
-    test/assemblertest.cpp \
-    test/instructionstest.cpp \
-    test/flagstest.cpp \
-    test/main.cpp
-
-  HEADERS += \
-    test/assemblertest.h \
-    test/instructionstest.h \
-    test/flagstest.h
+  SOURCES += test/main.cpp
 
 } else {
   #message(normal build)

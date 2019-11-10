@@ -6,14 +6,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   system = new System(this);
 
-  memoryWidget = new MemoryWidget(this, system);
-  this->addDockWidget(Qt::LeftDockWidgetArea, memoryWidget);
+  // memoryWidget = new MemoryWidget(this, system);
+  // this->addDockWidget(Qt::LeftDockWidgetArea, memoryWidget);
 
   cpuWidget = new CpuWidget(this, system->memoryView());
   this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget);
 
-  centralWidget = new CentralWidget(this);
-  this->setCentralWidget(centralWidget);
+  assemblerWidget = new AssemblerWidget(this);
+  this->setCentralWidget(assemblerWidget);
 
   pollTimer = new QTimer(this);
   connect(pollTimer, &QTimer::timeout, system, &System::propagateCurrentState);
