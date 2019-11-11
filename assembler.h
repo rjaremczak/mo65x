@@ -11,7 +11,8 @@ public:
   using Buffer = std::vector<uint8_t>;
 
   Assembler();
-  void reset(uint16_t addr);
+  void reset();
+  void setOrigin(uint16_t);
   bool assemble(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
   bool assemble(const char*);
   const Buffer& data() const { return buffer; }

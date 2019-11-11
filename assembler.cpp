@@ -9,24 +9,27 @@ struct AddressingModeEntry {
   AddressingMode mode;
 };
 
-struct AddressingModeInference {
+struct DetectedAddressingMode {
   QRegularExpressionMatch match;
   AddressingMode mode;
 };
 
 const AddressingModeEntry AddressingModeEntries[]{
-    {QRegularExpression(R"(([A-Z]{3})$)"), NoOperands},
-    {QRegularExpression(R"(([A-Z]{3})\s+#\$([\d|A-H]{1,2})$)"), Immediate},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{1,2})$)"), ZeroPage},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{1,2})\s*,\s*X$)"), ZeroPageX},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{1,2})\s*,\s*Y$)"), ZeroPageY},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})$)"), Absolute},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})\s*,\s*X$)"), AbsoluteX},
-    {QRegularExpression(R"(([A-Z]{3})\s+\$([\d|A-H]{3,4})\s*,\s*Y$)"), AbsoluteY},
-    {QRegularExpression(R"(([A-Z]{3})\s+\(\$([\d|A-H]{1,4})\)\s*$)"), Indirect},
-    {QRegularExpression(R"(([A-Z]{3})\s+\(\$([\d|A-H]{1,2}),X\)$)"), IndexedIndirectX},
-    {QRegularExpression(R"(([A-Z]{3})\s+\(\$([\d|A-H]{1,2})\),Y$)"), IndirectIndexedY},
-    {QRegularExpression(R"(([A-Z]{3})\s+([+|-]?\d{1,3})$)"), Relative}};
+    {QRegularExpression(R"(([A-Z|a-z]{3})$)"), NoOperands},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+#\$([\d|A-H|a-z]{1,2})$)"), Immediate},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{1,2})$)"), ZeroPage},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{1,2})\s*,\s*X$)"), ZeroPageX},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{1,2})\s*,\s*Y$)"), ZeroPageY},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{3,4})$)"), Absolute},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{3,4})\s*,\s*X$)"), AbsoluteX},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{3,4})\s*,\s*Y$)"), AbsoluteY},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\(\$([\d|A-H|a-z]{1,4})\)\s*$)"), Indirect},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\(\$([\d|A-H|a-z]{1,2}),X\)$)"), IndexedIndirectX},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\(\$([\d|A-H|a-z]{1,2})\),Y$)"), IndirectIndexedY},
+    {QRegularExpression(R"(([A-Z|a-z]{3})\s+([+|-]?\d{1,3})$)"), Relative}};
+
+const QRegularExpression OriginStatement(R"(ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
+const QRegularExpression LabelPattern(R"(\w+:)");
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;
@@ -39,10 +42,10 @@ static const Instruction* findInstruction(InstructionType type, AddressingMode m
   return it != InstructionTable.end() ? it : nullptr;
 }
 
-static AddressingModeInference inferAddressingMode(const char* str) {
+static DetectedAddressingMode detectAddressingMode(const char* str, int pos = 0) {
   const auto normalized = QString(str).toUpper();
   for (auto& entry : AddressingModeEntries) {
-    if (auto match = entry.pattern.match(normalized); match.hasMatch()) { return {match, entry.mode}; }
+    if (auto match = entry.pattern.match(normalized, pos); match.hasMatch()) { return {match, entry.mode}; }
   }
   return {};
 }
@@ -50,10 +53,13 @@ static AddressingModeInference inferAddressingMode(const char* str) {
 Assembler::Assembler() : iterator(std::back_inserter(buffer)) {
 }
 
-void Assembler::reset(uint16_t addr) {
+void Assembler::setOrigin(uint16_t addr) {
+  origin = addr;
+}
+
+void Assembler::reset() {
   buffer.clear();
   iterator = std::back_inserter(buffer);
-  origin = addr;
 }
 
 bool Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
@@ -67,7 +73,19 @@ bool Assembler::assemble(InstructionType type, AddressingMode mode, int operand)
 }
 
 bool Assembler::assemble(const char* str) {
-  const auto inf = inferAddressingMode(str);
+  bool labelDetected = false;
+  int pos = 0;
+  if (auto labelDef = LabelPattern.match(str); labelDef.hasMatch()) {
+    labelDetected = true;
+    pos = labelDef.capturedEnd();
+  }
+
+  if (auto org = OriginStatement.match(str, pos); org.hasMatch()) {
+    setOrigin(org.captured(1).toUShort(nullptr, 16));
+    return true;
+  }
+
+  const auto inf = detectAddressingMode(str, pos);
   if (!inf.match.hasMatch()) return false;
 
   const auto type = findInstructionType(inf.match.captured(1));

@@ -12,7 +12,8 @@ void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
 }
 
 void AssemblerTest::init() {
-  assembler.reset(AsmOrigin);
+  assembler.reset();
+  assembler.setOrigin(AsmOrigin);
 }
 
 void AssemblerTest::testImpliedMode() {
@@ -69,4 +70,13 @@ void AssemblerTest::testRelativeModeMinus() {
 
 void AssemblerTest::testRelativeModePlus() {
   verify("BVS +8", 0x70, 8);
+}
+
+void AssemblerTest::testOrg() {
+  QVERIFY(assembler.assemble("  ORG $3000 ;origin"));
+  QCOMPARE(assembler.address(), 0x3000);
+}
+
+void AssemblerTest::testLabelDef() {
+  QVERIFY(assembler.assemble("Test:"));
 }

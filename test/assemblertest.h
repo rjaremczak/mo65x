@@ -40,4 +40,6 @@ private slots:
   void testIndirectIndexedYMode();
   void testRelativeModePlus();
   void testRelativeModeMinus();
+  void testOrg();
+  void testLabelDef();
 };

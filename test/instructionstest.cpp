@@ -64,7 +64,8 @@ void OpCodesTest::initTestCase() {
 }
 
 void OpCodesTest::init() {
-  assembler.reset(AsmOrigin);
+  assembler.reset();
+  assembler.setOrigin(AsmOrigin);
   cpu.regs.a = 0;
   cpu.regs.x = 0;
   cpu.regs.y = 0;

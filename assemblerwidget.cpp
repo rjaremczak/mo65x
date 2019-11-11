@@ -1,6 +1,7 @@
 #include "assemblerwidget.h"
 #include "assembler.h"
 #include "ui_assemblerwidget.h"
+#include "uitools.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
@@ -9,6 +10,7 @@ AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::
   ui->setupUi(this);
   connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadFileDialog);
   connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveFileDialog);
+  setMonospaceFont(ui->assembly);
 }
 
 AssemblerWidget::~AssemblerWidget() {
@@ -47,5 +49,5 @@ void AssemblerWidget::saveFileDialog() {
 }
 
 void AssemblerWidget::assemble() {
-  Assembler assembler();
+  assembler.reset();
 }
