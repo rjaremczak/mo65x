@@ -1,29 +1,22 @@
 #ifndef MEMORYWIDGET_H
 #define MEMORYWIDGET_H
 
-#include "system.h"
-#include <QDockWidget>
+#include <QWidget>
 
 namespace Ui {
 class MemoryWidget;
 }
 
-class MemoryWidget : public QDockWidget {
+class MemoryWidget : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit MemoryWidget(QWidget* parent, System* system);
+  explicit MemoryWidget(QWidget *parent = nullptr);
   ~MemoryWidget();
 
-public slots:
-
-private slots:
-  void loadMemoryFromFile();
-  void fillMemory();
-
 private:
-  Ui::MemoryWidget* ui;
-  System* system;
+  Ui::MemoryWidget *ui;
 };
 
 #endif // MEMORYWIDGET_H

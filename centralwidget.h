@@ -9,14 +9,16 @@ class CentralWidget;
 
 class CentralWidget : public QWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit CentralWidget(QWidget *parent = nullptr);
-    ~CentralWidget();
+  explicit CentralWidget(QWidget* parent, QWidget* assemblerWidget, QWidget* memoryWidget);
+  ~CentralWidget();
 
 private:
-    Ui::CentralWidget *ui;
+  Ui::CentralWidget *ui;
+  QWidget* assemblerWidget;
+  QWidget* memoryWidget;
 };
 
 #endif // CENTRALWIDGET_H

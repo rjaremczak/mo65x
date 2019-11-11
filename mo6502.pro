@@ -33,13 +33,13 @@ SOURCES += \
 HEADERS += \
     assembler.h \
     assemblerwidget.h \
+    centralwidget.h \
     cpudefs.h \
     cpuinfo.h \
     cpuwidget.h \
     decodetable.h \
     addressingmode.h \
     bytespinbox.h \
-    centralwidget.h \
     cpu.h \
     disassembler.h \
     executionstate.h \
