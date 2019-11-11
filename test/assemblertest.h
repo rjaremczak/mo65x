@@ -9,8 +9,8 @@ class AssemblerTest : public QObject {
   Q_OBJECT
 
 public:
-  Memory memory;
   Assembler assembler;
+  const Assembler::Buffer& buffer;
 
   explicit AssemblerTest(QObject* parent = nullptr);
 

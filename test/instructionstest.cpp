@@ -36,6 +36,7 @@
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
   QVERIFY(assembler.assemble(instr));                                                                                            \
+  memory.writeData(AsmOrigin, assembler.data());                                                                                 \
   cpu.execute();                                                                                                                 \
   QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
   QCOMPARE(cpu.cycles, numCycles)
@@ -52,7 +53,7 @@
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
 
-OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), assembler(memory), cpu(memory) {
+OpCodesTest::OpCodesTest(QObject* parent) : QObject(parent), cpu(memory) {
 }
 
 void OpCodesTest::initTestCase() {
@@ -63,7 +64,7 @@ void OpCodesTest::initTestCase() {
 }
 
 void OpCodesTest::init() {
-  assembler.setOrigin(AsmOrigin);
+  assembler.reset(AsmOrigin);
   cpu.regs.a = 0;
   cpu.regs.x = 0;
   cpu.regs.y = 0;

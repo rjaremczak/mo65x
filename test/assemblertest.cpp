@@ -1,18 +1,18 @@
 #include "assemblertest.h"
 #include <QTest>
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(memory) {
+AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.data()) {
 }
 
 void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
   QVERIFY(assembler.assemble(str));
-  QCOMPARE(memory[AsmOrigin], opcode);
-  if (lo >= 0) QCOMPARE(lo, memory[AsmOrigin + 1]);
-  if (hi >= 0) QCOMPARE(hi, memory[AsmOrigin + 2]);
+  QCOMPARE(buffer[0], opcode);
+  if (lo >= 0) QCOMPARE(lo, buffer[1]);
+  if (hi >= 0) QCOMPARE(hi, buffer[2]);
 }
 
 void AssemblerTest::init() {
-  assembler.setOrigin(AsmOrigin);
+  assembler.reset(AsmOrigin);
 }
 
 void AssemblerTest::testImpliedMode() {

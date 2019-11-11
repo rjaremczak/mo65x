@@ -1,4 +1,5 @@
 #include "assemblerwidget.h"
+#include "assembler.h"
 #include "ui_assemblerwidget.h"
 #include <QFileDialog>
 #include <QMessageBox>
@@ -43,4 +44,8 @@ void AssemblerWidget::saveFileDialog() {
       emit fileSaved(fname);
     }
   }
+}
+
+void AssemblerWidget::assemble() {
+  Assembler assembler();
 }

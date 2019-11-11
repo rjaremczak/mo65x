@@ -47,14 +47,20 @@ static AddressingModeInference inferAddressingMode(const char* str) {
   return {};
 }
 
-Assembler::Assembler(Memory& memory, uint16_t origin) : memory_(memory), address_(origin) {
+Assembler::Assembler() : iterator(std::back_inserter(buffer)) {
+}
+
+void Assembler::reset(uint16_t addr) {
+  buffer.clear();
+  iterator = std::back_inserter(buffer);
+  origin = addr;
 }
 
 bool Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
-  if (const auto it = findInstruction(type, mode)) {
-    memory_[address_++] = static_cast<uint8_t>(std::distance(InstructionTable.begin(), it));
-    if (it->size > 1) memory_[address_++] = uint8_t(operand);
-    if (it->size > 2) memory_[address_++] = uint8_t(operand >> 8);
+  if (const auto insIt = findInstruction(type, mode)) {
+    *iterator++ = static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt));
+    if (insIt->size > 1) *iterator++ = uint8_t(operand);
+    if (insIt->size > 2) *iterator++ = uint8_t(operand >> 8);
     return true;
   }
   return false;

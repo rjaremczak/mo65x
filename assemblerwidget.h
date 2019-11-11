@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assembler.h"
 #include <QWidget>
 
 namespace Ui {
@@ -27,4 +28,5 @@ private:
 private slots:
   void loadFileDialog();
   void saveFileDialog();
+  void assemble();
 };

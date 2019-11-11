@@ -24,6 +24,13 @@ public:
     data[addr + 1] = val >> 8;
   }
 
+  template <typename Container>
+  void writeData(uint16_t addr, const Container container) {
+    for (const auto& b : container) {
+      data[addr++] = b;
+    }
+  }
+
 private:
   uint8_t data[Size];
 };
