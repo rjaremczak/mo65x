@@ -16,17 +16,20 @@ AssemblerWidget::~AssemblerWidget() {
 
 void AssemblerWidget::loadFile(const QString& fname) {
   QFile file(fname);
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) { ui->assembly->setPlainText(QTextStream(&file).readAll()); }
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    ui->assembly->setPlainText(QTextStream(&file).readAll());
+    emit fileLoaded(fname);
+  }
 }
 
 void AssemblerWidget::loadFileDialog() {
-  QFileDialog::getOpenFileContent("", [&](const QString fname, const QByteArray& fcontent) {
+  QFileDialog::getOpenFileContent("", [&](const QString fileName, const QByteArray& fileContent) {
     QString title = tr("Load File");
-    if (fname.isEmpty()) {
+    if (fileName.isEmpty()) {
       QMessageBox::warning(this, title, tr("loading error"));
     } else {
-      ui->assembly->setPlainText(fcontent);
-      emit fileLoaded(fname);
+      ui->assembly->setPlainText(fileContent);
+      emit fileLoaded(fileName);
     }
   });
 }

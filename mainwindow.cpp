@@ -17,8 +17,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget);
   setCentralWidget(viewWidget);
 
-  if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
-
   pollTimer = new QTimer(this);
   connect(pollTimer, &QTimer::timeout, system, &System::propagateCurrentState);
   // pollTimer->start(1000);
@@ -33,6 +31,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
 
   system->propagateCurrentState();
+
+  if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
 }
 
 MainWindow::~MainWindow() {
@@ -42,7 +42,9 @@ MainWindow::~MainWindow() {
 void MainWindow::changeAsmFileName(const QString& fileName) {
   config.asmFileName = fileName;
   configStorage->write(config);
-  setWindowTitle("mo65plus: " + fileName);
+
+  QFileInfo fileInfo(fileName);
+  setWindowTitle("mo65plus: " + fileInfo.fileName());
 }
 
 void MainWindow::initConfigStorage() {
