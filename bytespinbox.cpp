@@ -1,4 +1,5 @@
 #include "bytespinbox.h"
+#include "uitools.h"
 #include <QFontDatabase>
 
 static int fieldWidth(int base) {
@@ -11,6 +12,11 @@ static int fieldWidth(int base) {
 ByteSpinBox::ByteSpinBox(QWidget* parent) : QSpinBox(parent) {
   setRange(0, 255);
   setDisplayIntegerBase(16);
+}
+
+void ByteSpinBox::setVisible(bool b) {
+  QSpinBox::setVisible(b);
+  setMonospaceFont(this);
 }
 
 QString ByteSpinBox::textFromValue(int val) const {

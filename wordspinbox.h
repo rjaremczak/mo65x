@@ -14,6 +14,7 @@ public:
 signals:
 
 public slots:
+  void setVisible(bool) override;
 
 protected:
     QString textFromValue(int val) const override;

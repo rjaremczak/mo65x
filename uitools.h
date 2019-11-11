@@ -2,8 +2,8 @@
 
 #include <QWidget>
 
-void adjustMonospaceFont([[maybe_unused]] QWidget* widget) {
+inline void setMonospaceFont([[maybe_unused]] QWidget* widget) {
 #ifdef Q_OS_MACOS
-  widget->setFont(QFont("Monaco"));
+  widget->setFont(QFont("Andale Mono"));
 #endif
 }

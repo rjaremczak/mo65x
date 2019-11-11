@@ -1,10 +1,16 @@
 #include "wordspinbox.h"
+#include "uitools.h"
 #include <QFontDatabase>
 
 WordSpinBox::WordSpinBox(QWidget *parent) : QSpinBox(parent)
 {
     setRange(0, 65535);
     setDisplayIntegerBase(16);
+}
+
+void WordSpinBox::setVisible(bool b) {
+  QSpinBox::setVisible(b);
+  setMonospaceFont(this);
 }
 
 QString WordSpinBox::textFromValue(int val) const

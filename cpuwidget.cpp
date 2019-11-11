@@ -19,7 +19,9 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChangeRequested);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::singleStepExecutionRequested);
   connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
-  adjustMonospaceFont(ui->disassemblerView);
+  setMonospaceFont(ui->disassemblerView);
+  setMonospaceFont(ui->cycles);
+  setMonospaceFont(ui->flags);
 }
 
 CpuWidget::~CpuWidget() {
