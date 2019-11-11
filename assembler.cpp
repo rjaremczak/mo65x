@@ -1,7 +1,6 @@
 #include "assembler.h"
 #include "instructiontable.h"
 #include "mnemonics.h"
-#include "utilities.h"
 #include <QRegularExpression>
 #include <algorithm>
 

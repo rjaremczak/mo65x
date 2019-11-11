@@ -42,7 +42,7 @@
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
   const auto base = assembler.address();                                                                                         \
-  QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr);                                                                                 \
+  QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr.lo);                                                                              \
   QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
@@ -101,77 +101,81 @@ void OpCodesTest::testImpliedMode() {
 
 void OpCodesTest::testAccumulatorMode() {
   cpu.prepAccumulatorMode();
-  QCOMPARE(cpu.effectiveOperandPtr, &cpu.regs.a);
+  QCOMPARE(cpu.effectiveOperandPtr.lo, &cpu.regs.a);
 }
 
 void OpCodesTest::testImmediateMode() {
-  cpu.operandPtr = &memory[0x10];
+  cpu.operandPtr.lo = &memory[0x10];
   cpu.prepImmediateMode();
-  QCOMPARE(cpu.effectiveOperandPtr, &memory[0x10]);
+  QCOMPARE(cpu.effectiveOperandPtr.lo, &memory[0x10]);
 }
 
 void OpCodesTest::testZeroPageMode() {
   memory[0xa0] = 0x40;
   memory[0x40] = 0xf8;
-  cpu.operandPtr = &memory[0xa0];
+  cpu.operandPtr.lo = &memory[0xa0];
   cpu.prepZeroPageMode();
   QCOMPARE(cpu.effectiveAddress, 0x40);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0xf8);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0xf8);
 }
 
 void OpCodesTest::testZeroPageXMode() {
   memory[0xa0] = 0x80;
   memory[0x10] = 0xe8;
-  cpu.operandPtr = &memory[0xa0];
+  cpu.operandPtr.lo = &memory[0xa0];
   cpu.regs.x = 0x90;
   cpu.prepZeroPageXMode();
   QCOMPARE(cpu.effectiveAddress, 0x10);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0xe8);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0xe8);
 }
 
 void OpCodesTest::testZeroPageYMode() {
   memory[0xa0] = 0x80;
   memory[0xb1] = 0xe8;
-  cpu.operandPtr = &memory[0xa0];
+  cpu.operandPtr.lo = &memory[0xa0];
   cpu.regs.y = 0x31;
   cpu.prepZeroPageYMode();
   QCOMPARE(cpu.effectiveAddress, 0xb1);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0xe8);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0xe8);
 }
 
 void OpCodesTest::testAbsoluteMode() {
   memory[0x20fa] = 0xf0;
   memory.write16(0x1002, 0x20fa);
-  cpu.operandPtr = &memory[0x1002];
+  cpu.operandPtr.lo = &memory[0x1002];
+  cpu.operandPtr.hi = &memory[0x1003];
   cpu.prepAbsoluteMode();
   QCOMPARE(cpu.effectiveAddress, 0x20fa);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0xf0);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0xf0);
 }
 
 void OpCodesTest::testAbsoluteXMode() {
   memory[0x20b0] = 0x34;
   memory.write16(0x1002, 0x20a0);
-  cpu.operandPtr = &memory[0x1002];
+  cpu.operandPtr.lo = &memory[0x1002];
+  cpu.operandPtr.hi = &memory[0x1003];
   cpu.regs.x = 0x10;
   cpu.prepAbsoluteXMode();
   QCOMPARE(cpu.effectiveAddress, 0x20b0);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0x34);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0x34);
 }
 
 void OpCodesTest::testAbsoluteYMode() {
   memory[0xa020] = 0x84;
   memory.write16(0x2002, 0xa010);
-  cpu.operandPtr = &memory[0x2002];
+  cpu.operandPtr.lo = &memory[0x2002];
+  cpu.operandPtr.hi = &memory[0x2003];
   cpu.regs.y = 0x10;
   cpu.prepAbsoluteYMode();
   QCOMPARE(cpu.effectiveAddress, 0xa020);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0x84);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0x84);
 }
 
 void OpCodesTest::testIndirectMode() {
   memory.write16(0xfff0, 0xfab0);
   memory.write16(0xfab0, 0x34f0);
-  cpu.operandPtr = &memory[0xfff0];
+  cpu.operandPtr.lo = &memory[0xfff0];
+  cpu.operandPtr.hi = &memory[0xfff1];
   cpu.prepIndirectMode();
   QCOMPARE(cpu.effectiveAddress, 0x34f0);
 }
@@ -179,22 +183,22 @@ void OpCodesTest::testIndirectMode() {
 void OpCodesTest::testIndexedIndirectXMode() {
   memory.write16(0x82, 0xaf01);
   memory[0x2001] = 0x70;
-  cpu.operandPtr = &memory[0x2001];
+  cpu.operandPtr.lo = &memory[0x2001];
   cpu.regs.x = 0x12;
   cpu.prepIndexedIndirectXMode();
   QCOMPARE(cpu.effectiveAddress, 0xaf01);
-  QCOMPARE(cpu.effectiveOperandPtr, &memory[0xaf01]);
+  QCOMPARE(cpu.effectiveOperandPtr.lo, &memory[0xaf01]);
 }
 
 void OpCodesTest::testIndirectIndexedYMode() {
   uint8_t vector = 0x82;
   memory.write16(vector, 0xcf81);
   memory[0xd001] = 0xea;
-  cpu.operandPtr = &vector;
+  cpu.operandPtr.lo = &vector;
   cpu.regs.y = 0x80;
   cpu.prepIndirectIndexedYMode();
   QCOMPARE(cpu.effectiveAddress, 0xd001);
-  QCOMPARE(*cpu.effectiveOperandPtr, 0xea);
+  QCOMPARE(*cpu.effectiveOperandPtr.lo, 0xea);
 }
 
 void OpCodesTest::testPageBoundaryCrossingDetection() {
@@ -209,7 +213,7 @@ void OpCodesTest::testPageBoundaryCrossingDetection() {
 
 void OpCodesTest::testBranchForward() {
   int8_t d = 13;
-  cpu.operandPtr = reinterpret_cast<uint8_t*>(&d);
+  cpu.operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 13);
   QCOMPARE(cpu.cycles, 1);
@@ -218,7 +222,7 @@ void OpCodesTest::testBranchForward() {
 void OpCodesTest::testBranchBackward() {
   int8_t d = -100;
   cpu.regs.pc += 120;
-  cpu.operandPtr = reinterpret_cast<uint8_t*>(&d);
+  cpu.operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 20);
   QCOMPARE(cpu.cycles, 1);
@@ -227,7 +231,7 @@ void OpCodesTest::testBranchBackward() {
 void OpCodesTest::testBranchWithPageBoundaryCrossed() {
   int8_t d = 13;
   cpu.regs.pc += 250;
-  cpu.operandPtr = reinterpret_cast<uint8_t*>(&d);
+  cpu.operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 263);
   QCOMPARE(cpu.cycles, 2);

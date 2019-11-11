@@ -1,5 +1,6 @@
 #include "cpuwidget.h"
 #include "ui_cpuwidget.h"
+#include <QFontDatabase>
 #include <QResizeEvent>
 
 static QString flagStr(bool flagStatus, const char* flagCode) {
@@ -17,6 +18,7 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChangeRequested);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::singleStepExecutionRequested);
   connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
+  ui->disassemblerView->setFont(QFont("Monaco"));
 }
 
 CpuWidget::~CpuWidget() {

@@ -50,11 +50,11 @@ HEADERS += \
     memory.h \
     memorywidget.h \
     mnemonics.h \
+    operandptr.h \
     processorstatus.h \
     registers.h \
     stackpointer.h \
     system.h \
-    utilities.h \
     wordspinbox.h \
     test/assemblertest.h \
     test/instructionstest.h \

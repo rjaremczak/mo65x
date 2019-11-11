@@ -4,8 +4,8 @@
 #include "executionstate.h"
 #include "instruction.h"
 #include "memory.h"
+#include "operandptr.h"
 #include "registers.h"
-#include "utilities.h"
 #include <map>
 
 class Cpu {
@@ -33,8 +33,8 @@ private:
   friend class OpCodesTest;
 
   Memory& memory;
-  uint8_t* operandPtr;
-  uint8_t* effectiveOperandPtr;
+  OperandPtr operandPtr;
+  OperandPtr effectiveOperandPtr;
   uint16_t effectiveAddress;
   bool pageBoundaryCrossed;
 
@@ -65,7 +65,7 @@ private:
     pageBoundaryCrossed = (address ^ effectiveAddress) & 0xff00;
   }
 
-  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr = &memory[effectiveAddress]; }
+  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr.lo = &memory[effectiveAddress]; }
 
   void applyExtraCycleOnPageBoundaryCrossing() {
     if (pageBoundaryCrossed) ++cycles;
@@ -73,7 +73,7 @@ private:
 
   void execBranch() {
     cycles++;
-    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr));
+    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr.lo));
     regs.pc = effectiveAddress;
     applyExtraCycleOnPageBoundaryCrossing();
   }
@@ -85,7 +85,7 @@ private:
     regs.a = uint8_t(result);
   }
 
-  void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr ^ 0xff) + uint8_t(1)); }
+  void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr.lo ^ 0xff) + uint8_t(1)); }
 
   void nmi();
   void irq();
