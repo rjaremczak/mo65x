@@ -13,11 +13,18 @@ public:
   explicit AssemblerWidget(QWidget* parent = nullptr);
   ~AssemblerWidget();
 
+signals:
+  void fileLoaded(const QString&);
+  void fileSaved(const QString&);
+
+public slots:
+  void loadFile(const QString& fname);
+
 private:
   Ui::AssemblerWidget* ui;
   QString fileName;
 
 private slots:
-  void loadFile();
-  void saveFile();
+  void loadFileDialog();
+  void saveFileDialog();
 };

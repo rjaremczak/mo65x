@@ -1,9 +1,24 @@
 #include "mainwindow.h"
 
+#include "config.h"
+#include "filedatastorage.h"
 #include <QApplication>
+#include <QDir>
 #include <QFile>
 #include <QScreen>
 #include <QStyleFactory>
+
+static QString loadStringFromFile(const QString& name) {
+  QFile file(name);
+  file.open(QFile::ReadOnly);
+  return QLatin1String(file.readAll());
+}
+
+static QDir initAppDirectory() {
+  auto appDir = QDir(QDir::homePath() + "/.mo65plus");
+  if (!appDir.exists()) appDir.mkpath(".");
+  return appDir;
+}
 
 int main(int argc, char *argv[])
 {

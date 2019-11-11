@@ -16,9 +16,11 @@ SOURCES += \
     assemblerwidget.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
+    config.cpp \
     cpu.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
+    filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
@@ -34,6 +36,7 @@ HEADERS += \
     assembler.h \
     assemblerwidget.h \
     centralwidget.h \
+    config.h \
     cpudefs.h \
     cpuinfo.h \
     cpuwidget.h \
@@ -43,6 +46,7 @@ HEADERS += \
     cpu.h \
     disassembler.h \
     executionstate.h \
+    filedatastorage.h \
     instruction.h \
     instructiontable.h \
     instructiontype.h \

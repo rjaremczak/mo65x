@@ -6,29 +6,38 @@
 
 AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::AssemblerWidget) {
   ui->setupUi(this);
-  connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadFile);
-  connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveFile);
+  connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadFileDialog);
+  connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveFileDialog);
 }
 
 AssemblerWidget::~AssemblerWidget() {
   delete ui;
 }
 
-void AssemblerWidget::loadFile() {
-  QFileDialog::getOpenFileContent("", [&](const QString fileName, const QByteArray& fileContent) {
+void AssemblerWidget::loadFile(const QString& fname) {
+  QFile file(fname);
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) { ui->assembly->setPlainText(QTextStream(&file).readAll()); }
+}
+
+void AssemblerWidget::loadFileDialog() {
+  QFileDialog::getOpenFileContent("", [&](const QString fname, const QByteArray& fcontent) {
     QString title = tr("Load File");
-    if (fileName.isEmpty()) {
+    if (fname.isEmpty()) {
       QMessageBox::warning(this, title, tr("loading error"));
     } else {
-      ui->assembly->setPlainText(fileContent);
+      ui->assembly->setPlainText(fcontent);
+      emit fileLoaded(fname);
     }
   });
 }
 
-void AssemblerWidget::saveFile() {
+void AssemblerWidget::saveFileDialog() {
   QString title = tr("Save File");
   if (const auto fname = QFileDialog::getSaveFileName(this, "", title); !fname.isNull()) {
     QFile file(fname);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) { QTextStream(&file) << ui->assembly->toPlainText(); }
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      QTextStream(&file) << ui->assembly->toPlainText();
+      emit fileSaved(fname);
+    }
   }
 }
