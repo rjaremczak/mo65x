@@ -55,6 +55,7 @@ HEADERS += \
     registers.h \
     stackpointer.h \
     system.h \
+    uitools.h \
     wordspinbox.h \
     test/assemblertest.h \
     test/instructionstest.h \
