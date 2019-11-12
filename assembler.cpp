@@ -11,10 +11,10 @@ struct LineParser {
   LineParser(const QString& pattern, AddressingMode mode) : regex(pattern), mode(mode) {}
 };
 
-class ParsedLine {
+class ParsingResult {
 public:
-  ParsedLine() = default;
-  ParsedLine(QRegularExpressionMatch match, AddressingMode mode) : match(match), mode(mode) {}
+  ParsingResult() = default;
+  ParsingResult(QRegularExpressionMatch match, AddressingMode mode) : match(match), mode(mode) {}
   bool valid() const { return match.hasMatch(); }
   auto label() const { return match.captured(1); }
   auto mnemonic() const { return match.captured(2); }
@@ -63,7 +63,7 @@ static const Instruction* findInstruction(InstructionType type, AddressingMode m
   return it != InstructionTable.end() ? it : nullptr;
 }
 
-static ParsedLine parseLine(const QString& str) {
+static ParsingResult parseLine(const QString& str) {
   for (auto& entry : LineParsersTable) {
     if (auto match = entry.regex.match(str); match.hasMatch()) { return {match, entry.mode}; }
   }
@@ -100,7 +100,7 @@ Assembler::Result Assembler::assemble(InstructionType type, AddressingMode mode,
 
 Assembler::Result Assembler::assemble(const QString& str) {
   if (const auto re = OriginStatement.match(str); re.hasMatch()) { return setCodeOrigin(re.captured(1).toUShort(nullptr, 16)); }
-  // if (const auto re = EmptyLine.match(str); re.hasMatch()) { return Result::Ok; }
+  if (const auto re = EmptyLine.match(str); re.hasMatch()) { return Result::Ok; }
 
   const auto line = parseLine(str);
   if (!line.valid()) return Result::SyntaxError;
