@@ -3,6 +3,7 @@ QT       += core gui widgets testlib
 CONFIG += c++17
 CONFIG += strict_c++
 CONFIG += sdk_no_version_check
+QMAKE_CXXFLAGS += -Wno-padded
 
 DEFINES += QT_DEPRECATED_WARNINGS
 

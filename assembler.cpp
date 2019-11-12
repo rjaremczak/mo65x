@@ -4,42 +4,53 @@
 #include <QRegularExpression>
 #include <algorithm>
 
-struct AddressingModeEntry {
-  QRegularExpression pattern;
+struct LineParser {
+  QRegularExpression regex;
   AddressingMode mode;
+
+  LineParser(const QString& pattern, AddressingMode mode) : regex(pattern), mode(mode) {}
 };
 
-struct DetectedAddressingMode {
+class ParsedLine {
+public:
+  ParsedLine() = default;
+  ParsedLine(QRegularExpressionMatch match, AddressingMode mode) : match(match), mode(mode) {}
+  bool valid() const { return match.hasMatch(); }
+  auto label() const { return match.captured(1); }
+  auto mnemonic() const { return match.captured(2); }
+  auto operand() const { return match.captured(3); }
+  auto addrMode() const { return mode; }
+  auto size() const { return Instruction::sizeForAddressingMode(mode); }
+
+private:
   QRegularExpressionMatch match;
   AddressingMode mode;
 };
 
-static const QString WS("\\s+");
-static const QString Label("(\\w+:)");
-static const QString OpCode("([A-Z|a-z]{3})");
+static const QString Label("^(\\w{2,}:)?\\s*");
+static const QString Mnemonic("([A-Z|a-z]{3})\\s*");
 static const QString IndX(",[xX]\\s*");
 static const QString IndY(",[yY]\\s*");
-static const QString Comment("\\s*(?:;.*)?$");
+static const QString Comment("(?:;.*)?$");
 static const QString ByteOp("\\$([\\d|A-H|a-z]{1,2})");
 static const QString WordOp("\\$([\\d|A-H|a-z]{1,4})");
 static const QString SignedByteOp("([+|-]?\\d{1,3})");
 
-static const AddressingModeEntry AddressingModeEntries[]{
-    {QRegularExpression(OpCode + Comment), NoOperands},
-    {QRegularExpression(OpCode + WS + "#" + ByteOp + Comment), Immediate},
-    {QRegularExpression(OpCode + WS + ByteOp + Comment), ZeroPage},
-    {QRegularExpression(OpCode + WS + ByteOp + IndX + Comment), ZeroPageX},
-    {QRegularExpression(OpCode + WS + ByteOp + IndY + Comment), ZeroPageY},
-    {QRegularExpression(OpCode + WS + WordOp + Comment), Absolute},
-    {QRegularExpression(OpCode + WS + WordOp + IndX + Comment), AbsoluteX},
-    {QRegularExpression(OpCode + WS + WordOp + IndY + Comment), AbsoluteY},
-    {QRegularExpression(OpCode + WS + "\\(" + WordOp + "\\)" + Comment), Indirect},
-    {QRegularExpression(OpCode + WS + "\\(" + ByteOp + IndX + "\\)" + Comment), IndexedIndirectX},
-    {QRegularExpression(OpCode + WS + "\\(" + ByteOp + "\\)" + IndY + Comment), IndirectIndexedY},
-    {QRegularExpression(OpCode + WS + SignedByteOp + Comment), Relative}};
+const LineParser LineParsersTable[]{{Label + Mnemonic + Comment, NoOperands},
+                                    {Label + Mnemonic + "#" + ByteOp + Comment, Immediate},
+                                    {Label + Mnemonic + ByteOp + Comment, ZeroPage},
+                                    {Label + Mnemonic + ByteOp + IndX + Comment, ZeroPageX},
+                                    {Label + Mnemonic + ByteOp + IndY + Comment, ZeroPageY},
+                                    {Label + Mnemonic + WordOp + Comment, Absolute},
+                                    {Label + Mnemonic + WordOp + IndX + Comment, AbsoluteX},
+                                    {Label + Mnemonic + WordOp + IndY + Comment, AbsoluteY},
+                                    {Label + Mnemonic + "\\(" + WordOp + "\\)" + Comment, Indirect},
+                                    {Label + Mnemonic + "\\(" + ByteOp + IndX + "\\)" + Comment, IndexedIndirectX},
+                                    {Label + Mnemonic + "\\(" + ByteOp + "\\)" + IndY + Comment, IndirectIndexedY},
+                                    {Label + Mnemonic + SignedByteOp + Comment, Relative}};
 
-static const QRegularExpression OriginStatement(R"(ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
-static const QRegularExpression LabelRegEx(Label);
+static const QRegularExpression EmptyLine(Label + Comment);
+static const QRegularExpression OriginStatement(R"(^\s*ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;
@@ -52,9 +63,9 @@ static const Instruction* findInstruction(InstructionType type, AddressingMode m
   return it != InstructionTable.end() ? it : nullptr;
 }
 
-static DetectedAddressingMode detectAddressingMode(const QString& str, int pos = 0) {
-  for (auto& entry : AddressingModeEntries) {
-    if (auto match = entry.pattern.match(str, pos); match.hasMatch()) { return {match, entry.mode}; }
+static ParsedLine parseLine(const QString& str) {
+  for (auto& entry : LineParsersTable) {
+    if (auto match = entry.regex.match(str); match.hasMatch()) { return {match, entry.mode}; }
   }
   return {};
 }
@@ -84,28 +95,20 @@ Assembler::Result Assembler::assemble(InstructionType type, AddressingMode mode,
     if (insIt->size > 2) *iterator++ = uint8_t(operand >> 8);
     return Result::Ok;
   }
-  return Result::InstructionNotRecognized;
+  return Result::SyntaxError;
 }
 
 Assembler::Result Assembler::assemble(const QString& str) {
-  bool labelDetected = false;
-  int pos = 0;
-  if (auto labelDef = LabelRegEx.match(str); labelDef.hasMatch()) {
-    labelDetected = true;
-    pos = labelDef.capturedEnd();
-  }
+  if (const auto re = OriginStatement.match(str); re.hasMatch()) { return setCodeOrigin(re.captured(1).toUShort(nullptr, 16)); }
+  // if (const auto re = EmptyLine.match(str); re.hasMatch()) { return Result::Ok; }
 
-  if (auto org = OriginStatement.match(str, pos); org.hasMatch()) { return setCodeOrigin(org.captured(1).toUShort(nullptr, 16)); }
+  const auto line = parseLine(str);
+  if (!line.valid()) return Result::SyntaxError;
 
-  const auto inf = detectAddressingMode(str, pos);
-  if (!inf.match.hasMatch()) return Result::SyntaxError;
+  const auto type = resolveType(line.mnemonic());
+  if (type == InstructionType::INV) return Result::SyntaxError;
 
-  const auto type = findInstructionType(inf.match.captured(1));
-  if (inf.mode == Relative) {
-    return assemble(type, inf.mode, inf.match.captured(2).toInt(nullptr, 10));
-  } else if (Instruction::sizeForAddressingMode(inf.mode) > 1) {
-    return assemble(type, inf.mode, inf.match.captured(2).toInt(nullptr, 16));
-  } else {
-    return assemble(type);
-  }
+  if (line.addrMode() == Relative) return assemble(type, line.addrMode(), line.operand().toInt(nullptr, 10));
+  if (line.size() > 1) return assemble(type, line.addrMode(), line.operand().toInt(nullptr, 16));
+  return assemble(type, AddressingMode::NoOperands);
 }

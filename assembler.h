@@ -15,7 +15,7 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
-  enum class Result { Ok, OriginAlreadyDefined, InstructionNotRecognized, SyntaxError };
+  enum class Result { Ok, OriginAlreadyDefined, SyntaxError };
   Q_ENUM(Result)
 
   Assembler();
@@ -23,7 +23,7 @@ public:
   Result setCodeOrigin(uint16_t addr);
   auto codeOrigin() const { return origin; }
   const Buffer& code() const { return buffer; }
-  Result assemble(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
+  Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
   uint16_t locationCounter() { return static_cast<uint16_t>(origin + buffer.size()); }
 

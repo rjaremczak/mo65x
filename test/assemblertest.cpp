@@ -82,4 +82,5 @@ void AssemblerTest::testOrg() {
 
 void AssemblerTest::testComment() {
   QCOMPARE(assembler.assemble("  SEI   ; disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.assemble("; disable interrupts "), Assembler::Result::Ok);
 }
