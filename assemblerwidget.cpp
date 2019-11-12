@@ -4,6 +4,8 @@
 #include "uitools.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMetaEnum>
+#include <QTextBlock>
 #include <QTextStream>
 
 AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::AssemblerWidget) {
@@ -53,10 +55,25 @@ void AssemblerWidget::assembleSourceCode() {
   assembler.reset();
   QString src = ui->sourceCode->toPlainText();
   QTextStream is(&src, QIODevice::ReadOnly);
-  int lineNum = 1;
+  int lineNum = 0;
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    assembler.assemble(line);
+    if (auto result = assembler.assemble(line); result != Assembler::Result::Ok) {
+      QMessageBox::warning(this, tr("Assembly Error"),
+                           QString("%1 at line %2")
+                               .arg(QMetaEnum::fromType<Assembler::Result>().valueToKey(static_cast<int>(result)))
+                               .arg(lineNum + 1));
+
+      auto block = ui->sourceCode->document()->findBlockByLineNumber(lineNum);
+      auto cursor = ui->sourceCode->textCursor();
+      cursor.setPosition(block.position() + block.length() - 1, QTextCursor::MoveAnchor);
+      cursor.setPosition(block.position(), QTextCursor::KeepAnchor);
+      ui->sourceCode->setTextCursor(cursor);
+      ui->sourceCode->setFocus();
+
+      break;
+    }
+    lineNum++;
   }
 }

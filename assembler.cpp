@@ -62,26 +62,32 @@ static DetectedAddressingMode detectAddressingMode(const QString& str, int pos =
 Assembler::Assembler() : iterator(std::back_inserter(buffer)) {
 }
 
-void Assembler::setOrigin(uint16_t addr) {
-  origin = addr;
-}
-
 void Assembler::reset() {
+  originDefined = false;
+  origin = DefaultOrigin;
   buffer.clear();
   iterator = std::back_inserter(buffer);
 }
 
-bool Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
+Assembler::Result Assembler::setCodeOrigin(uint16_t addr) {
+  if (originDefined) return Result::OriginAlreadyDefined;
+
+  origin = addr;
+  originDefined = true;
+  return Result::Ok;
+}
+
+Assembler::Result Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
   if (const auto insIt = findInstruction(type, mode)) {
     *iterator++ = static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt));
     if (insIt->size > 1) *iterator++ = uint8_t(operand);
     if (insIt->size > 2) *iterator++ = uint8_t(operand >> 8);
-    return true;
+    return Result::Ok;
   }
-  return false;
+  return Result::InstructionNotRecognized;
 }
 
-bool Assembler::assemble(const QString& str) {
+Assembler::Result Assembler::assemble(const QString& str) {
   bool labelDetected = false;
   int pos = 0;
   if (auto labelDef = LabelRegEx.match(str); labelDef.hasMatch()) {
@@ -89,13 +95,10 @@ bool Assembler::assemble(const QString& str) {
     pos = labelDef.capturedEnd();
   }
 
-  if (auto org = OriginStatement.match(str, pos); org.hasMatch()) {
-    setOrigin(org.captured(1).toUShort(nullptr, 16));
-    return true;
-  }
+  if (auto org = OriginStatement.match(str, pos); org.hasMatch()) { return setCodeOrigin(org.captured(1).toUShort(nullptr, 16)); }
 
   const auto inf = detectAddressingMode(str, pos);
-  if (!inf.match.hasMatch()) return false;
+  if (!inf.match.hasMatch()) return Result::SyntaxError;
 
   const auto type = findInstructionType(inf.match.captured(1));
   if (inf.mode == Relative) {

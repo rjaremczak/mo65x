@@ -1,11 +1,11 @@
 #include "assemblertest.h"
 #include <QTest>
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.data()) {
+AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.code()) {
 }
 
 void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
-  QVERIFY(assembler.assemble(str));
+  QCOMPARE(assembler.assemble(str), Assembler::Result::Ok);
   QCOMPARE(buffer[0], opcode);
   if (lo >= 0) QCOMPARE(lo, buffer[1]);
   if (hi >= 0) QCOMPARE(hi, buffer[2]);
@@ -13,7 +13,7 @@ void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
 
 void AssemblerTest::init() {
   assembler.reset();
-  assembler.setOrigin(AsmOrigin);
+  assembler.setCodeOrigin(AsmOrigin);
 }
 
 void AssemblerTest::testImpliedMode() {
@@ -73,10 +73,13 @@ void AssemblerTest::testRelativeModePlus() {
 }
 
 void AssemblerTest::testOrg() {
-  QVERIFY(assembler.assemble("  ORG $3000 ;origin"));
+  assembler.reset();
+  QCOMPARE(assembler.assemble("  ORG $3000 ;origin"), Assembler::Result::Ok);
+  QCOMPARE(assembler.locationCounter(), 0x3000);
+  QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
   QCOMPARE(assembler.locationCounter(), 0x3000);
 }
 
 void AssemblerTest::testComment() {
-  QVERIFY(assembler.assemble("  SEI   ; disable interrupts "));
+  QCOMPARE(assembler.assemble("  SEI   ; disable interrupts "), Assembler::Result::Ok);
 }

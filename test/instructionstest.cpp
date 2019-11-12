@@ -35,8 +35,8 @@
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
-  QVERIFY(assembler.assemble(instr));                                                                                            \
-  memory.writeData(AsmOrigin, assembler.data());                                                                                 \
+  QCOMPARE(assembler.assemble(instr), Assembler::Result::Ok);                                                                    \
+  memory.writeData(AsmOrigin, assembler.code());                                                                                 \
   cpu.execute();                                                                                                                 \
   QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
   QCOMPARE(cpu.cycles, numCycles)
@@ -65,7 +65,7 @@ void OpCodesTest::initTestCase() {
 
 void OpCodesTest::init() {
   assembler.reset();
-  assembler.setOrigin(AsmOrigin);
+  assembler.setCodeOrigin(AsmOrigin);
   cpu.regs.a = 0;
   cpu.regs.x = 0;
   cpu.regs.y = 0;
