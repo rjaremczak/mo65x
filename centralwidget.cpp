@@ -2,13 +2,13 @@
 #include "ui_centralwidget.h"
 
 CentralWidget::CentralWidget(QWidget* parent, QWidget* assembler, QWidget* memory)
-    : QWidget(parent), ui(new Ui::CentralWidget), assemblerWidget(assembler), memoryWidget(memory) {
+    : QWidget(parent), ui(new Ui::CentralWidget), assemblerWidget_(assembler), memoryWidget_(memory) {
   ui->setupUi(this);
-  ui->stackedWidget->addWidget(assemblerWidget);
-  ui->stackedWidget->addWidget(memoryWidget);
+  ui->stackedWidget->addWidget(assemblerWidget_);
+  ui->stackedWidget->addWidget(memoryWidget_);
 
-  connect(ui->assemblerViewButton, &QToolButton::clicked, [&] { ui->stackedWidget->setCurrentWidget(assemblerWidget); });
-  connect(ui->memoryViewButton, &QToolButton::clicked, [&] { ui->stackedWidget->setCurrentWidget(memoryWidget); });
+  connect(ui->assemblerViewButton, &QToolButton::clicked, [&] { ui->stackedWidget->setCurrentWidget(assemblerWidget_); });
+  connect(ui->memoryViewButton, &QToolButton::clicked, [&] { ui->stackedWidget->setCurrentWidget(memoryWidget_); });
 
   ui->assemblerViewButton->click();
 }

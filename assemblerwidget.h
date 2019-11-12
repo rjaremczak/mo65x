@@ -23,8 +23,8 @@ public slots:
 
 private:
   Ui::AssemblerWidget* ui;
-  QString fileName;
-  Assembler assembler;
+  QString fileName_;
+  Assembler assembler_;
 
 private slots:
   void loadFileDialog();

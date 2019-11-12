@@ -4,6 +4,7 @@
 #include <QMetaType>
 #include <QString>
 #include <iterator>
+#include <map>
 #include <vector>
 
 class Assembler
@@ -15,21 +16,25 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
-  enum class Result { Ok, OriginAlreadyDefined, SyntaxError };
+  enum class Result { Ok, OriginDefined, SymbolExists, SyntaxError };
   Q_ENUM(Result)
 
   Assembler();
   void reset();
-  Result setCodeOrigin(uint16_t addr);
-  auto codeOrigin() const { return origin; }
-  const Buffer& code() const { return buffer; }
+  Result setOrigin(uint16_t addr);
+  auto locationCounter() const { return locationCounter_; }
+  const Buffer& code() const { return buffer_; }
   Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
-  uint16_t locationCounter() { return static_cast<uint16_t>(origin + buffer.size()); }
+  uint16_t symbol(const QString&, uint16_t def = 0) const;
 
 private:
-  bool originDefined = false;
-  uint16_t origin = DefaultOrigin;
-  Buffer buffer;
-  std::back_insert_iterator<Buffer> iterator;
+  bool originDefined_ = false;
+  uint16_t locationCounter_ = DefaultOrigin;
+  Buffer buffer_;
+  std::back_insert_iterator<Buffer> iterator_;
+  std::map<QString, uint16_t> symbols_;
+
+  Result addSymbol(const QString&, uint16_t);
+  void addByte(uint8_t);
 };

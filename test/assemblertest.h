@@ -42,4 +42,5 @@ private slots:
   void testRelativeModeMinus();
   void testOrg();
   void testComment();
+  void testEmptyLineLabel();
 };

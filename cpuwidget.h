@@ -32,10 +32,10 @@ protected:
   void resizeEvent(QResizeEvent*) override;
 
 private:
-  const Memory& memory;
-  Disassembler disassembler;
-  uint16_t disassemblerFirstAddress;
-  uint16_t disassemblerLastAddress;
+  const Memory& memory_;
+  Disassembler disassembler_;
+  uint16_t disassemblerFirstAddress_;
+  uint16_t disassemblerLastAddress_;
 
   int rowsInView() const;
 

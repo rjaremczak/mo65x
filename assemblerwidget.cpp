@@ -52,14 +52,14 @@ void AssemblerWidget::saveFileDialog() {
 }
 
 void AssemblerWidget::assembleSourceCode() {
-  assembler.reset();
+  assembler_.reset();
   QString src = ui->sourceCode->toPlainText();
   QTextStream is(&src, QIODevice::ReadOnly);
   int lineNum = 0;
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    if (auto result = assembler.assemble(line); result != Assembler::Result::Ok) {
+    if (auto result = assembler_.assemble(line); result != Assembler::Result::Ok) {
       QMessageBox::warning(this, tr("Assembly Error"),
                            QString("%1 at line %2")
                                .arg(QMetaEnum::fromType<Assembler::Result>().valueToKey(static_cast<int>(result)))

@@ -14,7 +14,7 @@ static std::map<ExecutionState, const char*> ExecutionStateStr{{ExecutionState::
                                                                {ExecutionState::PendingStop, "Stop Requested"}};
 
 CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
-    : QDockWidget(parent), ui(new Ui::CpuWidget), memory(memory), disassembler(memory) {
+    : QDockWidget(parent), ui(new Ui::CpuWidget), memory_(memory), disassembler_(memory) {
   ui->setupUi(this);
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChangeRequested);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::singleStepExecutionRequested);
@@ -29,8 +29,8 @@ CpuWidget::~CpuWidget() {
 }
 
 void CpuWidget::updateMemoryContent(uint16_t first, uint16_t last) {
-  if (disassemblerFirstAddress == std::clamp(disassemblerFirstAddress, first, last) ||
-      disassemblerLastAddress == std::clamp(disassemblerLastAddress, first, last)) {
+  if (disassemblerFirstAddress_ == std::clamp(disassemblerFirstAddress_, first, last) ||
+      disassemblerLastAddress_ == std::clamp(disassemblerLastAddress_, first, last)) {
     updateDisassemblerView();
   }
 }
@@ -58,12 +58,12 @@ void CpuWidget::updateState(CpuInfo info) {
   ui->flags->setText(str);
 
   ui->cycles->setNum(info.cycles);
-  ui->ioPortDirection->setValue(memory[IOPortConfig]);
-  ui->ioPortData->setValue(memory[IOPortData]);
+  ui->ioPortDirection->setValue(memory_[IOPortConfig]);
+  ui->ioPortData->setValue(memory_[IOPortData]);
 
   ui->regPC->setValue(regs.pc);
-  if (disassemblerFirstAddress != regs.pc) {
-    disassemblerFirstAddress = regs.pc;
+  if (disassemblerFirstAddress_ != regs.pc) {
+    disassemblerFirstAddress_ = regs.pc;
     updateDisassemblerView();
   }
 }
@@ -77,29 +77,29 @@ int CpuWidget::rowsInView() const {
 }
 
 void CpuWidget::updateDisassemblerView() {
-  disassembler.setOrigin(disassemblerFirstAddress);
+  disassembler_.setOrigin(disassemblerFirstAddress_);
   QString html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
   if (rows--) {
     html.append("<div style='color:black; background-color: lightgreen'>");
-    html.append(disassembler.disassemble()).append("</div>");
-    disassembler.nextInstruction();
+    html.append(disassembler_.disassemble()).append("</div>");
+    disassembler_.nextInstruction();
 
     html.append("<div style='color:darkseagreen'>");
     while (rows--) {
-      html.append(disassembler.disassemble() + "<br>");
-      disassembler.nextInstruction();
+      html.append(disassembler_.disassemble() + "<br>");
+      disassembler_.nextInstruction();
     }
 
     html.append("</div>");
   }
   html.append("</div>");
   ui->disassemblerView->setHtml(html);
-  disassemblerLastAddress = disassembler.currentAddress();
+  disassemblerLastAddress_ = disassembler_.currentAddress();
 }
 
 void CpuWidget::skipInstruction() {
-  disassembler.setOrigin(disassemblerFirstAddress);
-  disassembler.nextInstruction();
-  emit programCounterChangeRequested(disassembler.currentAddress());
+  disassembler_.setOrigin(disassemblerFirstAddress_);
+  disassembler_.nextInstruction();
+  emit programCounterChangeRequested(disassembler_.currentAddress());
 }

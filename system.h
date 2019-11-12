@@ -10,7 +10,7 @@ class System : public QObject {
 
 public:
   explicit System(QObject* parent = nullptr);
-  const Memory& memoryView() const { return memory; }
+  const Memory& memoryView() const { return memory_; }
   void fillMemory(uint16_t first, uint16_t last, uint8_t value);
   size_t loadMemory(uint16_t first, const QByteArray& data);
   QByteArray saveMemory(uint16_t first, uint16_t last);
@@ -25,6 +25,6 @@ public slots:
   void propagateCurrentState();
 
 private:
-  Memory memory;
-  Cpu cpu;
+  Memory memory_;
+  Cpu cpu_;
 };

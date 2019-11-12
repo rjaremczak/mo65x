@@ -7,32 +7,32 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   initConfigStorage();
 
-  system = new System(this);
+  system_ = new System(this);
 
-  cpuWidget = new CpuWidget(this, system->memoryView());
-  this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget);
+  cpuWidget_ = new CpuWidget(this, system_->memoryView());
+  this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget_);
 
-  assemblerWidget = new AssemblerWidget;
-  memoryWidget = new MemoryWidget;
-  viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget);
-  setCentralWidget(viewWidget);
+  assemblerWidget_ = new AssemblerWidget;
+  memoryWidget_ = new MemoryWidget;
+  viewWidget_ = new CentralWidget(this, assemblerWidget_, memoryWidget_);
+  setCentralWidget(viewWidget_);
 
-  pollTimer = new QTimer(this);
-  connect(pollTimer, &QTimer::timeout, system, &System::propagateCurrentState);
+  pollTimer_ = new QTimer(this);
+  connect(pollTimer_, &QTimer::timeout, system_, &System::propagateCurrentState);
   // pollTimer->start(1000);
 
-  connect(cpuWidget, &CpuWidget::programCounterChangeRequested, system, &System::changeProgramCounter);
-  connect(cpuWidget, &CpuWidget::singleStepExecutionRequested, system, &System::executeSingleStep);
+  connect(cpuWidget_, &CpuWidget::programCounterChangeRequested, system_, &System::changeProgramCounter);
+  connect(cpuWidget_, &CpuWidget::singleStepExecutionRequested, system_, &System::executeSingleStep);
 
-  connect(system, &System::cpuStateChanged, cpuWidget, &CpuWidget::updateState);
-  connect(system, &System::memoryContentChanged, cpuWidget, &CpuWidget::updateMemoryContent);
+  connect(system_, &System::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
+  connect(system_, &System::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryContent);
 
-  connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
+  connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
+  connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
 
-  system->propagateCurrentState();
+  system_->propagateCurrentState();
 
-  if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
+  if (!config_.asmFileName.isEmpty()) assemblerWidget_->loadFile(config_.asmFileName);
 }
 
 MainWindow::~MainWindow() {
@@ -40,8 +40,8 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::changeAsmFileName(const QString& fileName) {
-  config.asmFileName = fileName;
-  configStorage->write(config);
+  config_.asmFileName = fileName;
+  configStorage_->write(config_);
 
   QFileInfo fileInfo(fileName);
   setWindowTitle("mo65plus: " + fileInfo.fileName());
@@ -51,6 +51,6 @@ void MainWindow::initConfigStorage() {
   auto appDir = QDir(QDir::homePath() + "/.mo65plus");
   if (!appDir.exists()) appDir.mkpath(".");
 
-  configStorage = new FileDataStorage<Config>(appDir.filePath("config.json"));
-  config = configStorage->readOrCreate();
+  configStorage_ = new FileDataStorage<Config>(appDir.filePath("config.json"));
+  config_ = configStorage_->readOrCreate();
 }

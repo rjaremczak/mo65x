@@ -30,15 +30,14 @@ public slots:
   void changeAsmFileName(const QString&);
 
 private:
-  CentralWidget* viewWidget;
-  AssemblerWidget* assemblerWidget;
-  MemoryWidget* memoryWidget;
-  CpuWidget* cpuWidget;
-  QTimer* pollTimer;
-  System* system;
-
-  FileDataStorage<Config>* configStorage;
-  Config config;
+  CentralWidget* viewWidget_;
+  AssemblerWidget* assemblerWidget_;
+  MemoryWidget* memoryWidget_;
+  CpuWidget* cpuWidget_;
+  QTimer* pollTimer_;
+  System* system_;
+  FileDataStorage<Config>* configStorage_;
+  Config config_;
 
   void initConfigStorage();
 };

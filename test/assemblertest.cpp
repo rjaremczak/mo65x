@@ -13,7 +13,7 @@ void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
 
 void AssemblerTest::init() {
   assembler.reset();
-  assembler.setCodeOrigin(AsmOrigin);
+  assembler.setOrigin(AsmOrigin);
 }
 
 void AssemblerTest::testImpliedMode() {
@@ -76,11 +76,17 @@ void AssemblerTest::testOrg() {
   assembler.reset();
   QCOMPARE(assembler.assemble("  ORG $3000 ;origin"), Assembler::Result::Ok);
   QCOMPARE(assembler.locationCounter(), 0x3000);
-  QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
+  QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginDefined);
   QCOMPARE(assembler.locationCounter(), 0x3000);
 }
 
 void AssemblerTest::testComment() {
   QCOMPARE(assembler.assemble("  SEI   ; disable interrupts "), Assembler::Result::Ok);
   QCOMPARE(assembler.assemble("; disable interrupts "), Assembler::Result::Ok);
+}
+
+void AssemblerTest::testEmptyLineLabel() {
+  QCOMPARE(assembler.assemble("Label_001:"), Assembler::Result::Ok);
+  QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter());
+  QCOMPARE(assembler.symbol("dummy", 1234), 1234);
 }

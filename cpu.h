@@ -32,20 +32,20 @@ public:
 private:
   friend class OpCodesTest;
 
-  Memory& memory;
-  OperandPtr operandPtr;
-  OperandPtr effectiveOperandPtr;
-  uint16_t effectiveAddress;
-  bool pageBoundaryCrossed;
+  Memory& memory_;
+  OperandPtr operandPtr_;
+  OperandPtr effectiveOperandPtr_;
+  uint16_t effectiveAddress_;
+  bool pageBoundaryCrossed_;
 
   void push(uint8_t b) {
-    memory[regs.sp.address()] = b;
+    memory_[regs.sp.address()] = b;
     regs.sp.decrement();
   }
 
   uint8_t pull() {
     regs.sp.increment();
-    return memory[regs.sp.address()];
+    return memory_[regs.sp.address()];
   }
 
   void pushWord(uint16_t word) {
@@ -57,24 +57,24 @@ private:
 
   void calculateZeroPageEffectiveAddress(uint8_t address, uint8_t offset) {
     const uint8_t result = address + offset;
-    effectiveAddress = result;
+    effectiveAddress_ = result;
   }
 
   void calculateEffectiveAddress(uint16_t address, int16_t offset) {
-    effectiveAddress = static_cast<uint16_t>(address + offset);
-    pageBoundaryCrossed = (address ^ effectiveAddress) & 0xff00;
+    effectiveAddress_ = static_cast<uint16_t>(address + offset);
+    pageBoundaryCrossed_ = (address ^ effectiveAddress_) & 0xff00;
   }
 
-  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr.lo = &memory[effectiveAddress]; }
+  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr_.lo = &memory_[effectiveAddress_]; }
 
   void applyExtraCycleOnPageBoundaryCrossing() {
-    if (pageBoundaryCrossed) ++cycles;
+    if (pageBoundaryCrossed_) ++cycles;
   }
 
   void execBranch() {
     cycles++;
-    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr.lo));
-    regs.pc = effectiveAddress;
+    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr_.lo));
+    regs.pc = effectiveAddress_;
     applyExtraCycleOnPageBoundaryCrossing();
   }
 
@@ -85,7 +85,7 @@ private:
     regs.a = uint8_t(result);
   }
 
-  void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr.lo ^ 0xff) + uint8_t(1)); }
+  void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr_.lo ^ 0xff) + uint8_t(1)); }
 
   void nmi();
   void irq();
