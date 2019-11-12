@@ -14,22 +14,32 @@ struct DetectedAddressingMode {
   AddressingMode mode;
 };
 
-const AddressingModeEntry AddressingModeEntries[]{
-    {QRegularExpression(R"(([A-Z|a-z]{3})$)"), NoOperands},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+#\$([\d|A-H|a-z]{1,2})$)"), Immediate},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{1,2})$)"), ZeroPage},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{1,2})\s*,\s*X$)"), ZeroPageX},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{1,2})\s*,\s*Y$)"), ZeroPageY},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{3,4})$)"), Absolute},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{3,4})\s*,\s*X$)"), AbsoluteX},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\$([\d|A-H|a-z]{3,4})\s*,\s*Y$)"), AbsoluteY},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\(\$([\d|A-H|a-z]{1,4})\)\s*$)"), Indirect},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\(\$([\d|A-H|a-z]{1,2}),X\)$)"), IndexedIndirectX},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+\(\$([\d|A-H|a-z]{1,2})\),Y$)"), IndirectIndexedY},
-    {QRegularExpression(R"(([A-Z|a-z]{3})\s+([+|-]?\d{1,3})$)"), Relative}};
+static const QString WS("\\s+");
+static const QString Label("(\\w+:)");
+static const QString OpCode("([A-Z|a-z]{3})");
+static const QString IndX(",[xX]\\s*");
+static const QString IndY(",[yY]\\s*");
+static const QString Comment("\\s*(?:;.*)?$");
+static const QString ByteOp("\\$([\\d|A-H|a-z]{1,2})");
+static const QString WordOp("\\$([\\d|A-H|a-z]{1,4})");
+static const QString SignedByteOp("([+|-]?\\d{1,3})");
 
-const QRegularExpression OriginStatement(R"(ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
-const QRegularExpression LabelPattern(R"(\w+:)");
+static const AddressingModeEntry AddressingModeEntries[]{
+    {QRegularExpression(OpCode + Comment), NoOperands},
+    {QRegularExpression(OpCode + WS + "#" + ByteOp + Comment), Immediate},
+    {QRegularExpression(OpCode + WS + ByteOp + Comment), ZeroPage},
+    {QRegularExpression(OpCode + WS + ByteOp + IndX + Comment), ZeroPageX},
+    {QRegularExpression(OpCode + WS + ByteOp + IndY + Comment), ZeroPageY},
+    {QRegularExpression(OpCode + WS + WordOp + Comment), Absolute},
+    {QRegularExpression(OpCode + WS + WordOp + IndX + Comment), AbsoluteX},
+    {QRegularExpression(OpCode + WS + WordOp + IndY + Comment), AbsoluteY},
+    {QRegularExpression(OpCode + WS + "\\(" + WordOp + "\\)" + Comment), Indirect},
+    {QRegularExpression(OpCode + WS + "\\(" + ByteOp + IndX + "\\)" + Comment), IndexedIndirectX},
+    {QRegularExpression(OpCode + WS + "\\(" + ByteOp + "\\)" + IndY + Comment), IndirectIndexedY},
+    {QRegularExpression(OpCode + WS + SignedByteOp + Comment), Relative}};
+
+static const QRegularExpression OriginStatement(R"(ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
+static const QRegularExpression LabelRegEx(Label);
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;
@@ -42,10 +52,9 @@ static const Instruction* findInstruction(InstructionType type, AddressingMode m
   return it != InstructionTable.end() ? it : nullptr;
 }
 
-static DetectedAddressingMode detectAddressingMode(const char* str, int pos = 0) {
-  const auto normalized = QString(str).toUpper();
+static DetectedAddressingMode detectAddressingMode(const QString& str, int pos = 0) {
   for (auto& entry : AddressingModeEntries) {
-    if (auto match = entry.pattern.match(normalized, pos); match.hasMatch()) { return {match, entry.mode}; }
+    if (auto match = entry.pattern.match(str, pos); match.hasMatch()) { return {match, entry.mode}; }
   }
   return {};
 }
@@ -72,10 +81,10 @@ bool Assembler::assemble(InstructionType type, AddressingMode mode, int operand)
   return false;
 }
 
-bool Assembler::assemble(const char* str) {
+bool Assembler::assemble(const QString& str) {
   bool labelDetected = false;
   int pos = 0;
-  if (auto labelDef = LabelPattern.match(str); labelDef.hasMatch()) {
+  if (auto labelDef = LabelRegEx.match(str); labelDef.hasMatch()) {
     labelDetected = true;
     pos = labelDef.capturedEnd();
   }

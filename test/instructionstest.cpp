@@ -42,12 +42,12 @@
   QCOMPARE(cpu.cycles, numCycles)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
-  const auto base = assembler.address();                                                                                         \
+  const auto base = assembler.locationCounter();                                                                                 \
   QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr.lo);                                                                              \
   QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
-  QCOMPARE(cpu.regs.pc, assembler.address());                                                                                    \
+  QCOMPARE(cpu.regs.pc, assembler.locationCounter());                                                                            \
   QCOMPARE(cpu.cycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;

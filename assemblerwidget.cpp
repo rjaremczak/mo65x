@@ -10,7 +10,8 @@ AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::
   ui->setupUi(this);
   connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadFileDialog);
   connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveFileDialog);
-  setMonospaceFont(ui->assembly);
+  connect(ui->assembleSourceCode, &QToolButton::clicked, this, &AssemblerWidget::assembleSourceCode);
+  setMonospaceFont(ui->sourceCode);
 }
 
 AssemblerWidget::~AssemblerWidget() {
@@ -20,7 +21,7 @@ AssemblerWidget::~AssemblerWidget() {
 void AssemblerWidget::loadFile(const QString& fname) {
   QFile file(fname);
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    ui->assembly->setPlainText(QTextStream(&file).readAll());
+    ui->sourceCode->setPlainText(QTextStream(&file).readAll());
     emit fileLoaded(fname);
   }
 }
@@ -31,7 +32,7 @@ void AssemblerWidget::loadFileDialog() {
     if (fileName.isEmpty()) {
       QMessageBox::warning(this, title, tr("loading error"));
     } else {
-      ui->assembly->setPlainText(fileContent);
+      ui->sourceCode->setPlainText(fileContent);
       emit fileLoaded(fileName);
     }
   });
@@ -42,12 +43,20 @@ void AssemblerWidget::saveFileDialog() {
   if (const auto fname = QFileDialog::getSaveFileName(this, "", title); !fname.isNull()) {
     QFile file(fname);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      QTextStream(&file) << ui->assembly->toPlainText();
+      QTextStream(&file) << ui->sourceCode->toPlainText();
       emit fileSaved(fname);
     }
   }
 }
 
-void AssemblerWidget::assemble() {
+void AssemblerWidget::assembleSourceCode() {
   assembler.reset();
+  QString src = ui->sourceCode->toPlainText();
+  QTextStream is(&src, QIODevice::ReadOnly);
+  int lineNum = 1;
+  while (!is.atEnd()) {
+    const auto line = is.readLine();
+    if (line.isNull()) break;
+    assembler.assemble(line);
+  }
 }

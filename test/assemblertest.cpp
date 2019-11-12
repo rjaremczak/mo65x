@@ -74,9 +74,9 @@ void AssemblerTest::testRelativeModePlus() {
 
 void AssemblerTest::testOrg() {
   QVERIFY(assembler.assemble("  ORG $3000 ;origin"));
-  QCOMPARE(assembler.address(), 0x3000);
+  QCOMPARE(assembler.locationCounter(), 0x3000);
 }
 
-void AssemblerTest::testLabelDef() {
-  QVERIFY(assembler.assemble("Test:"));
+void AssemblerTest::testComment() {
+  QVERIFY(assembler.assemble("  SEI   ; disable interrupts "));
 }

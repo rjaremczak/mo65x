@@ -29,5 +29,5 @@ private:
 private slots:
   void loadFileDialog();
   void saveFileDialog();
-  void assemble();
+  void assembleSourceCode();
 };

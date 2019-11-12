@@ -14,12 +14,12 @@ public:
   void reset();
   void setOrigin(uint16_t);
   bool assemble(InstructionType type, AddressingMode mode = NoOperands, int operand = 0);
-  bool assemble(const char*);
+  bool assemble(const QString&);
   const Buffer& data() const { return buffer; }
-  uint16_t address() { return static_cast<uint16_t>(origin + buffer.size()); }
+  uint16_t locationCounter() { return static_cast<uint16_t>(origin + buffer.size()); }
 
 private:
   Buffer buffer;
   std::back_insert_iterator<Buffer> iterator;
-  uint16_t origin;
+  uint16_t origin = 0;
 };
