@@ -1,4 +1,5 @@
 #include "assembler.h"
+#include "assemblyparsingresult.h"
 #include "instructiontable.h"
 #include "mnemonics.h"
 #include <QRegularExpression>
@@ -11,50 +12,30 @@ struct AssemblyLine {
   AssemblyLine(const QString& pattern, AddressingMode mode) : regex(pattern), mode(mode) {}
 };
 
-class ParsingResult {
-public:
-  ParsingResult() = default;
-  ParsingResult(QRegularExpressionMatch match, AddressingMode mode) : match(match), mode(mode) {}
-  bool valid() const { return !match.hasMatch() || type() != InstructionType::INV; }
-  auto label() const { return match.captured(1); }
-  auto mnemonic() const { return match.captured(2); }
-  auto operand() const { return match.captured(3); }
-  auto addrMode() const { return mode; }
-  auto size() const { return Instruction::sizeForAddressingMode(mode); }
-  InstructionType type() const {
-    const auto it = std::find_if(MnemonicTable.begin(), MnemonicTable.end(),
-                                 [=](const auto& kv) { return mnemonic() == QString(kv.second); });
-    return it != MnemonicTable.end() ? it->first : InstructionType::INV;
-  }
-
-private:
-  QRegularExpressionMatch match;
-  AddressingMode mode;
-};
-
-static const QString Label("^(?:(\\w{2,}):)?\\s*");
+static const QString Label("(\\w{2,})");
+static const QString LabelDef("^(?:" + Label + ":)?\\s*");
 static const QString Mnemonic("([A-Z|a-z]{3})\\s*");
 static const QString IndX(",[xX]\\s*");
 static const QString IndY(",[yY]\\s*");
 static const QString Comment("(?:;.*)?$");
-static const QString ByteOp("\\$([\\d|A-H|a-z]{1,2})");
-static const QString WordOp("\\$([\\d|A-H|a-z]{1,4})");
-static const QString SignedByteOp("([+|-]?\\d{1,3})");
+static const QString ByteOp("([\\$|\\%]?[\\d|A-H|a-z]{1,2})\\s*");
+static const QString WordOp("([\\$|\\%]?[\\d|A-H|a-z]{1,4})\\s*");
+static const QString SignedByteOp("([+|-]?\\d{1,3})\\s*");
 
-const AssemblyLine LineParsersTable[]{{Label + Mnemonic + Comment, NoOperands},
-                                      {Label + Mnemonic + "#" + ByteOp + Comment, Immediate},
-                                      {Label + Mnemonic + ByteOp + Comment, ZeroPage},
-                                      {Label + Mnemonic + ByteOp + IndX + Comment, ZeroPageX},
-                                      {Label + Mnemonic + ByteOp + IndY + Comment, ZeroPageY},
-                                      {Label + Mnemonic + WordOp + Comment, Absolute},
-                                      {Label + Mnemonic + WordOp + IndX + Comment, AbsoluteX},
-                                      {Label + Mnemonic + WordOp + IndY + Comment, AbsoluteY},
-                                      {Label + Mnemonic + "\\(" + WordOp + "\\)" + Comment, Indirect},
-                                      {Label + Mnemonic + "\\(" + ByteOp + IndX + "\\)" + Comment, IndexedIndirectX},
-                                      {Label + Mnemonic + "\\(" + ByteOp + "\\)" + IndY + Comment, IndirectIndexedY},
-                                      {Label + Mnemonic + SignedByteOp + Comment, Relative}};
+const AssemblyLine LineParsersTable[]{{LabelDef + Mnemonic + Comment, NoOperands},
+                                      {LabelDef + Mnemonic + "#" + ByteOp + Comment, Immediate},
+                                      {LabelDef + Mnemonic + ByteOp + Comment, ZeroPage},
+                                      {LabelDef + Mnemonic + ByteOp + IndX + Comment, ZeroPageX},
+                                      {LabelDef + Mnemonic + ByteOp + IndY + Comment, ZeroPageY},
+                                      {LabelDef + Mnemonic + WordOp + Comment, Absolute},
+                                      {LabelDef + Mnemonic + WordOp + IndX + Comment, AbsoluteX},
+                                      {LabelDef + Mnemonic + WordOp + IndY + Comment, AbsoluteY},
+                                      {LabelDef + Mnemonic + "\\(" + WordOp + "\\)" + Comment, Indirect},
+                                      {LabelDef + Mnemonic + "\\(" + ByteOp + IndX + "\\)" + Comment, IndexedIndirectX},
+                                      {LabelDef + Mnemonic + "\\(" + ByteOp + "\\)" + IndY + Comment, IndirectIndexedY},
+                                      {LabelDef + Mnemonic + SignedByteOp + Comment, Relative}};
 
-static const QRegularExpression EmptyLine(Label + Comment);
+static const QRegularExpression EmptyLine(LabelDef + Comment);
 static const QRegularExpression OriginStatement(R"(^\s*ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
@@ -88,11 +69,39 @@ void Assembler::reset(Pass pass) {
 }
 
 Assembler::Result Assembler::setOrigin(uint16_t addr) {
-  if (originDefined_) return Result::OriginDefined;
+  if (originDefined_) return Result::OriginAlreadyDefined;
 
   locationCounter_ = addr;
   originDefined_ = true;
   return Result::Ok;
+}
+
+Assembler::Result Assembler::assemble(const QString& str) {
+  if (const auto re = OriginStatement.match(str); re.hasMatch()) { return setOrigin(re.captured(1).toUShort(nullptr, 16)); }
+  if (const auto re = EmptyLine.match(str); re.hasMatch()) {
+    if (const auto& label = re.captured(1); !label.isNull()) return addSymbol(label, locationCounter_);
+    return Result::Ok;
+  }
+
+  const auto line = parseAssemblyLine(str);
+  if (!line.valid()) return Result::SyntaxError;
+  if (!line.label().isEmpty()) {
+    if (auto res = addSymbol(line.label(), locationCounter_); res != Result::Ok) return res;
+  }
+
+  if (line.addrMode() == NoOperands) return assemble(line.type(), NoOperands);
+  if (line.operand().isEmpty()) return Result::SyntaxError;
+
+  int operand;
+  if (line.isOperandNumber()) {
+    operand = line.operandAsNumber();
+  } else if (auto opt = symbol(line.operand())) {
+    operand = *opt;
+  } else {
+    return Result::UndefinedSymbol;
+  }
+
+  return assemble(line.type(), line.addrMode(), operand);
 }
 
 Assembler::Result Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
@@ -105,30 +114,13 @@ Assembler::Result Assembler::assemble(InstructionType type, AddressingMode mode,
   return Result::SyntaxError;
 }
 
-Assembler::Result Assembler::assemble(const QString& str) {
-  if (const auto re = OriginStatement.match(str); re.hasMatch()) { return setOrigin(re.captured(1).toUShort(nullptr, 16)); }
-  if (const auto re = EmptyLine.match(str); re.hasMatch()) {
-    if (const auto& label = re.captured(1); !label.isNull()) return addSymbol(label, locationCounter_);
-    return Result::Ok;
-  }
-
-  const auto line = parseAssemblyLine(str);
-  if (!line.valid()) return Result::SyntaxError;
-  if (!line.label().isNull()) {
-    if (auto res = addSymbol(line.label(), locationCounter_); res != Result::Ok) return res;
-  }
-  if (line.addrMode() == Relative) return assemble(line.type(), line.addrMode(), line.operand().toInt(nullptr, 10));
-  if (line.size() > 1) return assemble(line.type(), line.addrMode(), line.operand().toInt(nullptr, 16));
-  return assemble(line.type(), AddressingMode::NoOperands);
-}
-
-uint16_t Assembler::symbol(const QString& name, uint16_t def) const {
+std::optional<int> Assembler::symbol(const QString& name) const {
   if (const auto it = symbols_.find(name); it != symbols_.end()) return it->second;
-  return def;
+  return std::nullopt;
 }
 
 Assembler::Result Assembler::addSymbol(const QString& name, uint16_t value) {
-  if (symbols_.find(name) != symbols_.end()) return Result::SymbolExists;
+  if (symbols_.find(name) != symbols_.end()) return Result::SymbolAlreadyDefined;
   symbols_[name] = value;
   return Result::Ok;
 }

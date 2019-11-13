@@ -76,17 +76,37 @@ void AssemblerTest::testOrg() {
   assembler.reset();
   QCOMPARE(assembler.assemble("  ORG $3000 ;origin"), Assembler::Result::Ok);
   QCOMPARE(assembler.locationCounter(), 0x3000);
-  QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginDefined);
+  QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
   QCOMPARE(assembler.locationCounter(), 0x3000);
 }
 
 void AssemblerTest::testComment() {
-  QCOMPARE(assembler.assemble("  SEI   ; disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.assemble("  SEI   ;disable interrupts "), Assembler::Result::Ok);
   QCOMPARE(assembler.assemble("; disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.assemble(" LDA #$20  ;comment"), Assembler::Result::Ok);
 }
 
 void AssemblerTest::testEmptyLineLabel() {
   QCOMPARE(assembler.assemble("Label_001:"), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter());
-  QCOMPARE(assembler.symbol("dummy", 1234), 1234);
+  QCOMPARE(assembler.symbol("dummy"), std::nullopt);
+}
+
+void AssemblerTest::testSymbolPass() {
+  assembler.reset(Assembler::Pass::Symbols);
+  assembler.setOrigin(1000);
+  QCOMPARE(assembler.assemble("TestLabel_01:  SEI   ; disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.symbol("TestLabel_01"), 1000);
+  QCOMPARE(assembler.machineCode().size(), 0U);
+  QCOMPARE(assembler.locationCounter(), 1001);
+}
+
+void AssemblerTest::testAssemblyPass() {
+  assembler.reset(Assembler::Pass::Assembly);
+  assembler.setOrigin(2002);
+  QCOMPARE(assembler.assemble("CLI"), Assembler::Result::Ok);
+  QCOMPARE(assembler.assemble("TestLabel_11:  LDA #$20   ; this is a one weird comment  "), Assembler::Result::Ok);
+  QCOMPARE(assembler.symbol("TestLabel_11"), 2003);
+  QCOMPARE(assembler.machineCode().size(), 3U);
+  QCOMPARE(assembler.locationCounter(), 2005);
 }

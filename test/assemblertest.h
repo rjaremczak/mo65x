@@ -43,4 +43,6 @@ private slots:
   void testOrg();
   void testComment();
   void testEmptyLineLabel();
+  void testSymbolPass();
+  void testAssemblyPass();
 };
