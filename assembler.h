@@ -16,19 +16,22 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
+  enum class Pass { Symbols, Assembly };
   enum class Result { Ok, OriginDefined, SymbolExists, SyntaxError };
+
   Q_ENUM(Result)
 
   Assembler();
-  void reset();
+  void reset(Pass = Pass::Assembly);
   Result setOrigin(uint16_t addr);
   auto locationCounter() const { return locationCounter_; }
-  const Buffer& code() const { return buffer_; }
+  const Buffer& machineCode() const { return buffer_; }
   Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
   uint16_t symbol(const QString&, uint16_t def = 0) const;
 
 private:
+  Pass pass_ = Pass::Assembly;
   bool originDefined_ = false;
   uint16_t locationCounter_ = DefaultOrigin;
   Buffer buffer_;

@@ -36,7 +36,7 @@
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
   QCOMPARE(assembler.assemble(instr), Assembler::Result::Ok);                                                                    \
-  memory.writeData(AsmOrigin, assembler.code());                                                                                 \
+  memory.writeData(AsmOrigin, assembler.machineCode());                                                                          \
   cpu.execute();                                                                                                                 \
   QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
   QCOMPARE(cpu.cycles, numCycles)

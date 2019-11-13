@@ -78,12 +78,13 @@ static ParsingResult parseAssemblyLine(const QString& str) {
 Assembler::Assembler() : iterator_(std::back_inserter(buffer_)) {
 }
 
-void Assembler::reset() {
+void Assembler::reset(Pass pass) {
+  pass_ = pass;
   originDefined_ = false;
   locationCounter_ = DefaultOrigin;
-  buffer_.clear();
-  symbols_.clear();
   iterator_ = std::back_inserter(buffer_);
+  if (pass == Pass::Assembly) buffer_.clear();
+  if (pass == Pass::Symbols) symbols_.clear();
 }
 
 Assembler::Result Assembler::setOrigin(uint16_t addr) {
@@ -133,6 +134,6 @@ Assembler::Result Assembler::addSymbol(const QString& name, uint16_t value) {
 }
 
 void Assembler::addByte(uint8_t b) {
-  *iterator_++ = b;
+  if (pass_ == Pass::Assembly) *iterator_++ = b;
   locationCounter_++;
 }

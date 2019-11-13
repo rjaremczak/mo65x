@@ -1,7 +1,7 @@
 #include "assemblertest.h"
 #include <QTest>
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.code()) {
+AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.machineCode()) {
 }
 
 void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
