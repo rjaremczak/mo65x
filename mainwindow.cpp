@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
+  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, system_, &System::loadMemory);
 
   system_->propagateCurrentState();
 

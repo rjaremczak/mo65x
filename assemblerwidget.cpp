@@ -84,7 +84,7 @@ void AssemblerWidget::assembleSourceCode() {
   QMessageBox::information(this, tr("Machine Code Generated"),
                            tr("origin: %1\nsymbols: %2\nsize: %3 B")
                                .arg(QString::asprintf("$%04X", assembler_.origin()))
-                               .arg(assembler_.numSymbols())
-                               .arg(assembler_.machineCode().size()));
-  emit machineCodeGenerated(assembler_.origin(), assembler_.machineCode());
+                               .arg(assembler_.symbols().size())
+                               .arg(assembler_.code().size()));
+  emit machineCodeGenerated(assembler_.origin(), assembler_.code());
 }

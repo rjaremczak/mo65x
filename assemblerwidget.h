@@ -17,7 +17,7 @@ public:
 signals:
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
-  void machineCodeGenerated(uint16_t origin, const Assembler::MachineCode& code);
+  void machineCodeGenerated(uint16_t origin, const QByteArray& code);
 
 public slots:
   void loadFile(const QString& fname);

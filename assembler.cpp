@@ -56,7 +56,7 @@ static ParsingResult parseAssemblyLine(const QString& str) {
   return {};
 }
 
-Assembler::Assembler() : iterator_(std::back_inserter(machineCode_)) {
+Assembler::Assembler() : iterator_(std::back_inserter(code_)) {
 }
 
 void Assembler::reset(Pass pass) {
@@ -64,8 +64,8 @@ void Assembler::reset(Pass pass) {
   originDefined_ = false;
   origin_ = DefaultOrigin;
   locationCounter_ = DefaultOrigin;
-  iterator_ = std::back_inserter(machineCode_);
-  if (pass == Pass::Assembly) machineCode_.clear();
+  iterator_ = std::back_inserter(code_);
+  if (pass == Pass::Assembly) code_.clear();
   if (pass == Pass::ScanForSymbols) symbols_.clear();
 }
 

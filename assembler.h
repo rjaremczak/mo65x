@@ -13,7 +13,7 @@ class Assembler
   Q_GADGET
 
 public:
-  using MachineCode = std::vector<uint8_t>;
+  using Code = QByteArray;
   using Symbols = std::map<QString, uint16_t>;
 
   static constexpr uint16_t DefaultOrigin = 0;
@@ -27,9 +27,9 @@ public:
   void reset(Pass = Pass::Assembly);
   Result setOrigin(uint16_t addr);
   uint16_t origin() const { return origin_; }
+  const auto& symbols() const { return symbols_; }
   auto locationCounter() const { return locationCounter_; }
-  const MachineCode& machineCode() const { return machineCode_; }
-  auto numSymbols() const { return symbols_.size(); }
+  const Code& code() const { return code_; }
   Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
   std::optional<int> symbol(const QString&) const;
@@ -39,8 +39,8 @@ private:
   bool originDefined_ = false;
   uint16_t origin_ = DefaultOrigin;
   uint16_t locationCounter_ = DefaultOrigin;
-  MachineCode machineCode_;
-  std::back_insert_iterator<MachineCode> iterator_;
+  Code code_;
+  std::back_insert_iterator<Code> iterator_;
   Symbols symbols_;
 
   Result addSymbol(const QString&, uint16_t);

@@ -12,7 +12,6 @@ public:
   explicit System(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory_; }
   void fillMemory(uint16_t first, uint16_t last, uint8_t value);
-  size_t loadMemory(uint16_t first, const QByteArray& data);
   QByteArray saveMemory(uint16_t first, uint16_t last);
 
 signals:
@@ -23,6 +22,7 @@ public slots:
   void executeSingleStep();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
+  void loadMemory(uint16_t first, const QByteArray& data);
 
 private:
   Memory memory_;

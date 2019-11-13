@@ -5,7 +5,7 @@
   QCOMPARE(assembler.assemble(instr), Assembler::Result::Ok);                                                                    \
   QCOMPARE(buffer[0], opCode)
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.machineCode()) {
+AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.code()) {
 }
 
 void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
@@ -108,8 +108,8 @@ void AssemblerTest::testSymbolPass() {
   assembler.setOrigin(1000);
   QCOMPARE(assembler.assemble("TestLabel_01:  SEI   ; disable interrupts "), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("TestLabel_01"), 1000);
-  QCOMPARE(assembler.machineCode().size(), 0U);
-  QCOMPARE(assembler.locationCounter(), 1001);
+  QCOMPARE(assembler.code().size(), 0);
+  QCOMPARE(assembler.locationCounter(), 1001U);
 }
 
 void AssemblerTest::testAssemblyPass() {
@@ -118,6 +118,6 @@ void AssemblerTest::testAssemblyPass() {
   QCOMPARE(assembler.assemble("CLI"), Assembler::Result::Ok);
   QCOMPARE(assembler.assemble("TestLabel_11:  LDA #$20   ; this is a one weird comment  "), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("TestLabel_11"), 2003);
-  QCOMPARE(assembler.machineCode().size(), 3U);
+  QCOMPARE(assembler.code().size(), 3);
   QCOMPARE(assembler.locationCounter(), 2005);
 }
