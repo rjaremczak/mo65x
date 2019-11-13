@@ -98,6 +98,7 @@ void AssemblerTest::testComment() {
 }
 
 void AssemblerTest::testEmptyLineLabel() {
+  assembler.reset(Assembler::Pass::ScanForSymbols);
   QCOMPARE(assembler.assemble("Label_001:"), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter());
   QCOMPARE(assembler.symbol("dummy"), std::nullopt);
@@ -108,7 +109,7 @@ void AssemblerTest::testSymbolPass() {
   assembler.setOrigin(1000);
   QCOMPARE(assembler.assemble("TestLabel_01:  SEI   ; disable interrupts "), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("TestLabel_01"), 1000);
-  QCOMPARE(assembler.code().size(), 0);
+  QCOMPARE(assembler.code().size(), 0U);
   QCOMPARE(assembler.locationCounter(), 1001U);
 }
 
@@ -117,7 +118,7 @@ void AssemblerTest::testAssemblyPass() {
   assembler.setOrigin(2002);
   QCOMPARE(assembler.assemble("CLI"), Assembler::Result::Ok);
   QCOMPARE(assembler.assemble("TestLabel_11:  LDA #$20   ; this is a one weird comment  "), Assembler::Result::Ok);
-  QCOMPARE(assembler.symbol("TestLabel_11"), 2003);
-  QCOMPARE(assembler.code().size(), 3);
+  QCOMPARE(assembler.symbol("TestLabel_11"), std::nullopt);
+  QCOMPARE(assembler.code().size(), 3U);
   QCOMPARE(assembler.locationCounter(), 2005);
 }

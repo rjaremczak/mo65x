@@ -21,12 +21,13 @@ signals:
   void singleStepExecutionRequested();
   void continuousExecutionRequested();
   void stopExecutionRequested();
-  void programCounterChangeRequested(uint16_t);
+  void programCounterChanged(uint16_t);
 
 public slots:
   void updateMemoryContent(uint16_t start, uint16_t last);
   void updateState(CpuInfo);
   void updateDisassemblerView();
+  void changeProgramCounter(uint16_t);
 
 protected:
   void resizeEvent(QResizeEvent*) override;

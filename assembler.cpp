@@ -20,7 +20,7 @@ static const QString IndY(",[yY]\\s*");
 static const QString Comment("(?:;.*)?$");
 static const QString ByteOp("([\\$|\\%]?[\\d|A-H|a-z]{1,2})\\s*");
 static const QString WordOp("([\\$|\\%]?[\\d|A-H|a-z]{1,4})\\s*");
-static const QString SignedByteOp("(?:([+|-]?\\d{1,3})|" + Label + ")\\s*");
+static const QString RelativeOp("(?:([+|-]?\\d{1,3})|" + Label + ")\\s*");
 
 const AssemblyLine LineParsersTable[]{{LabelDef + Mnemonic + Comment, NoOperands},
                                       {LabelDef + Mnemonic + "#" + ByteOp + Comment, Immediate},
@@ -33,7 +33,7 @@ const AssemblyLine LineParsersTable[]{{LabelDef + Mnemonic + Comment, NoOperands
                                       {LabelDef + Mnemonic + "\\(" + WordOp + "\\)" + Comment, Indirect},
                                       {LabelDef + Mnemonic + "\\(" + ByteOp + IndX + "\\)" + Comment, IndexedIndirectX},
                                       {LabelDef + Mnemonic + "\\(" + ByteOp + "\\)" + IndY + Comment, IndirectIndexedY},
-                                      {LabelDef + Mnemonic + SignedByteOp + Comment, Relative}};
+                                      {LabelDef + Mnemonic + RelativeOp + Comment, Relative}};
 
 static const QRegularExpression EmptyLine(LabelDef + Comment);
 static const QRegularExpression OriginStatement(R"(^\s*ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
@@ -101,7 +101,11 @@ Assembler::Result Assembler::assemble(const QString& str) {
   if (line.isOperandNumber()) {
     operand = line.operandAsNumber();
   } else if (auto opt = symbol(line.operand())) {
-    operand = *opt;
+    if (line.addrMode() == Relative) {
+      operand = *opt - locationCounter_ - line.size();
+    } else {
+      operand = *opt;
+    }
   } else {
     return Result::UndefinedSymbol;
   }

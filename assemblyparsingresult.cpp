@@ -7,7 +7,7 @@ ParsingResult::ParsingResult(QRegularExpressionMatch match, AddressingMode mode)
     : match_(match), mode_(mode), operand_(match.captured(3) + match_.captured(4)) {
 }
 
-auto ParsingResult::size() const {
+uint8_t ParsingResult::size() const {
   return Instruction::sizeForAddressingMode(mode_);
 }
 

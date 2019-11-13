@@ -10,7 +10,7 @@ void System::fillMemory(uint16_t first, uint16_t last, uint8_t value) {
   emit memoryContentChanged(first, last);
 }
 
-void System::loadMemory(uint16_t first, const QByteArray& data) {
+void System::loadMemory(uint16_t first, const std::vector<uint8_t>& data) {
   auto size = static_cast<uint16_t>(std::min(static_cast<size_t>(data.size()), memory_.size() - first));
   std::copy_n(data.begin(), size, memory_.begin() + first);
   emit memoryContentChanged(first, first + size);

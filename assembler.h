@@ -13,7 +13,7 @@ class Assembler
   Q_GADGET
 
 public:
-  using Code = QByteArray;
+  using Code = std::vector<uint8_t>;
   using Symbols = std::map<QString, uint16_t>;
 
   static constexpr uint16_t DefaultOrigin = 0;

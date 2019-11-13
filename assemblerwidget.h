@@ -17,10 +17,11 @@ public:
 signals:
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
-  void machineCodeGenerated(uint16_t origin, const QByteArray& code);
+  void machineCodeGenerated(uint16_t origin, const Assembler::Code& code);
 
 public slots:
   void loadFile(const QString& fname);
+  void saveFile(const QString& fname);
 
 private:
   Ui::AssemblerWidget* ui;
@@ -30,7 +31,8 @@ private:
   bool assemble(Assembler::Pass);
 
 private slots:
-  void loadFileDialog();
-  void saveFileDialog();
+  void loadEditorFile();
+  void saveEditorFile();
+  void saveEditorFileAs();
   void assembleSourceCode();
 };

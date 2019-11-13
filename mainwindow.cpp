@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(pollTimer_, &QTimer::timeout, system_, &System::propagateCurrentState);
   // pollTimer->start(1000);
 
-  connect(cpuWidget_, &CpuWidget::programCounterChangeRequested, system_, &System::changeProgramCounter);
+  connect(cpuWidget_, &CpuWidget::programCounterChanged, system_, &System::changeProgramCounter);
   connect(cpuWidget_, &CpuWidget::singleStepExecutionRequested, system_, &System::executeSingleStep);
 
   connect(system_, &System::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, system_, &System::loadMemory);
+  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated,
+          [&](auto addr, auto) { cpuWidget_->changeProgramCounter(addr); });
 
   system_->propagateCurrentState();
 

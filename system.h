@@ -22,7 +22,7 @@ public slots:
   void executeSingleStep();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
-  void loadMemory(uint16_t first, const QByteArray& data);
+  void loadMemory(uint16_t first, const std::vector<uint8_t>& data);
 
 private:
   Memory memory_;

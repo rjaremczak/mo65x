@@ -13,7 +13,7 @@ public:
   auto mnemonic() const { return match_.captured(2); }
   auto addrMode() const { return mode_; }
   auto operand() const { return operand_; }
-  auto size() const;
+  uint8_t size() const;
   InstructionType type() const;
   bool isOperandNumber() const;
   int operandAsNumber() const;

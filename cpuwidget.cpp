@@ -16,7 +16,7 @@ static std::map<ExecutionState, const char*> ExecutionStateStr{{ExecutionState::
 CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
     : QDockWidget(parent), ui(new Ui::CpuWidget), memory_(memory), disassembler_(memory) {
   ui->setupUi(this);
-  connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChangeRequested);
+  connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::singleStepExecutionRequested);
   connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
   setMonospaceFont(ui->disassemblerView);
@@ -98,8 +98,12 @@ void CpuWidget::updateDisassemblerView() {
   disassemblerLastAddress_ = disassembler_.currentAddress();
 }
 
+void CpuWidget::changeProgramCounter(uint16_t addr) {
+  ui->regPC->setValue(addr);
+}
+
 void CpuWidget::skipInstruction() {
   disassembler_.setOrigin(disassemblerFirstAddress_);
   disassembler_.nextInstruction();
-  emit programCounterChangeRequested(disassembler_.currentAddress());
+  emit programCounterChanged(disassembler_.currentAddress());
 }

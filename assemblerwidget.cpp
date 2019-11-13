@@ -10,8 +10,9 @@
 
 AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::AssemblerWidget) {
   ui->setupUi(this);
-  connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadFileDialog);
-  connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveFileDialog);
+  connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadEditorFile);
+  connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveEditorFile);
+  connect(ui->saveFileAs, &QToolButton::clicked, this, &AssemblerWidget::saveEditorFileAs);
   connect(ui->assembleSourceCode, &QToolButton::clicked, this, &AssemblerWidget::assembleSourceCode);
   setMonospaceFont(ui->sourceCode);
 }
@@ -24,11 +25,21 @@ void AssemblerWidget::loadFile(const QString& fname) {
   QFile file(fname);
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     ui->sourceCode->setPlainText(QTextStream(&file).readAll());
+    fileName_ = fname;
     emit fileLoaded(fname);
   }
 }
 
-void AssemblerWidget::loadFileDialog() {
+void AssemblerWidget::saveFile(const QString& fname) {
+  QFile file(fname);
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    QTextStream(&file) << ui->sourceCode->toPlainText();
+    fileName_ = fname;
+    emit fileSaved(fname);
+  }
+}
+
+void AssemblerWidget::loadEditorFile() {
   QFileDialog::getOpenFileContent("", [&](const QString fileName, const QByteArray& fileContent) {
     QString title = tr("Load File");
     if (fileName.isEmpty()) {
@@ -40,15 +51,14 @@ void AssemblerWidget::loadFileDialog() {
   });
 }
 
-void AssemblerWidget::saveFileDialog() {
-  QString title = tr("Save File");
-  if (const auto fname = QFileDialog::getSaveFileName(this, "", title); !fname.isNull()) {
-    QFile file(fname);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      QTextStream(&file) << ui->sourceCode->toPlainText();
-      emit fileSaved(fname);
-    }
-  }
+void AssemblerWidget::saveEditorFile() {
+  if (fileName_.isEmpty()) fileName_ = QFileDialog::getSaveFileName(this, "", tr("Save File"));
+  if (!fileName_.isEmpty()) saveFile(fileName_);
+}
+
+void AssemblerWidget::saveEditorFileAs() {
+  if (auto fname = QFileDialog::getSaveFileName(this, tr("Save File"), QFileInfo(fileName_).absolutePath()); !fname.isEmpty())
+    saveFile(fname);
 }
 
 bool AssemblerWidget::assemble(Assembler::Pass pass) {
