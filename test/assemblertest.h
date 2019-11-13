@@ -10,7 +10,7 @@ class AssemblerTest : public QObject {
 
 public:
   Assembler assembler;
-  const Assembler::Buffer& buffer;
+  const Assembler::MachineCode& buffer;
 
   explicit AssemblerTest(QObject* parent = nullptr);
 
@@ -40,6 +40,7 @@ private slots:
   void testIndirectIndexedYMode();
   void testRelativeModePlus();
   void testRelativeModeMinus();
+  void testRelativeModeLabel();
   void testOrg();
   void testComment();
   void testEmptyLineLabel();

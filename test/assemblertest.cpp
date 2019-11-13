@@ -1,6 +1,10 @@
 #include "assemblertest.h"
 #include <QTest>
 
+#define TEST_INST(instr, opCode)                                                                                                 \
+  QCOMPARE(assembler.assemble(instr), Assembler::Result::Ok);                                                                    \
+  QCOMPARE(buffer[0], opCode)
+
 AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.machineCode()) {
 }
 
@@ -68,6 +72,13 @@ void AssemblerTest::testRelativeModeMinus() {
   verify("BCC -1", 0x90, -1);
 }
 
+void AssemblerTest::testRelativeModeLabel() {
+  assembler.reset(Assembler::Pass::ScanForSymbols);
+  QCOMPARE(assembler.assemble("firstloop:"), Assembler::Result::Ok);
+  assembler.reset(Assembler::Pass::Assembly);
+  TEST_INST("  BNE firstloop ;loop until Y is $10", 0xd0);
+}
+
 void AssemblerTest::testRelativeModePlus() {
   verify("BVS +8", 0x70, 8);
 }
@@ -93,7 +104,7 @@ void AssemblerTest::testEmptyLineLabel() {
 }
 
 void AssemblerTest::testSymbolPass() {
-  assembler.reset(Assembler::Pass::Symbols);
+  assembler.reset(Assembler::Pass::ScanForSymbols);
   assembler.setOrigin(1000);
   QCOMPARE(assembler.assemble("TestLabel_01:  SEI   ; disable interrupts "), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("TestLabel_01"), 1000);

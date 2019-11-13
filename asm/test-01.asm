@@ -1,3 +1,5 @@
+	ORG $0800
+
   LDX #$00
   LDY #$00
 firstloop:

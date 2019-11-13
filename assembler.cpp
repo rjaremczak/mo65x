@@ -20,7 +20,7 @@ static const QString IndY(",[yY]\\s*");
 static const QString Comment("(?:;.*)?$");
 static const QString ByteOp("([\\$|\\%]?[\\d|A-H|a-z]{1,2})\\s*");
 static const QString WordOp("([\\$|\\%]?[\\d|A-H|a-z]{1,4})\\s*");
-static const QString SignedByteOp("([+|-]?\\d{1,3})\\s*");
+static const QString SignedByteOp("(?:([+|-]?\\d{1,3})|" + Label + ")\\s*");
 
 const AssemblyLine LineParsersTable[]{{LabelDef + Mnemonic + Comment, NoOperands},
                                       {LabelDef + Mnemonic + "#" + ByteOp + Comment, Immediate},
@@ -56,23 +56,25 @@ static ParsingResult parseAssemblyLine(const QString& str) {
   return {};
 }
 
-Assembler::Assembler() : iterator_(std::back_inserter(buffer_)) {
+Assembler::Assembler() : iterator_(std::back_inserter(machineCode_)) {
 }
 
 void Assembler::reset(Pass pass) {
   pass_ = pass;
   originDefined_ = false;
+  origin_ = DefaultOrigin;
   locationCounter_ = DefaultOrigin;
-  iterator_ = std::back_inserter(buffer_);
-  if (pass == Pass::Assembly) buffer_.clear();
-  if (pass == Pass::Symbols) symbols_.clear();
+  iterator_ = std::back_inserter(machineCode_);
+  if (pass == Pass::Assembly) machineCode_.clear();
+  if (pass == Pass::ScanForSymbols) symbols_.clear();
 }
 
 Assembler::Result Assembler::setOrigin(uint16_t addr) {
   if (originDefined_) return Result::OriginAlreadyDefined;
 
-  locationCounter_ = addr;
   originDefined_ = true;
+  origin_ = addr;
+  locationCounter_ = addr;
   return Result::Ok;
 }
 
@@ -90,7 +92,10 @@ Assembler::Result Assembler::assemble(const QString& str) {
   }
 
   if (line.addrMode() == NoOperands) return assemble(line.type(), NoOperands);
-  if (line.operand().isEmpty()) return Result::SyntaxError;
+  if (line.operand().isEmpty()) {
+    // test
+    return Result::MissingOperand;
+  }
 
   int operand;
   if (line.isOperandNumber()) {
@@ -120,8 +125,10 @@ std::optional<int> Assembler::symbol(const QString& name) const {
 }
 
 Assembler::Result Assembler::addSymbol(const QString& name, uint16_t value) {
-  if (symbols_.find(name) != symbols_.end()) return Result::SymbolAlreadyDefined;
-  symbols_[name] = value;
+  if (pass_ == Pass::ScanForSymbols) {
+    if (symbols_.find(name) != symbols_.end()) return Result::SymbolAlreadyDefined;
+    symbols_[name] = value;
+  }
   return Result::Ok;
 }
 

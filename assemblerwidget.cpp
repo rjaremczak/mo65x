@@ -51,8 +51,8 @@ void AssemblerWidget::saveFileDialog() {
   }
 }
 
-void AssemblerWidget::assembleSourceCode() {
-  assembler_.reset();
+bool AssemblerWidget::assemble(Assembler::Pass pass) {
+  assembler_.reset(pass);
   QString src = ui->sourceCode->toPlainText();
   QTextStream is(&src, QIODevice::ReadOnly);
   int lineNum = 0;
@@ -71,9 +71,20 @@ void AssemblerWidget::assembleSourceCode() {
       cursor.setPosition(block.position(), QTextCursor::KeepAnchor);
       ui->sourceCode->setTextCursor(cursor);
       ui->sourceCode->setFocus();
-
-      break;
+      return false;
     }
     lineNum++;
   }
+  return true;
+}
+
+void AssemblerWidget::assembleSourceCode() {
+  if (!assemble(Assembler::Pass::ScanForSymbols)) return;
+  if (!assemble(Assembler::Pass::Assembly)) return;
+  QMessageBox::information(this, tr("Machine Code Generated"),
+                           tr("origin: %1\nsymbols: %2\nsize: %3 B")
+                               .arg(QString::asprintf("$%04X", assembler_.origin()))
+                               .arg(assembler_.numSymbols())
+                               .arg(assembler_.machineCode().size()));
+  emit machineCodeGenerated(assembler_.origin(), assembler_.machineCode());
 }

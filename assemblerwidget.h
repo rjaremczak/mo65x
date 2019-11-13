@@ -17,6 +17,7 @@ public:
 signals:
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
+  void machineCodeGenerated(uint16_t origin, const Assembler::MachineCode& code);
 
 public slots:
   void loadFile(const QString& fname);
@@ -25,6 +26,8 @@ private:
   Ui::AssemblerWidget* ui;
   QString fileName_;
   Assembler assembler_;
+
+  bool assemble(Assembler::Pass);
 
 private slots:
   void loadFileDialog();
