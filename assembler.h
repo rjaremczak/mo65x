@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commondefs.h"
 #include "instruction.h"
 #include <QMetaType>
 #include <QString>
@@ -13,7 +14,6 @@ class Assembler
   Q_GADGET
 
 public:
-  using Code = std::vector<uint8_t>;
   using Symbols = std::map<QString, uint16_t>;
 
   static constexpr uint16_t DefaultOrigin = 0;
@@ -29,7 +29,7 @@ public:
   uint16_t origin() const { return origin_; }
   const auto& symbols() const { return symbols_; }
   auto locationCounter() const { return locationCounter_; }
-  const Code& code() const { return code_; }
+  const Bytes& code() const { return code_; }
   Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
   std::optional<int> symbol(const QString&) const;
@@ -39,8 +39,8 @@ private:
   bool originDefined_ = false;
   uint16_t origin_ = DefaultOrigin;
   uint16_t locationCounter_ = DefaultOrigin;
-  Code code_;
-  std::back_insert_iterator<Code> iterator_;
+  Bytes code_;
+  std::back_insert_iterator<Bytes> iterator_;
   Symbols symbols_;
 
   Result addSymbol(const QString&, uint16_t);

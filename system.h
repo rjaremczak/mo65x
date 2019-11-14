@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commondefs.h"
 #include "cpu.h"
 #include "cpuinfo.h"
 #include "memory.h"
@@ -11,8 +12,6 @@ class System : public QObject {
 public:
   explicit System(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory_; }
-  void fillMemory(uint16_t first, uint16_t last, uint8_t value);
-  QByteArray saveMemory(uint16_t first, uint16_t last);
 
 signals:
   void cpuStateChanged(CpuInfo);
@@ -22,7 +21,9 @@ public slots:
   void executeSingleStep();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
-  void loadMemory(uint16_t first, const std::vector<uint8_t>& data);
+  void uploadToMemory(Address first, const Bytes& data);
+  void saveMemory(Address first, Address last, BytesIterator outIt);
+  void fillMemory(Address first, Address last, Byte value);
 
 private:
   Memory memory_;

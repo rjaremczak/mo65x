@@ -39,6 +39,7 @@ HEADERS += \
     assemblerwidget.h \
     assemblyparsingresult.h \
     centralwidget.h \
+    commondefs.h \
     config.h \
     cpudefs.h \
     cpuinfo.h \

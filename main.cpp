@@ -1,9 +1,11 @@
+#include "commondefs.h"
 #include "config.h"
 #include "filedatastorage.h"
 #include "mainwindow.h"
 #include <QApplication>
 #include <QDir>
 #include <QFile>
+#include <QMetaType>
 #include <QScreen>
 #include <QStyleFactory>
 
@@ -14,6 +16,8 @@ int main(int argc, char* argv[]) {
   QFile qss(":/main.qss");
   qss.open(QFile::ReadOnly);
   a.setStyleSheet(qss.readAll());
+
+  qRegisterMetaType<uint16_t>();
 
   MainWindow w;
   QRect scr = QGuiApplication::primaryScreen()->geometry();

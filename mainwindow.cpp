@@ -4,10 +4,8 @@
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
-
   initConfigStorage();
-
-  system_ = new System(this);
+  startSystem();
 
   cpuWidget_ = new CpuWidget(this, system_->memoryView());
   this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget_);
@@ -29,7 +27,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, system_, &System::loadMemory);
+  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, system_, &System::uploadToMemory);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated,
           [&](auto addr, auto) { cpuWidget_->changeProgramCounter(addr); });
 
@@ -39,6 +37,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 }
 
 MainWindow::~MainWindow() {
+  systemThread_.quit();
+  systemThread_.wait();
   delete ui;
 }
 
@@ -56,4 +56,11 @@ void MainWindow::initConfigStorage() {
 
   configStorage_ = new FileDataStorage<Config>(appDir.filePath("config.json"));
   config_ = configStorage_->readOrCreate();
+}
+
+void MainWindow::startSystem() {
+  system_ = new System();
+  system_->moveToThread(&systemThread_);
+  connect(&systemThread_, &QThread::finished, system_, &System::deleteLater);
+  systemThread_.start();
 }

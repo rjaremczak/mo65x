@@ -9,6 +9,7 @@
 #include "memorywidget.h"
 #include "system.h"
 #include <QMainWindow>
+#include <QThread>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -39,7 +40,10 @@ private:
   FileDataStorage<Config>* configStorage_;
   Config config_;
 
+  QThread systemThread_;
+
   void initConfigStorage();
+  void startSystem();
 };
 
 #endif // MAINWINDOW_H
