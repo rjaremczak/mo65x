@@ -5,13 +5,12 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QMetaType>
 #include <QTextBlock>
 #include <QTextStream>
 
 AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::AssemblerWidget) {
   ui->setupUi(this);
-
-  qRegisterMetaType<uint16_t>();
 
   connect(ui->loadFile, &QToolButton::clicked, this, &AssemblerWidget::loadEditorFile);
   connect(ui->saveFile, &QToolButton::clicked, this, &AssemblerWidget::saveEditorFile);

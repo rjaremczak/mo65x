@@ -1,5 +1,6 @@
 #include "commondefs.h"
 #include "config.h"
+#include "cpuinfo.h"
 #include "filedatastorage.h"
 #include "mainwindow.h"
 #include <QApplication>
@@ -9,15 +10,19 @@
 #include <QScreen>
 #include <QStyleFactory>
 
+Q_DECLARE_METATYPE(CpuInfo)
+Q_DECLARE_METATYPE(Data)
+
 int main(int argc, char* argv[]) {
+  qRegisterMetaType<CpuInfo>();
+  qRegisterMetaType<Data>();
+
   QApplication a(argc, argv);
   QApplication::setStyle(QStyleFactory::create("Fusion"));
 
   QFile qss(":/main.qss");
   qss.open(QFile::ReadOnly);
   a.setStyleSheet(qss.readAll());
-
-  qRegisterMetaType<uint16_t>();
 
   MainWindow w;
   QRect scr = QGuiApplication::primaryScreen()->geometry();

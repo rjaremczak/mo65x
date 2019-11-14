@@ -10,7 +10,7 @@ class AssemblerTest : public QObject {
 
 public:
   Assembler assembler;
-  const Bytes& buffer;
+  const Data& buffer;
 
   explicit AssemblerTest(QObject* parent = nullptr);
 

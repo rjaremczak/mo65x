@@ -1,5 +1,6 @@
 #pragma once
 
+#include "commondefs.h"
 #include "cpuinfo.h"
 #include "disassembler.h"
 #include <QDockWidget>
@@ -21,13 +22,13 @@ signals:
   void singleStepExecutionRequested();
   void continuousExecutionRequested();
   void stopExecutionRequested();
-  void programCounterChanged(uint16_t);
+  void programCounterChanged(quint16);
 
 public slots:
-  void updateMemoryContent(uint16_t start, uint16_t last);
+  void updateMemoryContent(quint16 first, quint16 last);
   void updateState(CpuInfo);
   void updateDisassemblerView();
-  void changeProgramCounter(uint16_t);
+  void changeProgramCounter(quint16);
 
 protected:
   void resizeEvent(QResizeEvent*) override;

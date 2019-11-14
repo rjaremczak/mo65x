@@ -16,6 +16,7 @@ static std::map<ExecutionState, const char*> ExecutionStateStr{{ExecutionState::
 CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
     : QDockWidget(parent), ui(new Ui::CpuWidget), memory_(memory), disassembler_(memory) {
   ui->setupUi(this);
+
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::singleStepExecutionRequested);
   connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
@@ -98,7 +99,7 @@ void CpuWidget::updateDisassemblerView() {
   disassemblerLastAddress_ = disassembler_.currentAddress();
 }
 
-void CpuWidget::changeProgramCounter(uint16_t addr) {
+void CpuWidget::changeProgramCounter(quint16 addr) {
   ui->regPC->setValue(addr);
 }
 

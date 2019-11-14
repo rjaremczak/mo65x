@@ -15,15 +15,13 @@ public:
 
 signals:
   void cpuStateChanged(CpuInfo);
-  void memoryContentChanged(uint16_t first, uint16_t last);
+  void memoryContentChanged(quint16 first, quint16 last);
 
 public slots:
   void executeSingleStep();
-  void changeProgramCounter(uint16_t pc);
+  void changeProgramCounter(quint16 pc);
   void propagateCurrentState();
-  void uploadToMemory(Address first, const Bytes& data);
-  void saveMemory(Address first, Address last, BytesIterator outIt);
-  void fillMemory(Address first, Address last, Byte value);
+  void uploadToMemory(quint16 first, const Data& data);
 
 private:
   Memory memory_;

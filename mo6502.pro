@@ -1,5 +1,6 @@
 QT       += core gui widgets testlib
 
+TEMPLATE = app
 CONFIG += c++17
 CONFIG += strict_c++
 CONFIG += sdk_no_version_check

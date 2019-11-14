@@ -29,7 +29,7 @@ public:
   uint16_t origin() const { return origin_; }
   const auto& symbols() const { return symbols_; }
   auto locationCounter() const { return locationCounter_; }
-  const Bytes& code() const { return code_; }
+  const Data& code() const { return code_; }
   Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
   std::optional<int> symbol(const QString&) const;
@@ -39,8 +39,8 @@ private:
   bool originDefined_ = false;
   uint16_t origin_ = DefaultOrigin;
   uint16_t locationCounter_ = DefaultOrigin;
-  Bytes code_;
-  std::back_insert_iterator<Bytes> iterator_;
+  Data code_;
+  std::back_insert_iterator<Data> iterator_;
   Symbols symbols_;
 
   Result addSymbol(const QString&, uint16_t);

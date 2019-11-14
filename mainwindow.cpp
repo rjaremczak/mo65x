@@ -28,8 +28,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, system_, &System::uploadToMemory);
-  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated,
-          [&](auto addr, auto) { cpuWidget_->changeProgramCounter(addr); });
+  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
 
   system_->propagateCurrentState();
 
