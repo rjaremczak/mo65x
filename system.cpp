@@ -11,6 +11,14 @@ void System::uploadToMemory(quint16 start, const Data& data) {
   emit memoryContentChanged(start, start + size);
 }
 
+void System::resetCycleCounter() {
+  cpu_.cycles = 0;
+}
+
+void System::requestIRQ() {
+  cpu_.requestIRQ();
+}
+
 void System::executeSingleStep() {
   cpu_.execute();
   emit cpuStateChanged(cpu_.info());

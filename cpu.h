@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "operandptr.h"
 #include "registers.h"
+#include <atomic>
 #include <map>
 
 class Cpu {
@@ -21,16 +22,24 @@ public:
   friend constexpr Handler operandsHandler(AddressingMode);
   friend constexpr Handler instructionHandler(InstructionType);
 
-  volatile ExecutionState state = ExecutionState::Stopped;
+  ExecutionState state = ExecutionState::Stopped;
   Registers regs;
   int cycles = 0;
 
   Cpu(Memory&);
   void execute(bool continuous = false);
   CpuInfo info() const { return {state, regs, cycles}; }
+  bool running() const { return state == ExecutionState::Running; }
+  void requestIRQ();
+  void requestNMI();
+  void requestRESET();
 
 private:
   friend class OpCodesTest;
+
+  std::atomic_bool pendingIRQ_ = false;
+  std::atomic_bool pendingNMI_ = false;
+  std::atomic_bool pendingRESET_ = false;
 
   Memory& memory_;
   OperandPtr operandPtr_;

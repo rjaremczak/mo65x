@@ -367,3 +367,11 @@ void Cpu::execute(bool continuous) {
   }
   state = ExecutionState::Stopped;
 }
+
+void Cpu::requestIRQ() {
+  if (regs.p.interrupt) return;
+  if (running())
+    pendingIRQ_ = true;
+  else
+    irq();
+}

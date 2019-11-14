@@ -12,6 +12,9 @@ class System : public QObject {
 public:
   explicit System(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory_; }
+  void requestIRQ();
+  void requestNMI();
+  void requestRESET();
 
 signals:
   void cpuStateChanged(CpuInfo);
@@ -22,6 +25,7 @@ public slots:
   void changeProgramCounter(quint16 pc);
   void propagateCurrentState();
   void uploadToMemory(quint16 first, const Data& data);
+  void resetCycleCounter();
 
 private:
   Memory memory_;
