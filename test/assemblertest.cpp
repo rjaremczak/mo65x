@@ -1,18 +1,19 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr, opCode)                                                                                                 \
+#define TEST_INST_1(instr, opCode)                                                                                               \
   QCOMPARE(assembler.assemble(instr), Assembler::Result::Ok);                                                                    \
-  QCOMPARE(buffer[0], opCode)
+  QCOMPARE(assembler.lastInstructionByte(0), opCode)
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(), buffer(assembler.code()) {
-}
+#define TEST_INST_2(instr, opCode, lo)                                                                                           \
+  TEST_INST_1(instr, opCode);                                                                                                    \
+  if (lo >= 0) QCOMPARE(lo, assembler.lastInstructionByte(1))
 
-void AssemblerTest::verify(const char* str, uint8_t opcode, int lo, int hi) {
-  QCOMPARE(assembler.assemble(str), Assembler::Result::Ok);
-  QCOMPARE(buffer[0], opcode);
-  if (lo >= 0) QCOMPARE(lo, buffer[1]);
-  if (hi >= 0) QCOMPARE(hi, buffer[2]);
+#define TEST_INST_3(instr, opCode, lo, hi)                                                                                       \
+  TEST_INST_2(instr, opCode, lo);                                                                                                \
+  if (hi >= 0) QCOMPARE(hi, assembler.lastInstructionByte(2))
+
+AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent) {
 }
 
 void AssemblerTest::init() {
@@ -20,67 +21,79 @@ void AssemblerTest::init() {
   assembler.setOrigin(AsmOrigin);
 }
 
+void AssemblerTest::testByteOperand() {
+  TEST_INST_2("LDY %11010001", 0xa4, 0b11010001);
+  TEST_INST_2("LDX #123", 0xa2, 123);
+  TEST_INST_2("LDA #%00110101", 0xa9, 0b00110101);
+}
+
+void AssemblerTest::testWordOperand() {
+  TEST_INST_3("ROR %0001001011101101", 0x6e, 0b11101101, 0b00010010);
+  TEST_INST_3("LSR 65533,X", 0x5e, 0xfd, 0xff);
+  TEST_INST_3("JMP ($ffa0)", 0x6c, 0xa0, 0xff);
+}
+
 void AssemblerTest::testImpliedMode() {
-  verify("SEI", 0x78);
+  TEST_INST_1("SEI", 0x78);
 }
 
 void AssemblerTest::testAccumulatorMode() {
-  verify("ASL", 0x0a);
+  TEST_INST_1("ASL", 0x0a);
 }
 
 void AssemblerTest::testImmediateMode() {
-  verify("LDX #$2f", 0xa2, 0x2f);
+  TEST_INST_2("LDX #$2f", 0xa2, 0x2f);
 }
 
 void AssemblerTest::testZeroPageMode() {
-  verify("LDY $8f", 0xa4, 0x8f);
+  TEST_INST_2("LDY $8f", 0xa4, 0x8f);
 }
 
 void AssemblerTest::testZeroPageXMode() {
-  verify("LDA $a0,X", 0xb5, 0xa0);
+  TEST_INST_2("LDA $a0,X", 0xb5, 0xa0);
 }
 
 void AssemblerTest::testZeroPageYMode() {
-  verify("STX $7a,Y", 0x96, 0x7a);
+  TEST_INST_2("STX $7a,Y", 0x96, 0x7a);
 }
 
 void AssemblerTest::testAbsoluteMode() {
-  verify("ROR $3400", 0x6e, 0x00, 0x34);
+  TEST_INST_3("ROR $3400", 0x6e, 0x00, 0x34);
 }
 
 void AssemblerTest::testAbsoluteXMode() {
-  verify("LSR $35f0,X", 0x5e, 0xf0, 0x35);
+  TEST_INST_3("LSR $35f0,X", 0x5e, 0xf0, 0x35);
 }
 
 void AssemblerTest::testAbsoluteYMode() {
-  verify("EOR $f7a0,Y", 0x59, 0xa0, 0xf7);
+  TEST_INST_3("EOR $f7a0,Y", 0x59, 0xa0, 0xf7);
 }
 
 void AssemblerTest::testIndirectMode() {
-  verify("JMP ($ffa0)", 0x6c, 0xa0, 0xff);
+  TEST_INST_3("JMP ($ffa0)", 0x6c, 0xa0, 0xff);
 }
 
 void AssemblerTest::testIndexedIndirectXMode() {
-  verify("LDA ($8c,X)", 0xa1, 0x8c);
+  TEST_INST_2("LDA ($8c,X)", 0xa1, 0x8c);
 }
 
 void AssemblerTest::testIndirectIndexedYMode() {
-  verify("ORA ($a7),Y", 0x11, 0xa7);
+  TEST_INST_2("ORA ($a7),Y", 0x11, 0xa7);
 }
 
 void AssemblerTest::testRelativeModeMinus() {
-  verify("BCC -1", 0x90, -1);
+  TEST_INST_2("BCC -1", 0x90, -1);
 }
 
 void AssemblerTest::testRelativeModeLabel() {
   assembler.reset(Assembler::Pass::ScanForSymbols);
   QCOMPARE(assembler.assemble("firstloop:"), Assembler::Result::Ok);
   assembler.reset(Assembler::Pass::Assembly);
-  TEST_INST("  BNE firstloop ;loop until Y is $10", 0xd0);
+  TEST_INST_1("  BNE firstloop ;loop until Y is $10", 0xd0);
 }
 
 void AssemblerTest::testRelativeModePlus() {
-  verify("BVS +8", 0x70, 8);
+  TEST_INST_2("BVS +8", 0x70, 8);
 }
 
 void AssemblerTest::testOrg() {
@@ -89,6 +102,14 @@ void AssemblerTest::testOrg() {
   QCOMPARE(assembler.locationCounter(), 0x3000);
   QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
   QCOMPARE(assembler.locationCounter(), 0x3000);
+
+  assembler.reset();
+  QCOMPARE(assembler.assemble("  .org $5000 ;origin"), Assembler::Result::Ok);
+  QCOMPARE(assembler.locationCounter(), 0x5000);
+
+  assembler.reset();
+  QCOMPARE(assembler.assemble("  *= $5000 ;origin defined"), Assembler::Result::Ok);
+  QCOMPARE(assembler.locationCounter(), 0x5000);
 }
 
 void AssemblerTest::testComment() {

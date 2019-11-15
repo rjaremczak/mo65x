@@ -29,6 +29,7 @@ public:
   uint16_t origin() const { return origin_; }
   const auto& symbols() const { return symbols_; }
   auto locationCounter() const { return locationCounter_; }
+  uint8_t lastInstructionByte(size_t) const;
   const Data& code() const { return code_; }
   Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
   Result assemble(const QString&);
@@ -40,6 +41,7 @@ private:
   uint16_t origin_ = DefaultOrigin;
   uint16_t locationCounter_ = DefaultOrigin;
   Data code_;
+  size_t lastInstructionIndex_;
   std::back_insert_iterator<Data> iterator_;
   Symbols symbols_;
 

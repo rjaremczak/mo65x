@@ -15,19 +15,19 @@ struct AssemblyLine {
 
 static const QString Label("\\w{2,}");
 static const QString Mnemonic("[a-z]{3}");
-static const QString HexByte("$[\\d|a-h]{1,2}");
-static const QString HexWord("$[\\d|a-h]{1,4}");
-static const QString DecByte("[\\d]{1,3}");
-static const QString DecWord("[\\d]{1,5}");
-static const QString BinByte("$[01]{8}");
-static const QString BinWord("$[01|{16}");
+static const QString HexByte("\\$[\\d|a-h]{1,2}");
+static const QString HexWord("\\$[\\d|a-h]{1,4}");
+static const QString BinByte("\\%[01]{8}");
+static const QString BinWord("\\%[01]{16}");
+static const QString DecByte("\\d{1,3}");
+static const QString DecWord("\\d{1,5}");
 static const QString LabelDef("^(?:(" + Label + "):)?\\s*");
 static const QString OpType("(" + Mnemonic + ")\\s*");
 static const QString IndX(",x\\s*");
 static const QString IndY(",y\\s*");
 static const QString Comment("(?:;.*)?$");
-static const QString OpByte("([\\$|\\%]?[\\d|a-h]{1,2})\\s*");
-static const QString OpWord("([\\$|\\%]?[\\d|a-h]{1,4})\\s*");
+static const QString OpByte("((?:" + HexByte + ")|(?:" + BinByte + ")|(?:" + DecByte + "))\\s*");
+static const QString OpWord("((?:" + HexWord + ")|(?:" + BinWord + ")|(?:" + DecWord + "))\\s*");
 static const QString OpRelative("((?:[+|-]?\\d{1,3})|(?:" + Label + "))\\s*");
 
 const AssemblyLine LineParsersTable[]{{LabelDef + OpType + Comment, NoOperands},
@@ -44,7 +44,7 @@ const AssemblyLine LineParsersTable[]{{LabelDef + OpType + Comment, NoOperands},
                                       {LabelDef + OpType + OpRelative + Comment, Relative}};
 
 static const QRegularExpression EmptyLine(LabelDef + Comment, QRegularExpression::CaseInsensitiveOption);
-static const QRegularExpression OriginStatement("^\\s*\\.?ORG\\s+\\$([\\d|a-h]{1,4})\\s*(;.*)?$",
+static const QRegularExpression OriginStatement("^\\s*(?:(?:\\.?ORG\\s+)|(?:\\*\\s*\\=\\s*))\\$([\\d|a-h]{1,4})\\s*(;.*)?$",
                                                 QRegularExpression::CaseInsensitiveOption);
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
@@ -87,6 +87,10 @@ Assembler::Result Assembler::setOrigin(uint16_t addr) {
   return Result::Ok;
 }
 
+uint8_t Assembler::lastInstructionByte(size_t num) const {
+  return code_[std::min(lastInstructionIndex_ + num, code_.size() - 1)];
+}
+
 Assembler::Result Assembler::assemble(const QString& str) {
   if (const auto re = OriginStatement.match(str); re.hasMatch()) { return setOrigin(re.captured(1).toUShort(nullptr, 16)); }
   if (const auto re = EmptyLine.match(str); re.hasMatch()) {
@@ -123,6 +127,7 @@ Assembler::Result Assembler::assemble(const QString& str) {
 }
 
 Assembler::Result Assembler::assemble(InstructionType type, AddressingMode mode, int operand) {
+  lastInstructionIndex_ = code_.size();
   if (const auto insIt = findInstruction(type, mode)) {
     addByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt)));
     if (insIt->size > 1) addByte(static_cast<uint8_t>(operand));
