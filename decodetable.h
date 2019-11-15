@@ -9,11 +9,11 @@ struct DecodeEntry {
   Cpu::Handler executeInstruction = nullptr;
 };
 
-constexpr Cpu::Handler operandsHandler(AddressingMode mode) {
+constexpr Cpu::Handler operandsHandler(OperandsFormat mode) {
   switch (mode) {
   case Implied: return &Cpu::prepImpliedMode;
   case Accumulator: return &Cpu::prepAccumulatorMode;
-  case Relative: return &Cpu::prepRelativeMode;
+  case Branch: return &Cpu::prepRelativeMode;
   case Immediate: return &Cpu::prepImmediateMode;
   case ZeroPage: return &Cpu::prepZeroPageMode;
   case ZeroPageX: return &Cpu::prepZeroPageXMode;

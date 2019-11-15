@@ -28,7 +28,7 @@ private:
   QString fileName_;
   Assembler assembler_;
 
-  bool assemble(Assembler::Pass);
+  bool process(Assembler::Pass);
 
 private slots:
   void loadEditorFile();

@@ -15,8 +15,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     assembler.cpp \
+    assemblerline.cpp \
     assemblerwidget.cpp \
-    assemblyparsingresult.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
     config.cpp \
@@ -37,16 +37,15 @@ SOURCES += \
 
 HEADERS += \
     assembler.h \
+    assemblerline.h \
     assemblerwidget.h \
-    assemblyparsingresult.h \
     centralwidget.h \
-    commondefs.h \
+    commons.h \
     config.h \
     cpudefs.h \
     cpuinfo.h \
     cpuwidget.h \
     decodetable.h \
-    addressingmode.h \
     bytespinbox.h \
     cpu.h \
     disassembler.h \
@@ -60,6 +59,7 @@ HEADERS += \
     memorywidget.h \
     mnemonics.h \
     operandptr.h \
+    operandsformat.h \
     processorstatus.h \
     registers.h \
     stackpointer.h \

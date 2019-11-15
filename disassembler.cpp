@@ -73,7 +73,7 @@ QString Disassembler::disassemble() const {
   case IndexedIndirectX: str.append("(").append(formatOperand8()).append(",X)"); break;
   case IndirectIndexedY: str.append("(").append(formatOperand8()).append("),Y"); break;
   case Indirect: str.append("(").append(formatOperand16()).append(")"); break;
-  case Relative:
+  case Branch:
     const auto displacement = static_cast<int8_t>(memory_[address_ + 1]);
     if (displacement > 0) str.append("+");
     str.append(QString::number(displacement));

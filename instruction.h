@@ -1,18 +1,18 @@
 #pragma once
 
-#include <array>
 #include "instructiontype.h"
-#include "addressingmode.h"
+#include "operandsformat.h"
+#include <cstdint>
 
 struct Instruction {
   static constexpr auto NumberOfOpCodes = 256;
-  static constexpr uint8_t sizeForAddressingMode(AddressingMode mode) {
+  static constexpr uint8_t sizeForAddressingMode(OperandsFormat mode) {
     switch (mode) {
     case Implied:
     case Accumulator:
     case NoOperands: return 1;
 
-    case Relative:
+    case Branch:
     case Immediate:
     case ZeroPage:
     case ZeroPageX:
@@ -29,13 +29,13 @@ struct Instruction {
   }
 
   InstructionType type = INV;
-  AddressingMode mode = Implied;
+  OperandsFormat mode = Implied;
   uint8_t size = 1;
   uint8_t cycles = 0;
 
   Instruction() = default;
 
-  constexpr Instruction(InstructionType type, AddressingMode mode, uint8_t cycles) {
+  constexpr Instruction(InstructionType type, OperandsFormat mode, uint8_t cycles) {
     this->type = type;
     this->mode = mode;
     this->cycles = cycles;

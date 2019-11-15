@@ -1,6 +1,6 @@
 #pragma once
 
-enum AddressingMode {
+enum OperandsFormat {
 
   // no operands
 
@@ -9,7 +9,7 @@ enum AddressingMode {
 
   // 8-bit operand
 
-  Relative,
+  Branch,
   Immediate,
   ZeroPage,
   ZeroPageX,

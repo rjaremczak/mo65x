@@ -1,6 +1,6 @@
 #pragma once
 
-#include "commondefs.h"
+#include "commons.h"
 #include "cpuinfo.h"
 #include "disassembler.h"
 #include <QDockWidget>

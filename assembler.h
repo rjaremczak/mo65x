@@ -1,6 +1,7 @@
 #pragma once
 
-#include "commondefs.h"
+#include "assemblerline.h"
+#include "commons.h"
 #include "instruction.h"
 #include <QMetaType>
 #include <QString>
@@ -19,20 +20,31 @@ public:
   static constexpr uint16_t DefaultOrigin = 0;
 
   enum class Pass { ScanForSymbols, Assembly };
-  enum class Result { Ok, OriginAlreadyDefined, SymbolAlreadyDefined, UndefinedSymbol, MissingOperand, SyntaxError };
+  enum class Result {
+    Ok,
+    OriginAlreadyDefined,
+    SymbolAlreadyDefined,
+    UndefinedSymbol,
+    MissingOperand,
+    NumericOperandRequired,
+    SyntaxError,
+    CommandProcessingError,
+    FatalProcessingError
+  };
 
   Q_ENUM(Result)
 
   Assembler();
-  void reset(Pass = Pass::Assembly);
-  Result setOrigin(uint16_t addr);
+
   uint16_t origin() const { return origin_; }
   const auto& symbols() const { return symbols_; }
   auto locationCounter() const { return locationCounter_; }
-  uint8_t lastInstructionByte(size_t) const;
   const Data& code() const { return code_; }
-  Result assemble(InstructionType type, AddressingMode mode, int operand = 0);
-  Result assemble(const QString&);
+
+  void reset(Pass = Pass::Assembly);
+  Result setOrigin(uint16_t addr);
+  uint8_t lastInstructionByte(size_t) const;
+  Result process(const QString&);
   std::optional<int> symbol(const QString&) const;
 
 private:
@@ -46,5 +58,8 @@ private:
   Symbols symbols_;
 
   Result addSymbol(const QString&, uint16_t);
+  Result processCommand(const AssemblerLine& line);
+  Result processInstruction(const AssemblerLine& line);
+  Result assemble(InstructionType type, OperandsFormat mode, int operand = 0);
   void addByte(uint8_t);
 };

@@ -16,7 +16,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0x0d] = {ORA, Absolute, 4};
   arr[0x0e] = {ASL, Absolute, 6};
 
-  arr[0x10] = {BPL, Relative, 2};
+  arr[0x10] = {BPL, Branch, 2};
   arr[0x11] = {ORA, IndirectIndexedY, 5};
   arr[0x15] = {ORA, ZeroPageX, 4};
   arr[0x16] = {ASL, ZeroPageX, 6};
@@ -37,7 +37,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0x2d] = {AND, Absolute, 4};
   arr[0x2e] = {ROL, Absolute, 6};
 
-  arr[0x30] = {BMI, Relative, 2};
+  arr[0x30] = {BMI, Branch, 2};
   arr[0x31] = {AND, IndirectIndexedY, 5};
   arr[0x35] = {AND, ZeroPageX, 4};
   arr[0x36] = {ROL, ZeroPageX, 6};
@@ -57,7 +57,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0x4d] = {EOR, Absolute, 4};
   arr[0x4e] = {LSR, Absolute, 6};
 
-  arr[0x50] = {BVC, Relative, 2};
+  arr[0x50] = {BVC, Branch, 2};
   arr[0x51] = {EOR, IndirectIndexedY, 5};
   arr[0x55] = {EOR, ZeroPageX, 4};
   arr[0x56] = {LSR, ZeroPageX, 6};
@@ -77,7 +77,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0x6d] = {ADC, Absolute, 4};
   arr[0x6e] = {ROR, Absolute, 6};
 
-  arr[0x70] = {BVS, Relative, 2};
+  arr[0x70] = {BVS, Branch, 2};
   arr[0x71] = {ADC, IndirectIndexedY, 5};
   arr[0x75] = {ADC, ZeroPageX, 4};
   arr[0x76] = {ROR, ZeroPageX, 6};
@@ -96,7 +96,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0x8d] = {STA, Absolute, 4};
   arr[0x8e] = {STX, Absolute, 4};
 
-  arr[0x90] = {BCC, Relative, 2};
+  arr[0x90] = {BCC, Branch, 2};
   arr[0x91] = {STA, IndirectIndexedY, 6};
   arr[0x94] = {STY, ZeroPageX, 4};
   arr[0x95] = {STA, ZeroPageX, 4};
@@ -119,7 +119,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0xad] = {LDA, Absolute, 4};
   arr[0xae] = {LDX, Absolute, 4};
 
-  arr[0xb0] = {BCS, Relative, 2};
+  arr[0xb0] = {BCS, Branch, 2};
   arr[0xb1] = {LDA, IndirectIndexedY, 5};
   arr[0xb4] = {LDY, ZeroPageX, 4};
   arr[0xb5] = {LDA, ZeroPageX, 4};
@@ -143,7 +143,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0xcd] = {CMP, Absolute, 4};
   arr[0xce] = {DEC, Absolute, 6};
 
-  arr[0xd0] = {BNE, Relative, 2};
+  arr[0xd0] = {BNE, Branch, 2};
   arr[0xd1] = {CMP, IndirectIndexedY, 5};
   arr[0xd5] = {CMP, ZeroPageX, 4};
   arr[0xd6] = {DEC, ZeroPageX, 6};
@@ -164,7 +164,7 @@ constexpr std::array<Instruction, 256> InstructionTable = [] {
   arr[0xed] = {SBC, Absolute, 4};
   arr[0xee] = {INC, Absolute, 6};
 
-  arr[0xf0] = {BEQ, Relative, 2};
+  arr[0xf0] = {BEQ, Branch, 2};
   arr[0xf1] = {SBC, IndirectIndexedY, 5};
   arr[0xf5] = {SBC, ZeroPageX, 4};
   arr[0xf6] = {INC, ZeroPageX, 6};

@@ -2,7 +2,7 @@
 #include <QTest>
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
-  QCOMPARE(assembler.assemble(instr), Assembler::Result::Ok);                                                                    \
+  QCOMPARE(assembler.process(instr), Assembler::Result::Ok);                                                                     \
   QCOMPARE(assembler.lastInstructionByte(0), opCode)
 
 #define TEST_INST_2(instr, opCode, lo)                                                                                           \
@@ -87,7 +87,7 @@ void AssemblerTest::testRelativeModeMinus() {
 
 void AssemblerTest::testRelativeModeLabel() {
   assembler.reset(Assembler::Pass::ScanForSymbols);
-  QCOMPARE(assembler.assemble("firstloop:"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("firstloop:"), Assembler::Result::Ok);
   assembler.reset(Assembler::Pass::Assembly);
   TEST_INST_1("  BNE firstloop ;loop until Y is $10", 0xd0);
 }
@@ -98,29 +98,29 @@ void AssemblerTest::testRelativeModePlus() {
 
 void AssemblerTest::testOrg() {
   assembler.reset();
-  QCOMPARE(assembler.assemble("  ORG $3000 ;origin"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("  ORG $3000 ;origin"), Assembler::Result::Ok);
   QCOMPARE(assembler.locationCounter(), 0x3000);
-  QCOMPARE(assembler.assemble("  ORG $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
+  QCOMPARE(assembler.process("  ORG $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
   QCOMPARE(assembler.locationCounter(), 0x3000);
 
   assembler.reset();
-  QCOMPARE(assembler.assemble("  .org $5000 ;origin"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("  .org $5000 ;origin"), Assembler::Result::Ok);
   QCOMPARE(assembler.locationCounter(), 0x5000);
 
   assembler.reset();
-  QCOMPARE(assembler.assemble("  *= $5000 ;origin defined"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("  *= $5000 ;origin defined"), Assembler::Result::Ok);
   QCOMPARE(assembler.locationCounter(), 0x5000);
 }
 
 void AssemblerTest::testComment() {
-  QCOMPARE(assembler.assemble("  SEI   ;disable interrupts "), Assembler::Result::Ok);
-  QCOMPARE(assembler.assemble("; disable interrupts "), Assembler::Result::Ok);
-  QCOMPARE(assembler.assemble(" LDA #$20  ;comment"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("  SEI   ;disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("; disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.process(" LDA #$20  ;comment"), Assembler::Result::Ok);
 }
 
 void AssemblerTest::testEmptyLineLabel() {
   assembler.reset(Assembler::Pass::ScanForSymbols);
-  QCOMPARE(assembler.assemble("Label_001:"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("Label_001:"), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter());
   QCOMPARE(assembler.symbol("dummy"), std::nullopt);
 }
@@ -128,7 +128,7 @@ void AssemblerTest::testEmptyLineLabel() {
 void AssemblerTest::testSymbolPass() {
   assembler.reset(Assembler::Pass::ScanForSymbols);
   assembler.setOrigin(1000);
-  QCOMPARE(assembler.assemble("TestLabel_01:  SEI   ; disable interrupts "), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("TestLabel_01:  SEI   ; disable interrupts "), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("TestLabel_01"), 1000);
   QCOMPARE(assembler.code().size(), 0U);
   QCOMPARE(assembler.locationCounter(), 1001U);
@@ -137,8 +137,8 @@ void AssemblerTest::testSymbolPass() {
 void AssemblerTest::testAssemblyPass() {
   assembler.reset(Assembler::Pass::Assembly);
   assembler.setOrigin(2002);
-  QCOMPARE(assembler.assemble("CLI"), Assembler::Result::Ok);
-  QCOMPARE(assembler.assemble("TestLabel_11:  LDA #$20   ; this is a one weird comment  "), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("CLI"), Assembler::Result::Ok);
+  QCOMPARE(assembler.process("TestLabel_11:  LDA #$20   ; this is a one weird comment  "), Assembler::Result::Ok);
   QCOMPARE(assembler.symbol("TestLabel_11"), std::nullopt);
   QCOMPARE(assembler.code().size(), 3U);
   QCOMPARE(assembler.locationCounter(), 2005);

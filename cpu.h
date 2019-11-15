@@ -19,7 +19,7 @@ public:
 
   using Handler = void (Cpu::*)();
 
-  friend constexpr Handler operandsHandler(AddressingMode);
+  friend constexpr Handler operandsHandler(OperandsFormat);
   friend constexpr Handler instructionHandler(InstructionType);
 
   ExecutionState state = ExecutionState::Stopped;
