@@ -46,4 +46,5 @@ private slots:
   void testEmptyLineLabel();
   void testSymbolPass();
   void testAssemblyPass();
+  void testLabelDefAndUse();
 };

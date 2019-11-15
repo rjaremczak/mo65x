@@ -122,3 +122,6 @@ void AssemblerTest::testAssemblyPass() {
   QCOMPARE(assembler.code().size(), 3U);
   QCOMPARE(assembler.locationCounter(), 2005);
 }
+
+void AssemblerTest::testLabelDefAndUse() {
+}

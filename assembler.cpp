@@ -9,34 +9,43 @@ struct AssemblyLine {
   QRegularExpression regex;
   AddressingMode mode;
 
-  AssemblyLine(const QString& pattern, AddressingMode mode) : regex(pattern), mode(mode) {}
+  AssemblyLine(const QString& pattern, AddressingMode mode)
+      : regex(pattern, QRegularExpression::CaseInsensitiveOption), mode(mode) {}
 };
 
-static const QString Label("(\\w{2,})");
-static const QString LabelDef("^(?:" + Label + ":)?\\s*");
-static const QString Mnemonic("([A-Z|a-z]{3})\\s*");
-static const QString IndX(",[xX]\\s*");
-static const QString IndY(",[yY]\\s*");
+static const QString Label("\\w{2,}");
+static const QString Mnemonic("[a-z]{3}");
+static const QString HexByte("$[\\d|a-h]{1,2}");
+static const QString HexWord("$[\\d|a-h]{1,4}");
+static const QString DecByte("[\\d]{1,3}");
+static const QString DecWord("[\\d]{1,5}");
+static const QString BinByte("$[01]{8}");
+static const QString BinWord("$[01|{16}");
+static const QString LabelDef("^(?:(" + Label + "):)?\\s*");
+static const QString OpType("(" + Mnemonic + ")\\s*");
+static const QString IndX(",x\\s*");
+static const QString IndY(",y\\s*");
 static const QString Comment("(?:;.*)?$");
-static const QString ByteOp("([\\$|\\%]?[\\d|A-H|a-z]{1,2})\\s*");
-static const QString WordOp("([\\$|\\%]?[\\d|A-H|a-z]{1,4})\\s*");
-static const QString RelativeOp("(?:([+|-]?\\d{1,3})|" + Label + ")\\s*");
+static const QString OpByte("([\\$|\\%]?[\\d|a-h]{1,2})\\s*");
+static const QString OpWord("([\\$|\\%]?[\\d|a-h]{1,4})\\s*");
+static const QString OpRelative("((?:[+|-]?\\d{1,3})|(?:" + Label + "))\\s*");
 
-const AssemblyLine LineParsersTable[]{{LabelDef + Mnemonic + Comment, NoOperands},
-                                      {LabelDef + Mnemonic + "#" + ByteOp + Comment, Immediate},
-                                      {LabelDef + Mnemonic + ByteOp + Comment, ZeroPage},
-                                      {LabelDef + Mnemonic + ByteOp + IndX + Comment, ZeroPageX},
-                                      {LabelDef + Mnemonic + ByteOp + IndY + Comment, ZeroPageY},
-                                      {LabelDef + Mnemonic + WordOp + Comment, Absolute},
-                                      {LabelDef + Mnemonic + WordOp + IndX + Comment, AbsoluteX},
-                                      {LabelDef + Mnemonic + WordOp + IndY + Comment, AbsoluteY},
-                                      {LabelDef + Mnemonic + "\\(" + WordOp + "\\)" + Comment, Indirect},
-                                      {LabelDef + Mnemonic + "\\(" + ByteOp + IndX + "\\)" + Comment, IndexedIndirectX},
-                                      {LabelDef + Mnemonic + "\\(" + ByteOp + "\\)" + IndY + Comment, IndirectIndexedY},
-                                      {LabelDef + Mnemonic + RelativeOp + Comment, Relative}};
+const AssemblyLine LineParsersTable[]{{LabelDef + OpType + Comment, NoOperands},
+                                      {LabelDef + OpType + "#" + OpByte + Comment, Immediate},
+                                      {LabelDef + OpType + OpByte + Comment, ZeroPage},
+                                      {LabelDef + OpType + OpByte + IndX + Comment, ZeroPageX},
+                                      {LabelDef + OpType + OpByte + IndY + Comment, ZeroPageY},
+                                      {LabelDef + OpType + OpWord + Comment, Absolute},
+                                      {LabelDef + OpType + OpWord + IndX + Comment, AbsoluteX},
+                                      {LabelDef + OpType + OpWord + IndY + Comment, AbsoluteY},
+                                      {LabelDef + OpType + "\\(" + OpWord + "\\)" + Comment, Indirect},
+                                      {LabelDef + OpType + "\\(" + OpByte + IndX + "\\)" + Comment, IndexedIndirectX},
+                                      {LabelDef + OpType + "\\(" + OpByte + "\\)" + IndY + Comment, IndirectIndexedY},
+                                      {LabelDef + OpType + OpRelative + Comment, Relative}};
 
-static const QRegularExpression EmptyLine(LabelDef + Comment);
-static const QRegularExpression OriginStatement(R"(^\s*ORG\s+\$([\d|A-H]{1,4})\s*(;.*)?$)");
+static const QRegularExpression EmptyLine(LabelDef + Comment, QRegularExpression::CaseInsensitiveOption);
+static const QRegularExpression OriginStatement("^\\s*\\.?ORG\\s+\\$([\\d|a-h]{1,4})\\s*(;.*)?$",
+                                                QRegularExpression::CaseInsensitiveOption);
 
 static const Instruction* findInstruction(InstructionType type, AddressingMode mode) {
   if (type == INV) return nullptr;

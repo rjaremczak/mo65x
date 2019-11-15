@@ -4,7 +4,7 @@ static constexpr QChar HexIndicator('$');
 static constexpr QChar BinaryIndicator('%');
 
 ParsingResult::ParsingResult(QRegularExpressionMatch match, AddressingMode mode)
-    : match_(match), mode_(mode), operand_(match.captured(3) + match_.captured(4)) {
+    : match_(match), mode_(mode), operand_(match.captured(3)) {
 }
 
 uint8_t ParsingResult::size() const {
