@@ -23,23 +23,51 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="loadFile">
+      <widget class="QComboBox" name="operationSelector"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="fromLabel">
+       <property name="styleSheet">
+        <string notr="true">color:gray</string>
+       </property>
        <property name="text">
-        <string>Load</string>
+        <string>From</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="saveFile">
-       <property name="text">
-        <string>Save</string>
+      <widget class="WordSpinBox" name="startAddress">
+       <property name="styleSheet">
+        <string notr="true">background-color:darkslategray</string>
+       </property>
+       <property name="maximum">
+        <number>65535</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>16</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="fillRange">
+      <widget class="QLabel" name="toLabel">
+       <property name="styleSheet">
+        <string notr="true">color:gray</string>
+       </property>
        <property name="text">
-        <string>Fill</string>
+        <string>To</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="WordSpinBox" name="endAddress">
+       <property name="styleSheet">
+        <string notr="true">background-color:darkslategray</string>
+       </property>
+       <property name="maximum">
+        <number>65535</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>16</number>
        </property>
       </widget>
      </item>
@@ -56,6 +84,19 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QToolButton" name="executeOperation">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>File...</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -70,6 +111,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WordSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>wordspinbox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

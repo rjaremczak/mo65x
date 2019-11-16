@@ -12,8 +12,6 @@ class CpuWidget;
 class CpuWidget : public QDockWidget {
   Q_OBJECT
 
-  Ui::CpuWidget* ui;
-
 public:
   explicit CpuWidget(QWidget* parent, const Memory&);
   ~CpuWidget() override;
@@ -25,7 +23,7 @@ signals:
   void programCounterChanged(quint16);
 
 public slots:
-  void updateMemoryContent(quint16 first, quint16 last);
+  void updateMemoryView(quint16 first, quint16 last);
   void updateState(CpuInfo);
   void updateDisassemblerView();
   void changeProgramCounter(quint16);
@@ -34,6 +32,8 @@ protected:
   void resizeEvent(QResizeEvent*) override;
 
 private:
+  Ui::CpuWidget* ui;
+
   const Memory& memory_;
   Disassembler disassembler_;
   uint16_t disassemblerFirstAddress_;

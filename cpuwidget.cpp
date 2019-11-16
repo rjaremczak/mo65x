@@ -29,7 +29,7 @@ CpuWidget::~CpuWidget() {
   delete ui;
 }
 
-void CpuWidget::updateMemoryContent(uint16_t first, uint16_t last) {
+void CpuWidget::updateMemoryView(uint16_t first, uint16_t last) {
   if (disassemblerFirstAddress_ == std::clamp(disassemblerFirstAddress_, first, last) ||
       disassemblerLastAddress_ == std::clamp(disassemblerLastAddress_, first, last)) {
     updateDisassemblerView();

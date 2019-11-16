@@ -7,30 +7,30 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   initConfigStorage();
   startSystem();
 
-  cpuWidget_ = new CpuWidget(this, system_->memoryView());
+  cpuWidget_ = new CpuWidget(this, emulator_->memoryView());
   this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget_);
 
   assemblerWidget_ = new AssemblerWidget;
-  memoryWidget_ = new MemoryWidget;
+  memoryWidget_ = new MemoryWidget(this, emulator_->memoryView());
   viewWidget_ = new CentralWidget(this, assemblerWidget_, memoryWidget_);
   setCentralWidget(viewWidget_);
 
   pollTimer_ = new QTimer(this);
-  connect(pollTimer_, &QTimer::timeout, system_, &System::propagateCurrentState);
+  connect(pollTimer_, &QTimer::timeout, emulator_, &Emulator::propagateCurrentState);
   // pollTimer->start(1000);
 
-  connect(cpuWidget_, &CpuWidget::programCounterChanged, system_, &System::changeProgramCounter);
-  connect(cpuWidget_, &CpuWidget::singleStepExecutionRequested, system_, &System::executeSingleStep);
+  connect(cpuWidget_, &CpuWidget::programCounterChanged, emulator_, &Emulator::changeProgramCounter);
+  connect(cpuWidget_, &CpuWidget::singleStepExecutionRequested, emulator_, &Emulator::executeSingleStep);
 
-  connect(system_, &System::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
-  connect(system_, &System::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryContent);
+  connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
+  connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, system_, &System::uploadToMemory);
+  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, emulator_, &Emulator::uploadToMemory);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
 
-  system_->propagateCurrentState();
+  emulator_->propagateCurrentState();
 
   if (!config_.asmFileName.isEmpty()) assemblerWidget_->loadFile(config_.asmFileName);
 }
@@ -58,8 +58,8 @@ void MainWindow::initConfigStorage() {
 }
 
 void MainWindow::startSystem() {
-  system_ = new System();
-  system_->moveToThread(&systemThread_);
-  connect(&systemThread_, &QThread::finished, system_, &System::deleteLater);
+  emulator_ = new Emulator();
+  emulator_->moveToThread(&systemThread_);
+  connect(&systemThread_, &QThread::finished, emulator_, &Emulator::deleteLater);
   systemThread_.start();
 }

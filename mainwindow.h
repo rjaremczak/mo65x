@@ -7,7 +7,7 @@
 #include "cpuwidget.h"
 #include "filedatastorage.h"
 #include "memorywidget.h"
-#include "system.h"
+#include "emulator.h"
 #include <QMainWindow>
 #include <QThread>
 #include <QTimer>
@@ -36,7 +36,7 @@ private:
   MemoryWidget* memoryWidget_;
   CpuWidget* cpuWidget_;
   QTimer* pollTimer_;
-  System* system_;
+  Emulator* emulator_;
   FileDataStorage<Config>* configStorage_;
   Config config_;
 

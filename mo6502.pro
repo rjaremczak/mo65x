@@ -23,13 +23,13 @@ SOURCES += \
     cpu.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
+    emulator.cpp \
     filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
     memorywidget.cpp \
     mnemonics.cpp \
-    system.cpp \
     wordspinbox.cpp \
     test/assemblertest.cpp \
     test/instructionstest.cpp \
@@ -50,6 +50,7 @@ HEADERS += \
     bytespinbox.h \
     cpu.h \
     disassembler.h \
+    emulator.h \
     executionstate.h \
     filedatastorage.h \
     instruction.h \
@@ -64,7 +65,6 @@ HEADERS += \
     processorstatus.h \
     registers.h \
     stackpointer.h \
-    system.h \
     uitools.h \
     wordspinbox.h \
     test/assemblertest.h \

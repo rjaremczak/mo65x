@@ -6,15 +6,15 @@
 #include "memory.h"
 #include <QObject>
 
-class System : public QObject {
+class Emulator : public QObject {
   Q_OBJECT
 
 public:
-  explicit System(QObject* parent = nullptr);
+  explicit Emulator(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory_; }
-  void requestIRQ();
-  void requestNMI();
-  void requestRESET();
+  void requestIrq();
+  void requestNmi();
+  void requestReset();
 
 signals:
   void cpuStateChanged(CpuInfo);
