@@ -96,7 +96,7 @@ constexpr Cpu::Handler instructionHandler(InstructionType instruction) {
   case JMP: return &Cpu::execJMP;
   case JSR: return &Cpu::execJSR;
 
-  case INV: return nullptr;
+  default: return &Cpu::halt;
   }
 }
 

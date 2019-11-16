@@ -342,6 +342,10 @@ void Cpu::reset() {
   regs.p.carry = false;
 }
 
+void Cpu::halt() {
+  state = ExecutionState::Halted;
+}
+
 void Cpu::execute(bool continuous) {
   state = ExecutionState::Running;
   while (state == ExecutionState::Running) {
@@ -352,11 +356,6 @@ void Cpu::execute(bool continuous) {
     const auto& entry = DecodeTable[*pcPtr];
     const auto ins = entry.instruction;
 
-    if (ins->type == INV) {
-      state = ExecutionState::InvalidOpCode;
-      return;
-    }
-
     regs.pc += ins->size;
     cycles += ins->cycles;
 
@@ -365,7 +364,7 @@ void Cpu::execute(bool continuous) {
 
     if (!continuous) break;
   }
-  state = ExecutionState::Stopped;
+  if (state == ExecutionState::Running) state = ExecutionState::Stopped;
 }
 
 void Cpu::requestIRQ() {

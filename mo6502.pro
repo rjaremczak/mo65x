@@ -42,6 +42,7 @@ HEADERS += \
     centralwidget.h \
     commons.h \
     config.h \
+    controlcommand.h \
     cpudefs.h \
     cpuinfo.h \
     cpuwidget.h \

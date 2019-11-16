@@ -8,5 +8,3 @@
 using MnemonicTableType = std::map<InstructionType, const char*>;
 
 extern const MnemonicTableType MnemonicTable;
-
-InstructionType resolveType(const QString& mnemonic);

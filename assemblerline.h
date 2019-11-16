@@ -1,34 +1,27 @@
 #pragma once
 
+#include "controlcommand.h"
 #include "instruction.h"
 #include "mnemonics.h"
-#include <QRegularExpression>
+#include <QVector>
 
-enum class Command { None, SetOrigin, EmitByte };
+struct AssemblerLine {
+  static constexpr auto LabelGroup = 1;
+  static constexpr auto OperationGroup = 2;
+  static constexpr auto FirstOperandGroup = 3;
 
-class AssemblerLine {
-public:
+  const bool valid = false;
+  const QString label;
+  const QString operation;
+  const QVector<QString> operands;
+  const OperandsFormat operandsFormat = OperandsFormat::Implied;
+  const InstructionType instructionType = InstructionType::KIL;
+  const ControlCommand command = ControlCommand::None;
+
   AssemblerLine() = default;
-  AssemblerLine(QRegularExpressionMatch match, OperandsFormat operandsFormat, Command command);
-  AssemblerLine(QRegularExpressionMatch match, Command command);
-  bool invalid() const { return !match_.hasMatch(); }
-  bool isCommand() const { return command_ != Command::None; }
-  bool isInstruction() const { return instructionType_ != InstructionType::INV; }
-  auto label() const { return match_.captured(1); }
-  auto operation() const { return match_.captured(2); }
-  auto addrMode() const { return operandsFormat_; }
-  auto operand() const { return operand_; }
-  uint8_t size() const;
-  InstructionType instruction() const { return instructionType_; }
-  Command command() const { return command_; }
-  bool isOperandNumber() const;
-  int operandAsNumber() const;
-
-private:
-  QRegularExpressionMatch match_;
-  const QString operation_;
-  const OperandsFormat operandsFormat_ = OperandsFormat::Implied;
-  const InstructionType instructionType_ = InstructionType::INV;
-  const Command command_ = Command::None;
-  const QString operand_;
+  AssemblerLine(QRegularExpressionMatch match, OperandsFormat operandsFormat, ControlCommand command);
+  bool isControlCommand() const { return command != ControlCommand::None; }
+  bool isOperandNumeric(int num = 0) const;
+  int operandAsNumber(int num = 0) const;
+  uint8_t instructionSize() const;
 };

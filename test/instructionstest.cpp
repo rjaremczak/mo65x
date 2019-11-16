@@ -64,8 +64,10 @@ void OpCodesTest::initTestCase() {
 }
 
 void OpCodesTest::init() {
-  assembler.reset();
-  assembler.setOrigin(AsmOrigin);
+  assembler.resetOrigin(AsmOrigin);
+  assembler.clearCode();
+  assembler.clearSymbols();
+  assembler.changeMode(Assembler::Mode::EmitCode);
   cpu.regs.a = 0;
   cpu.regs.x = 0;
   cpu.regs.y = 0;

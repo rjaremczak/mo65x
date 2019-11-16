@@ -7,12 +7,13 @@
 struct AssemblerLinePattern {
   const QRegularExpression regex;
   const OperandsFormat operandsFormat;
-  const Command command;
+  const ControlCommand command;
 
   AssemblerLinePattern(const QString& pattern, OperandsFormat operandsFormat)
-      : regex(pattern, QRegularExpression::CaseInsensitiveOption), operandsFormat(operandsFormat), command(Command::None) {}
+      : regex(pattern, QRegularExpression::CaseInsensitiveOption), operandsFormat(operandsFormat), command(ControlCommand::None) {
+  }
 
-  AssemblerLinePattern(const QString& pattern, Command command)
+  AssemblerLinePattern(const QString& pattern, ControlCommand command)
       : regex(pattern, QRegularExpression::CaseInsensitiveOption), operandsFormat(Implied), command(command) {}
 };
 
@@ -31,9 +32,11 @@ static const QString Comment("(?:;.*)?$");
 static const QString OpByte("((?:" + HexByte + ")|(?:" + BinByte + ")|(?:" + DecByte + "))\\s*");
 static const QString OpWord("((?:" + HexWord + ")|(?:" + BinWord + ")|(?:" + DecWord + "))\\s*");
 static const QString OpOffset("((?:[+|-]?\\d{1,3})|(?:" + Label + "))\\s*");
-static const QString OriginCmd("((?:\\.?ORG\\s+)|(?:\\*\\s*\\=\\s*))");
+static const QString OriginCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
+static const QString ByteCmd("(\\.(?:BYTE))\\s+");
 
-const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + Comment, Command::SetOrigin},
+const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + Comment, ControlCommand::DefineOrigin},
+                                               {LabelDef + ByteCmd + OpByte + "+", ControlCommand::EmitBytes},
                                                {LabelDef + OpType + Comment, NoOperands},
                                                {LabelDef + OpType + "#" + OpByte + Comment, Immediate},
                                                {LabelDef + OpType + OpByte + Comment, ZeroPage},
@@ -50,8 +53,6 @@ const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + 
 static const QRegularExpression EmptyLine(LabelDef + Comment, QRegularExpression::CaseInsensitiveOption);
 
 static const Instruction* findInstruction(InstructionType type, OperandsFormat mode) {
-  if (type == INV) return nullptr;
-
   const auto mode0 = mode == NoOperands ? Implied : mode;
   const auto mode1 = mode == NoOperands ? Accumulator : mode;
   const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(), [=](const Instruction& ins) {
@@ -72,17 +73,13 @@ static AssemblerLine parseAssemblyLine(const QString& str) {
 Assembler::Assembler() : iterator_(std::back_inserter(code_)) {
 }
 
-void Assembler::reset(Pass pass) {
-  pass_ = pass;
+void Assembler::resetOrigin(uint16_t addr) {
   originDefined_ = false;
-  origin_ = DefaultOrigin;
-  locationCounter_ = DefaultOrigin;
-  iterator_ = std::back_inserter(code_);
-  if (pass == Pass::Assembly) code_.clear();
-  if (pass == Pass::ScanForSymbols) symbols_.clear();
+  origin_ = addr;
+  locationCounter_ = addr;
 }
 
-Assembler::Result Assembler::setOrigin(uint16_t addr) {
+Assembler::Result Assembler::defineOrigin(uint16_t addr) {
   if (originDefined_) return Result::OriginAlreadyDefined;
 
   originDefined_ = true;
@@ -102,13 +99,12 @@ Assembler::Result Assembler::process(const QString& str) {
   }
 
   const auto line = parseAssemblyLine(str);
-  if (line.invalid()) return Result::SyntaxError;
-  if (!line.label().isEmpty()) {
-    if (auto res = addSymbol(line.label(), locationCounter_); res != Result::Ok) return res;
+  if (!line.valid) return Result::SyntaxError;
+  if (!line.label.isEmpty()) {
+    if (auto res = addSymbol(line.label, locationCounter_); res != Result::Ok) return res;
   }
-  if (line.isCommand()) return processCommand(line);
-  if (line.isInstruction()) return processInstruction(line);
-  return Result::FatalProcessingError;
+  if (line.isControlCommand()) return processControlCommand(line);
+  return processInstruction(line);
 }
 
 Assembler::Result Assembler::assemble(InstructionType type, OperandsFormat mode, int operand) {
@@ -127,42 +123,52 @@ std::optional<int> Assembler::symbol(const QString& name) const {
   return std::nullopt;
 }
 
-Assembler::Result Assembler::processCommand(const AssemblerLine& line) {
-  switch (line.command()) {
-  case Command::SetOrigin:
-    if (line.isOperandNumber()) {
-      return setOrigin(static_cast<uint16_t>(line.operandAsNumber()));
-    } else {
-      return Result::NumericOperandRequired;
-    }
-  case Command::EmitByte: break;
-  default: break;
+Assembler::Result Assembler::processControlCommand(const AssemblerLine& line) {
+  switch (line.command) {
+  case ControlCommand::DefineOrigin: return cmdSetOrigin(line);
+  case ControlCommand::EmitBytes: return cmdEmitByte(line);
+  default: return Result::CommandProcessingError;
   }
-  return Result::CommandProcessingError;
 }
 
 Assembler::Result Assembler::processInstruction(const AssemblerLine& line) {
-  if (line.addrMode() == NoOperands) return assemble(line.instruction(), NoOperands);
-  if (line.operand().isEmpty()) return Result::MissingOperand;
+  if (line.operandsFormat == NoOperands) return assemble(line.instructionType, NoOperands);
+  if (line.operands.isEmpty()) return Result::MissingOperand;
 
-  int operand;
-  if (line.isOperandNumber()) {
-    operand = line.operandAsNumber();
-  } else if (auto opt = symbol(line.operand())) {
-    if (line.addrMode() == Branch) {
-      operand = *opt - locationCounter_ - line.size();
+  int num;
+  if (line.isOperandNumeric()) {
+    num = line.operandAsNumber();
+  } else if (auto opt = symbol(line.operands[0])) {
+    if (line.operandsFormat == Branch) {
+      num = *opt - locationCounter_ - line.instructionSize();
     } else {
-      operand = *opt;
+      num = *opt;
     }
   } else {
     return Result::UndefinedSymbol;
   }
 
-  return assemble(line.instruction(), line.addrMode(), operand);
+  return assemble(line.instructionType, line.operandsFormat, num);
+}
+
+Assembler::Result Assembler::cmdSetOrigin(const AssemblerLine& line) {
+  if (line.isOperandNumeric()) {
+    return defineOrigin(static_cast<uint16_t>(line.operandAsNumber()));
+  } else {
+    return Result::NumericOperandRequired;
+  }
+}
+
+Assembler::Result Assembler::cmdEmitByte(const AssemblerLine& line) {
+  for (auto num = 0; num < line.operands.size(); num++) {
+    if (!line.isOperandNumeric(num)) return Result::NumericOperandRequired;
+    addByte(static_cast<uint8_t>(line.operandAsNumber(num)));
+  }
+  return Result::Ok;
 }
 
 Assembler::Result Assembler::addSymbol(const QString& name, uint16_t value) {
-  if (pass_ == Pass::ScanForSymbols) {
+  if (mode_ == Mode::ScanForSymbols) {
     if (symbols_.find(name) != symbols_.end()) return Result::SymbolAlreadyDefined;
     symbols_[name] = value;
   }
@@ -170,6 +176,6 @@ Assembler::Result Assembler::addSymbol(const QString& name, uint16_t value) {
 }
 
 void Assembler::addByte(uint8_t b) {
-  if (pass_ == Pass::Assembly) *iterator_++ = b;
+  if (mode_ == Mode::EmitCode) *iterator_++ = b;
   locationCounter_++;
 }

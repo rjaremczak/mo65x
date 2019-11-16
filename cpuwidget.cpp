@@ -74,7 +74,7 @@ void CpuWidget::resizeEvent(QResizeEvent* event) {
 }
 
 int CpuWidget::rowsInView() const {
-  return 2 + ui->disassemblerView->height() / ui->disassemblerView->fontMetrics().height();
+  return 6 + ui->disassemblerView->height() / ui->disassemblerView->fontMetrics().height();
 }
 
 void CpuWidget::updateDisassemblerView() {

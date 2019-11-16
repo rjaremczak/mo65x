@@ -99,6 +99,7 @@ private:
   void nmi();
   void irq();
   void reset();
+  void halt();
 
   void prepImpliedMode();
   void prepAccumulatorMode();

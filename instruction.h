@@ -28,7 +28,7 @@ struct Instruction {
     return 0;
   }
 
-  InstructionType type = INV;
+  InstructionType type = KIL;
   OperandsFormat mode = Implied;
   uint8_t size = 1;
   uint8_t cycles = 0;

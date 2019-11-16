@@ -42,9 +42,10 @@ private slots:
   void testRelativeModeMinus();
   void testRelativeModeLabel();
   void testOrg();
+  void testOrgStar();
   void testComment();
   void testEmptyLineLabel();
   void testSymbolPass();
   void testAssemblyPass();
-  void testLabelDefAndUse();
+  void testEmitByte();
 };

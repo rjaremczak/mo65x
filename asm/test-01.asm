@@ -1,4 +1,4 @@
-  ORG $0810
+  .ORG $0810
 
   LDX #$00
   LDY #$00
@@ -16,3 +16,4 @@ secondloop:
   INY
   CPY #$20      ;loop until Y is $20
   BNE secondloop
+  KIL

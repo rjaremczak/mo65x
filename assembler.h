@@ -19,7 +19,7 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
-  enum class Pass { ScanForSymbols, Assembly };
+  enum class Mode { ScanForSymbols, EmitCode };
   enum class Result {
     Ok,
     OriginAlreadyDefined,
@@ -28,8 +28,7 @@ public:
     MissingOperand,
     NumericOperandRequired,
     SyntaxError,
-    CommandProcessingError,
-    FatalProcessingError
+    CommandProcessingError
   };
 
   Q_ENUM(Result)
@@ -41,14 +40,17 @@ public:
   auto locationCounter() const { return locationCounter_; }
   const Data& code() const { return code_; }
 
-  void reset(Pass = Pass::Assembly);
-  Result setOrigin(uint16_t addr);
+  Result defineOrigin(uint16_t addr);
+  void resetOrigin(uint16_t addr = DefaultOrigin);
+  void clearCode() { code_.clear(); }
+  void clearSymbols() { symbols_.clear(); }
+  void changeMode(Mode mode) { mode_ = mode; }
   uint8_t lastInstructionByte(size_t) const;
   Result process(const QString&);
   std::optional<int> symbol(const QString&) const;
 
 private:
-  Pass pass_ = Pass::Assembly;
+  Mode mode_ = Mode::EmitCode;
   bool originDefined_ = false;
   uint16_t origin_ = DefaultOrigin;
   uint16_t locationCounter_ = DefaultOrigin;
@@ -58,8 +60,10 @@ private:
   Symbols symbols_;
 
   Result addSymbol(const QString&, uint16_t);
-  Result processCommand(const AssemblerLine& line);
-  Result processInstruction(const AssemblerLine& line);
+  Result processControlCommand(const AssemblerLine&);
+  Result processInstruction(const AssemblerLine&);
+  Result cmdSetOrigin(const AssemblerLine&);
+  Result cmdEmitByte(const AssemblerLine&);
   Result assemble(InstructionType type, OperandsFormat mode, int operand = 0);
   void addByte(uint8_t);
 };

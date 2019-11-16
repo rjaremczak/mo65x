@@ -7,4 +7,4 @@ const MnemonicTableType MnemonicTable{
     {CLC, "CLC"}, {CLD, "CLD"}, {CLI, "CLI"}, {CLV, "CLV"}, {SEC, "SEC"}, {SED, "SED"}, {SEI, "SEI"}, {JMP, "JMP"}, {JSR, "JSR"},
     {BRK, "BRK"}, {RTI, "RTI"}, {RTS, "RTS"}, {LDA, "LDA"}, {LDX, "LDX"}, {LDY, "LDY"}, {STA, "STA"}, {STX, "STX"}, {STY, "STY"},
     {TAX, "TAX"}, {TAY, "TAY"}, {TSX, "TSX"}, {TXA, "TXA"}, {TYA, "TYA"}, {TXS, "TXS"}, {PHA, "PHA"}, {PHP, "PHP"}, {PLA, "PLA"},
-    {PLP, "PLP"}, {NOP, "NOP"}, {INV, "???"}};
+    {PLP, "PLP"}, {NOP, "NOP"}, {KIL, "KIL"}};

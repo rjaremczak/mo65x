@@ -63,8 +63,7 @@ void AssemblerWidget::saveEditorFileAs() {
     saveFile(fname);
 }
 
-bool AssemblerWidget::process(Assembler::Pass pass) {
-  assembler_.reset(pass);
+bool AssemblerWidget::process() {
   QString src = ui->sourceCode->toPlainText();
   QTextStream is(&src, QIODevice::ReadOnly);
   int lineNum = 0;
@@ -91,8 +90,16 @@ bool AssemblerWidget::process(Assembler::Pass pass) {
 }
 
 void AssemblerWidget::assembleSourceCode() {
-  if (!process(Assembler::Pass::ScanForSymbols)) return;
-  if (!process(Assembler::Pass::Assembly)) return;
+  assembler_.resetOrigin();
+  assembler_.clearCode();
+  assembler_.clearSymbols();
+  assembler_.changeMode(Assembler::Mode::ScanForSymbols);
+  if (!process()) return;
+
+  assembler_.resetOrigin();
+  assembler_.changeMode(Assembler::Mode::EmitCode);
+  if (!process()) return;
+
   QMessageBox::information(this, tr("Machine Code Generated"),
                            tr("origin: %1\nsymbols: %2\nsize: %3 B")
                                .arg(QString::asprintf("$%04X", assembler_.origin()))
