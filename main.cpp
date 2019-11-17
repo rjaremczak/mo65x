@@ -12,10 +12,18 @@
 
 Q_DECLARE_METATYPE(CpuInfo)
 Q_DECLARE_METATYPE(Data)
+Q_DECLARE_METATYPE(AddressRange)
 
 int main(int argc, char* argv[]) {
+
+  // register types aliased by Qt
+  qRegisterMetaType<uint8_t>("uint8_t");
+  qRegisterMetaType<uint16_t>("uint16_t");
+
+  // register own custom types
   qRegisterMetaType<CpuInfo>();
   qRegisterMetaType<Data>();
+  qRegisterMetaType<AddressRange>();
 
   QApplication a(argc, argv);
   QApplication::setStyle(QStyleFactory::create("Fusion"));

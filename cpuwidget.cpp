@@ -29,11 +29,8 @@ CpuWidget::~CpuWidget() {
   delete ui;
 }
 
-void CpuWidget::updateMemoryView(uint16_t first, uint16_t last) {
-  if (disassemblerFirstAddress_ == std::clamp(disassemblerFirstAddress_, first, last) ||
-      disassemblerLastAddress_ == std::clamp(disassemblerLastAddress_, first, last)) {
-    updateDisassemblerView();
-  }
+void CpuWidget::updateMemoryView(AddressRange range) {
+  if (disassemblerRange_.overlapsWith(range)) updateDisassemblerView();
 }
 
 void CpuWidget::updateState(CpuInfo info) {
@@ -63,8 +60,8 @@ void CpuWidget::updateState(CpuInfo info) {
   ui->ioPortData->setValue(memory_[IOPortData]);
 
   ui->regPC->setValue(regs.pc);
-  if (disassemblerFirstAddress_ != regs.pc) {
-    disassemblerFirstAddress_ = regs.pc;
+  if (disassemblerRange_.first != regs.pc) {
+    disassemblerRange_.first = regs.pc;
     updateDisassemblerView();
   }
 }
@@ -78,7 +75,7 @@ int CpuWidget::rowsInView() const {
 }
 
 void CpuWidget::updateDisassemblerView() {
-  disassembler_.setOrigin(disassemblerFirstAddress_);
+  disassembler_.setOrigin(disassemblerRange_.first);
   QString html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
   if (rows--) {
@@ -96,15 +93,15 @@ void CpuWidget::updateDisassemblerView() {
   }
   html.append("</div>");
   ui->disassemblerView->setHtml(html);
-  disassemblerLastAddress_ = disassembler_.currentAddress();
+  disassemblerRange_.last = disassembler_.currentAddress();
 }
 
-void CpuWidget::changeProgramCounter(quint16 addr) {
+void CpuWidget::changeProgramCounter(uint16_t addr) {
   ui->regPC->setValue(addr);
 }
 
 void CpuWidget::skipInstruction() {
-  disassembler_.setOrigin(disassemblerFirstAddress_);
+  disassembler_.setOrigin(disassemblerRange_.first);
   disassembler_.nextInstruction();
   emit programCounterChanged(disassembler_.currentAddress());
 }

@@ -20,13 +20,13 @@ signals:
   void singleStepExecutionRequested();
   void continuousExecutionRequested();
   void stopExecutionRequested();
-  void programCounterChanged(quint16);
+  void programCounterChanged(uint16_t);
 
 public slots:
-  void updateMemoryView(quint16 first, quint16 last);
+  void updateMemoryView(AddressRange);
   void updateState(CpuInfo);
   void updateDisassemblerView();
-  void changeProgramCounter(quint16);
+  void changeProgramCounter(uint16_t);
 
 protected:
   void resizeEvent(QResizeEvent*) override;
@@ -36,8 +36,7 @@ private:
 
   const Memory& memory_;
   Disassembler disassembler_;
-  uint16_t disassemblerFirstAddress_;
-  uint16_t disassemblerLastAddress_;
+  AddressRange disassemblerRange_;
 
   int rowsInView() const;
 

@@ -23,15 +23,12 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QComboBox" name="operationSelector"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="fromLabel">
+      <widget class="QLabel" name="startLabel">
        <property name="styleSheet">
         <string notr="true">color:gray</string>
        </property>
        <property name="text">
-        <string>From</string>
+        <string>Start</string>
        </property>
       </widget>
      </item>
@@ -49,12 +46,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="toLabel">
+      <widget class="QLabel" name="endLabel">
        <property name="styleSheet">
         <string notr="true">color:gray</string>
        </property>
        <property name="text">
-        <string>To</string>
+        <string>End</string>
        </property>
       </widget>
      </item>
@@ -72,17 +69,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      <widget class="QComboBox" name="operationSelector"/>
      </item>
      <item>
       <widget class="QToolButton" name="executeOperation">
@@ -97,15 +84,36 @@
        </property>
       </widget>
      </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QTextBrowser" name="dumpView">
+    <widget class="QTextBrowser" name="textView">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>Courier 10 Pitch</family>
+      </font>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
      </property>
     </widget>
    </item>

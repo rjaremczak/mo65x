@@ -18,13 +18,13 @@ public:
 
 signals:
   void cpuStateChanged(CpuInfo);
-  void memoryContentChanged(quint16 first, quint16 last);
+  void memoryContentChanged(AddressRange);
 
 public slots:
   void executeSingleStep();
-  void changeProgramCounter(quint16 pc);
+  void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
-  void uploadToMemory(quint16 first, const Data& data);
+  void uploadToMemory(uint16_t first, const Data& data);
   void resetCycleCounter();
 
 private:

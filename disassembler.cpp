@@ -1,24 +1,17 @@
 #include "disassembler.h"
+#include "commons.h"
 #include "instruction.h"
 #include "instructiontable.h"
 #include "mnemonics.h"
 #include <QStringList>
 #include <map>
 
-static QString formatHex8(uint8_t val) {
-  return QString("%1").arg(val, 2, 16, QChar('0'));
-}
-
-static QString formatHex16(uint16_t val) {
-  return QString("%1").arg(val, 4, 16, QChar('0'));
-}
-
 QString Disassembler::formatOperand8() const {
-  return "$" + formatHex8(memory_[address_ + 1]);
+  return "$" + formatHexByte(memory_[address_ + 1]);
 }
 
 QString Disassembler::formatOperand16() const {
-  return "$" + formatHex16(memory_.read16(address_ + 1));
+  return "$" + formatHexWord(memory_.read16(address_ + 1));
 }
 
 Disassembler::Disassembler(const Memory& memory, uint16_t pc) : memory_(memory) {
@@ -37,24 +30,20 @@ void Disassembler::nextInstruction() {
 
 QString Disassembler::dumpBytes(uint16_t n) const {
   QString str;
-  for (uint16_t i = 0; i < n; i++) {
-    str.append(formatHex8(memory_[address_ + i])).append(" ");
-  }
+  for (uint16_t i = 0; i < n; i++) { str.append(formatHexByte(memory_[address_ + i])).append(" "); }
   return str;
 }
 
 QString Disassembler::dumpWords(uint16_t n) const {
   QString str;
-  for (uint16_t i = 0; i < n; i += 2) {
-    str.append(formatHex16(memory_.read16(address_ + i))).append(" ");
-  }
+  for (uint16_t i = 0; i < n; i += 2) { str.append(formatHexWord(memory_.read16(address_ + i))).append(" "); }
   return str;
 }
 
 QString Disassembler::disassemble() const {
-  QString str = formatHex16(address_).append(" ");
+  QString str = formatHexWord(address_).append(" ");
   for (uint8_t i = 0; i < 3; i++) {
-    str.append(i < instruction_.size ? formatHex8(memory_[address_ + i]).append(" ") : "   ");
+    str.append(i < instruction_.size ? formatHexByte(memory_[address_ + i]).append(" ") : "   ");
   }
   str.append(" ");
   str.append(MnemonicTable.at(instruction_.type)).append(" ");
