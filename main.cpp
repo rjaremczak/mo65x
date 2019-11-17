@@ -13,6 +13,7 @@
 Q_DECLARE_METATYPE(CpuInfo)
 Q_DECLARE_METATYPE(Data)
 Q_DECLARE_METATYPE(AddressRange)
+Q_DECLARE_METATYPE(FileOperationCallBack)
 
 int main(int argc, char* argv[]) {
 
@@ -24,6 +25,7 @@ int main(int argc, char* argv[]) {
   qRegisterMetaType<CpuInfo>();
   qRegisterMetaType<Data>();
   qRegisterMetaType<AddressRange>();
+  qRegisterMetaType<FileOperationCallBack>();
 
   QApplication a(argc, argv);
   QApplication::setStyle(QStyleFactory::create("Fusion"));

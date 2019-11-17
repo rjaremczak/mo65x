@@ -19,13 +19,14 @@ public:
 signals:
   void cpuStateChanged(CpuInfo);
   void memoryContentChanged(AddressRange);
+  void memoryLoaded(quint16, qint64);
 
 public slots:
   void executeSingleStep();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
   void loadMemory(uint16_t first, const Data& data);
-  void loadMemoryFromFile(uint16_t start, const QString& fname, std::function<void(qint64)> callback);
+  void loadMemoryFromFile(uint16_t start, const QString& fname);
   void resetCycleCounter();
 
 private:

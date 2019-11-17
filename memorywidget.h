@@ -15,14 +15,15 @@ class MemoryWidget : public QWidget
 
 public:
   explicit MemoryWidget(QWidget* parent, const Memory&);
-  ~MemoryWidget();
+  ~MemoryWidget() override;
 
 signals:
   void memoryContentChanged(uint16_t first, uint16_t last);
-  void loadFromFileRequested(uint16_t start, QString fname, std::function<void(qint64)> callback);
+  void loadFromFileRequested(uint16_t start, QString fname);
 
 public slots:
   void updateMemoryView(AddressRange);
+  void handleFileOperationStatus(quint16 start, qint64 rsize);
 
 protected:
   void resizeEvent(QResizeEvent*) override;
@@ -30,7 +31,7 @@ protected:
 private:
   Ui::MemoryWidget* ui;
   const Memory& memory_;
-  AddressRange viewRange_;
+  AddressRange addressRange_;
 
   void updateMemoryView();
   int rowsInView() const;

@@ -12,7 +12,7 @@ void Emulator::loadMemory(uint16_t start, const Data& data) {
   emit memoryContentChanged({start, static_cast<uint16_t>(start + size)});
 }
 
-void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname, std::function<void(qint64)> callback) {
+void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname) {
   QFile file(fname);
   qint64 rsize = -1;
   if (file.open(QIODevice::ReadOnly)) {
@@ -21,7 +21,7 @@ void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname, std::fun
     rsize = file.read(reinterpret_cast<char*>(buf.data()), size);
     if (rsize == size) loadMemory(start, buf);
   }
-  callback(rsize);
+  emit memoryLoaded(start, rsize);
 }
 
 void Emulator::resetCycleCounter() {

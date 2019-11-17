@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, emulator_, &Emulator::loadMemory);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
 
+  connect(memoryWidget_, &MemoryWidget::loadFromFileRequested, emulator_, &Emulator::loadMemoryFromFile);
+
   emulator_->propagateCurrentState();
 
   if (!config_.asmFileName.isEmpty()) assemblerWidget_->loadFile(config_.asmFileName);
