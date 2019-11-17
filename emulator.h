@@ -24,7 +24,8 @@ public slots:
   void executeSingleStep();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
-  void uploadToMemory(uint16_t first, const Data& data);
+  void loadMemory(uint16_t first, const Data& data);
+  void loadMemoryFromFile(uint16_t start, const QString& fname, std::function<void(qint64)> callback);
   void resetCycleCounter();
 
 private:

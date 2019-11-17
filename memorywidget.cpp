@@ -1,6 +1,7 @@
 #include "memorywidget.h"
 #include "ui_memorywidget.h"
 #include "uitools.h"
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QResizeEvent>
 
@@ -26,12 +27,6 @@ void MemoryWidget::updateMemoryView(AddressRange range) {
 
 void MemoryWidget::resizeEvent(QResizeEvent* event) {
   if (event->size().height() != event->oldSize().height()) { updateMemoryView(); }
-}
-
-void MemoryWidget::loadFile(const QString& fname) {
-}
-
-void MemoryWidget::saveFile(const QString& fname) {
 }
 
 void MemoryWidget::updateMemoryView() {
@@ -73,7 +68,20 @@ void MemoryWidget::prepareOperation(int sel) {
 }
 
 void MemoryWidget::executeOperation() {
-  QMessageBox::information(this, "", "exec");
+  switch (static_cast<Operation>(ui->operationSelector->currentIndex())) {
+  case Load:
+    if (auto fname = QFileDialog::getOpenFileName(this, tr("Open Object File")); !fname.isEmpty()) {
+      emit loadFromFileRequested(viewRange_.first, fname, [=](auto rsize) {
+        if (rsize > 0) {
+          QMessageBox::information(this, "", QString::asprintf("%lld bytes loaded at $%04X", rsize, viewRange_.first));
+        } else {
+          QMessageBox::warning(this, "", "binary loading failed");
+        }
+      });
+    }
+    break;
+  case Save: break;
+  }
 }
 
 void MemoryWidget::changeStartAddress(uint16_t) {

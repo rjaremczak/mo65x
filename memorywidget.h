@@ -19,6 +19,7 @@ public:
 
 signals:
   void memoryContentChanged(uint16_t first, uint16_t last);
+  void loadFromFileRequested(uint16_t start, QString fname, std::function<void(qint64)> callback);
 
 public slots:
   void updateMemoryView(AddressRange);
@@ -31,8 +32,6 @@ private:
   const Memory& memory_;
   AddressRange viewRange_;
 
-  void loadFile(const QString& fname);
-  void saveFile(const QString& fname);
   void updateMemoryView();
   int rowsInView() const;
   int colsInView() const;

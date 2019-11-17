@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, emulator_, &Emulator::uploadToMemory);
+  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, emulator_, &Emulator::loadMemory);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
 
   emulator_->propagateCurrentState();
