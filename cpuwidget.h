@@ -17,7 +17,7 @@ public:
   ~CpuWidget() override;
 
 signals:
-  void singleStepExecutionRequested();
+  void executeOneInstructionRequested();
   void continuousExecutionRequested();
   void stopExecutionRequested();
   void programCounterChanged(uint16_t);

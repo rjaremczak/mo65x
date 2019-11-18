@@ -27,7 +27,7 @@ public:
   int cycles = 0;
 
   Cpu(Memory&);
-  void execute(bool continuous = false);
+  void execute(bool continuous);
   CpuInfo info() const { return {state, regs, cycles}; }
   bool running() const { return state == ExecutionState::Running; }
   void requestIRQ();

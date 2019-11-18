@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   // pollTimer->start(1000);
 
   connect(cpuWidget_, &CpuWidget::programCounterChanged, emulator_, &Emulator::changeProgramCounter);
-  connect(cpuWidget_, &CpuWidget::singleStepExecutionRequested, emulator_, &Emulator::executeSingleStep);
+  connect(cpuWidget_, &CpuWidget::executeOneInstructionRequested, emulator_, &Emulator::executeOneInstruction);
 
   connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
   connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);

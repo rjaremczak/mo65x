@@ -15,6 +15,8 @@ public:
   void requestIrq();
   void requestNmi();
   void requestReset();
+  void stopExecution();
+  void resetCycleCounter();
 
 signals:
   void cpuStateChanged(CpuInfo);
@@ -22,10 +24,10 @@ signals:
   void operationCompleted(const QString& message, bool success);
 
 public slots:
-  void executeSingleStep();
+  void executeOneInstruction();
+  void executeContinuously();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
-  void resetCycleCounter();
   void loadMemory(uint16_t first, const Data& data);
   void loadMemoryFromFile(uint16_t start, const QString& fname);
   void saveMemoryToFile(AddressRange range, const QString& fname);

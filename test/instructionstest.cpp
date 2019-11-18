@@ -37,7 +37,7 @@
   cpu.cycles = 0;                                                                                                                \
   QCOMPARE(assembler.process(instr), Assembler::Result::Ok);                                                                     \
   memory.writeData(AsmOrigin, assembler.code());                                                                                 \
-  cpu.execute();                                                                                                                 \
+  cpu.execute(false);                                                                                                            \
   QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
   QCOMPARE(cpu.cycles, numCycles)
 

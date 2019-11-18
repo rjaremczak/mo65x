@@ -43,9 +43,12 @@ void Emulator::requestIrq() {
   cpu_.requestIRQ();
 }
 
-void Emulator::executeSingleStep() {
-  cpu_.execute();
+void Emulator::executeOneInstruction() {
+  cpu_.execute(false);
   emit cpuStateChanged(cpu_.info());
+}
+
+void Emulator::executeContinuously() {
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {
