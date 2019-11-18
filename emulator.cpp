@@ -1,5 +1,6 @@
 #include "emulator.h"
 #include <QFile>
+#include <QThread>
 #include <algorithm>
 
 Emulator::Emulator(QObject* parent) : QObject(parent), cpu_(memory_) {
@@ -39,8 +40,22 @@ void Emulator::resetCycleCounter() {
   cpu_.cycles = 0;
 }
 
-void Emulator::requestIrq() {
-  cpu_.requestIRQ();
+void Emulator::triggerIrq() {
+  cpu_.triggerIrq();
+}
+
+void Emulator::triggerNmi() {
+  cpu_.triggerNmi();
+}
+
+void Emulator::triggerReset() {
+  cpu_.triggerReset();
+}
+
+bool Emulator::stopExecution() {
+  cpu_.state = ExecutionState::Stopping;
+  QThread::msleep(100);
+  return cpu_.state == ExecutionState::Stopped;
 }
 
 void Emulator::executeOneInstruction() {
@@ -48,7 +63,9 @@ void Emulator::executeOneInstruction() {
   emit cpuStateChanged(cpu_.info());
 }
 
-void Emulator::executeContinuously() {
+void Emulator::startExecution() {
+  cpu_.execute(true);
+  emit cpuStateChanged(cpu_.info());
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {

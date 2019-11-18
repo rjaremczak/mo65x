@@ -22,6 +22,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(cpuWidget_, &CpuWidget::programCounterChanged, emulator_, &Emulator::changeProgramCounter);
   connect(cpuWidget_, &CpuWidget::executeOneInstructionRequested, emulator_, &Emulator::executeOneInstruction);
+  connect(cpuWidget_, &CpuWidget::startExecutionRequested, emulator_, &Emulator::startExecution);
+  connect(cpuWidget_, &CpuWidget::stopExecutionRequested, [&] { emulator_->stopExecution(); });
+  connect(cpuWidget_, &CpuWidget::clearCycleCounterRequested, [&] { emulator_->resetCycleCounter(); });
+  connect(cpuWidget_, &CpuWidget::resetRequested, [&] { emulator_->triggerReset(); });
+  connect(cpuWidget_, &CpuWidget::nmiRequested, [&] { emulator_->triggerNmi(); });
+  connect(cpuWidget_, &CpuWidget::irqRequested, [&] { emulator_->triggerIrq(); });
 
   connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
   connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);

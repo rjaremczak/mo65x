@@ -12,10 +12,10 @@ class Emulator : public QObject {
 public:
   explicit Emulator(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory_; }
-  void requestIrq();
-  void requestNmi();
-  void requestReset();
-  void stopExecution();
+  void triggerIrq();
+  void triggerNmi();
+  void triggerReset();
+  bool stopExecution();
   void resetCycleCounter();
 
 signals:
@@ -25,7 +25,7 @@ signals:
 
 public slots:
   void executeOneInstruction();
-  void executeContinuously();
+  void startExecution();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
   void loadMemory(uint16_t first, const Data& data);

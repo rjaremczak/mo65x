@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>233</width>
-    <height>410</height>
+    <width>246</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -53,320 +53,322 @@
      <number>5</number>
     </property>
     <item>
-     <layout class="QGridLayout" name="cpuLayout">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetMaximumSize</enum>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="horizontalSpacing">
-       <number>6</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>2</number>
-      </property>
-      <item row="0" column="3">
-       <widget class="ByteSpinBox" name="regA">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background: darkslategray</string>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="maximum">
-         <number>255</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="labelY">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Monospace</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>Y</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelPC">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Monospace</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>PC</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_5">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Monospace</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>X</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="labelP">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Monospace</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>P</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="WordSpinBox" name="regPC">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background: darkslategray</string>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="maximum">
-         <number>65535</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="flags">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:lightgreen</string>
-        </property>
-        <property name="text">
-         <string>NVB.DIZC</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="WordSpinBox" name="regSP">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background: darkslategray</string>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="minimum">
-         <number>256</number>
-        </property>
-        <property name="maximum">
-         <number>511</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="ByteSpinBox" name="regX">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background: darkslategray</string>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="maximum">
-         <number>255</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="labelA">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Monospace</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>A</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="ByteSpinBox" name="regY">
-        <property name="font">
-         <font>
-          <family>Courier</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background: darkslategray</string>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="maximum">
-         <number>255</number>
-        </property>
-        <property name="displayIntegerBase">
-         <number>16</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="labelSP">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Monospace</family>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color:gray</string>
-        </property>
-        <property name="text">
-         <string>SP</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QFrame" name="cpuFrame">
+      <layout class="QGridLayout" name="cpuGroup">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMaximumSize</enum>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="horizontalSpacing">
+        <number>6</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>2</number>
+       </property>
+       <item row="0" column="3">
+        <widget class="ByteSpinBox" name="regA">
+         <property name="font">
+          <font>
+           <family>Courier</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background: darkslategray</string>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="labelY">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:gray</string>
+         </property>
+         <property name="text">
+          <string>Y</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelPC">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:gray</string>
+         </property>
+         <property name="text">
+          <string>PC</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:gray</string>
+         </property>
+         <property name="text">
+          <string>X</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelP">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:gray</string>
+         </property>
+         <property name="text">
+          <string>P</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="WordSpinBox" name="regPC">
+         <property name="font">
+          <font>
+           <family>Courier</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background: darkslategray</string>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="flags">
+         <property name="font">
+          <font>
+           <family>Courier</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:lightgreen</string>
+         </property>
+         <property name="text">
+          <string>NVB.DIZC</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="WordSpinBox" name="regSP">
+         <property name="font">
+          <font>
+           <family>Courier</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background: darkslategray</string>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="minimum">
+          <number>256</number>
+         </property>
+         <property name="maximum">
+          <number>511</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="ByteSpinBox" name="regX">
+         <property name="font">
+          <font>
+           <family>Courier</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background: darkslategray</string>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="labelA">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:gray</string>
+         </property>
+         <property name="text">
+          <string>A</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="ByteSpinBox" name="regY">
+         <property name="font">
+          <font>
+           <family>Courier</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background: darkslategray</string>
+         </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="maximum">
+          <number>255</number>
+         </property>
+         <property name="displayIntegerBase">
+          <number>16</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelSP">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:gray</string>
+         </property>
+         <property name="text">
+          <string>SP</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
      <widget class="Line" name="line">
@@ -376,7 +378,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QGridLayout" name="vectorsBox">
+     <layout class="QGridLayout" name="vectorsGroup">
       <property name="sizeConstraint">
        <enum>QLayout::SetMaximumSize</enum>
       </property>
@@ -397,12 +399,18 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QToolButton" name="goNMI">
+       <widget class="QToolButton" name="nmi">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>55</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="text">
          <string>NMI</string>
@@ -420,7 +428,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="WordSpinBox" name="vectorNMI">
+       <widget class="WordSpinBox" name="nmiVector">
         <property name="font">
          <font>
           <family>Courier</family>
@@ -460,7 +468,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLabel" name="cycles">
+       <widget class="QLabel" name="cycleCounter">
         <property name="font">
          <font>
           <family>Courier</family>
@@ -481,7 +489,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="WordSpinBox" name="vectorIRQ">
+       <widget class="WordSpinBox" name="irqVector">
         <property name="font">
          <font>
           <family>Courier</family>
@@ -515,12 +523,18 @@
        </widget>
       </item>
       <item row="3" column="2">
-       <widget class="QToolButton" name="cyclesClear">
+       <widget class="QToolButton" name="clearCycleCounter">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>55</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="text">
          <string>CLR</string>
@@ -531,12 +545,18 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QToolButton" name="goReset">
+       <widget class="QToolButton" name="reset">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>55</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="text">
          <string>RST</string>
@@ -544,12 +564,18 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QToolButton" name="goIRQ">
+       <widget class="QToolButton" name="irq">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>55</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="text">
          <string>IRQ</string>
@@ -557,7 +583,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="WordSpinBox" name="vectorReset">
+       <widget class="WordSpinBox" name="resetVector">
         <property name="font">
          <font>
           <family>Courier</family>
@@ -685,55 +711,73 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="executionBox">
-      <property name="spacing">
-       <number>2</number>
-      </property>
-      <item>
-       <widget class="QToolButton" name="executeSingleStep">
-        <property name="text">
-         <string>Step</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="skipInstruction">
-        <property name="text">
-         <string>Skip</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="continuousExecution">
-        <property name="text">
-         <string>Run</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
+     <widget class="QFrame" name="auxFrame">
+      <layout class="QHBoxLayout" name="controlGroup">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="executeSingleStep">
+         <property name="text">
+          <string>Step</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="skipInstruction">
+         <property name="text">
+          <string>Skip</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Preferred</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="startExecution">
+         <property name="text">
+          <string>Start</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="stopExecution">
+         <property name="text">
+          <string>Stop</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>

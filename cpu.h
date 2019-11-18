@@ -22,7 +22,7 @@ public:
   friend constexpr Handler operandsHandler(OperandsFormat);
   friend constexpr Handler instructionHandler(InstructionType);
 
-  ExecutionState state = ExecutionState::Stopped;
+  ExecutionState state = ExecutionState::Idle;
   Registers regs;
   int cycles = 0;
 
@@ -30,16 +30,16 @@ public:
   void execute(bool continuous);
   CpuInfo info() const { return {state, regs, cycles}; }
   bool running() const { return state == ExecutionState::Running; }
-  void requestIRQ();
-  void requestNMI();
-  void requestRESET();
+  void triggerReset();
+  void triggerNmi();
+  void triggerIrq();
 
 private:
   friend class OpCodesTest;
 
-  std::atomic_bool pendingIRQ_ = false;
-  std::atomic_bool pendingNMI_ = false;
-  std::atomic_bool pendingRESET_ = false;
+  std::atomic_bool pendingIrq_ = false;
+  std::atomic_bool pendingNmi_ = false;
+  std::atomic_bool pendingReset_ = false;
 
   Memory& memory_;
   OperandPtr operandPtr_;

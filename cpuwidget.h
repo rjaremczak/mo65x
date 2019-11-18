@@ -18,8 +18,12 @@ public:
 
 signals:
   void executeOneInstructionRequested();
-  void continuousExecutionRequested();
+  void startExecutionRequested();
   void stopExecutionRequested();
+  void clearCycleCounterRequested();
+  void resetRequested();
+  void nmiRequested();
+  void irqRequested();
   void programCounterChanged(uint16_t);
 
 public slots:

@@ -8,10 +8,9 @@ static QString flagStr(bool flagStatus, const char* flagCode) {
   return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
 }
 
-static std::map<ExecutionState, const char*> ExecutionStateStr{{ExecutionState::Stopped, "Stopped"},
-                                                               {ExecutionState::InvalidOpCode, "Invalid OpCode"},
-                                                               {ExecutionState::Running, "Running"},
-                                                               {ExecutionState::PendingStop, "Stop Requested"}};
+static std::map<ExecutionState, const char*> ExecutionStateStr{
+    {ExecutionState::Idle, "Idle"},          {ExecutionState::Stopped, "Stopped"},      {ExecutionState::Halted, "Halted"},
+    {ExecutionState::Running, "Running..."}, {ExecutionState::Stopping, "Stopping..."}, {ExecutionState::Halting, "Halting..."}};
 
 CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
     : QDockWidget(parent), ui(new Ui::CpuWidget), memory_(memory), disassembler_(memory) {
@@ -20,8 +19,13 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::executeOneInstructionRequested);
   connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
+  connect(ui->reset, &QAbstractButton::clicked, [&] { emit resetRequested(); });
+  connect(ui->nmi, &QAbstractButton::clicked, [&] { emit nmiRequested(); });
+  connect(ui->irq, &QAbstractButton::clicked, [&] { emit irqRequested(); });
+  connect(ui->clearCycleCounter, &QAbstractButton::clicked, [&] { emit clearCycleCounterRequested(); });
+
   setMonospaceFont(ui->disassemblerView);
-  setMonospaceFont(ui->cycles);
+  setMonospaceFont(ui->cycleCounter);
   setMonospaceFont(ui->flags);
 }
 
@@ -55,7 +59,7 @@ void CpuWidget::updateState(CpuInfo info) {
   str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  ui->cycles->setNum(info.cycles);
+  ui->cycleCounter->setNum(info.cycles);
   ui->ioPortDirection->setValue(memory_[IOPortConfig]);
   ui->ioPortData->setValue(memory_[IOPortData]);
 
@@ -64,6 +68,16 @@ void CpuWidget::updateState(CpuInfo info) {
     disassemblerRange_.first = regs.pc;
     updateDisassemblerView();
   }
+
+  const auto processing =
+      info.state == ExecutionState::Running || info.state == ExecutionState::Halting || info.state == ExecutionState::Stopping;
+
+  ui->cpuFrame->setDisabled(processing);
+  ui->auxFrame->setDisabled(processing);
+  ui->skipInstruction->setDisabled(processing);
+  ui->startExecution->setDisabled(!processing);
+  ui->stopExecution->setDisabled(processing);
+  ui->executeSingleStep->setDisabled(processing || info.state == ExecutionState::Halted);
 }
 
 void CpuWidget::resizeEvent(QResizeEvent* event) {

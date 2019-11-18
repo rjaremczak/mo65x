@@ -364,13 +364,35 @@ void Cpu::execute(bool continuous) {
 
     if (!continuous) break;
   }
-  if (state == ExecutionState::Running) state = ExecutionState::Stopped;
+  switch (state) {
+  case ExecutionState::Running: state = ExecutionState::Idle; break;
+  case ExecutionState::Stopping: state = ExecutionState::Stopped; break;
+  case ExecutionState::Halting: state = ExecutionState::Halted; break;
+  default: break;
+  }
 }
 
-void Cpu::requestIRQ() {
+void Cpu::triggerReset() {
+  if (running()) {
+    pendingReset_ = true;
+  } else {
+    reset();
+  }
+}
+
+void Cpu::triggerNmi() {
+  if (running()) {
+    pendingNmi_ = true;
+  } else {
+    nmi();
+  }
+}
+
+void Cpu::triggerIrq() {
   if (regs.p.interrupt) return;
-  if (running())
-    pendingIRQ_ = true;
-  else
+  if (!running()) {
+    pendingIrq_ = true;
+  } else {
     irq();
+  }
 }
