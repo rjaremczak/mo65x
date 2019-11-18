@@ -9,7 +9,7 @@ Emulator::Emulator(QObject* parent) : QObject(parent), cpu_(memory_) {
 void Emulator::loadMemory(uint16_t start, const Data& data) {
   auto size = static_cast<uint16_t>(std::min(static_cast<size_t>(data.size()), memory_.size() - start));
   std::copy_n(data.begin(), size, memory_.begin() + start);
-  emit memoryContentChanged({start, static_cast<uint16_t>(start + size)});
+  emit memoryContentChanged({start, static_cast<uint16_t>(start + size - 1)});
 }
 
 void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname) {
@@ -21,7 +21,7 @@ void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname) {
     rsize = file.read(reinterpret_cast<char*>(buf.data()), size);
     if (rsize == size) loadMemory(start, buf);
   }
-  emit operationCompleted(rsize > 0 ? tr("loaded %1lld B\nfrom file %2").arg(rsize).arg(fname) : "load error", rsize > 0);
+  emit operationCompleted(rsize > 0 ? tr("loaded %1 B\nfrom file %2").arg(rsize).arg(fname) : "load error", rsize > 0);
 }
 
 void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
@@ -30,9 +30,9 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     Data buf(range.size());
     std::copy_n(&memory_[range.first], range.size(), buf.begin());
-    auto rsize = file.write(reinterpret_cast<char*>(buf.data()), static_cast<int>(buf.size()));
+    rsize = file.write(reinterpret_cast<char*>(buf.data()), static_cast<int>(buf.size()));
   }
-  emit operationCompleted(rsize > 0 ? tr("saved %1lld B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
+  emit operationCompleted(rsize > 0 ? tr("saved %1 B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
 }
 
 void Emulator::resetCycleCounter() {

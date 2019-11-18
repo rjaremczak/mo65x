@@ -5,17 +5,15 @@
 #include <QMessageBox>
 #include <QResizeEvent>
 
-enum Operation { Load, Save };
-
 MemoryWidget::MemoryWidget(QWidget* parent, const Memory& memory) : QWidget(parent), ui(new Ui::MemoryWidget), memory_(memory) {
   ui->setupUi(this);
-  ui->operationSelector->insertItem(Load, "Load");
-  ui->operationSelector->insertItem(Save, "Save");
-  connect(ui->executeOperation, &QToolButton::clicked, this, &MemoryWidget::executeOperation);
-  connect(ui->operationSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MemoryWidget::prepareOperation);
+  connect(ui->loadFromFile, &QAbstractButton::clicked, this, &MemoryWidget::loadFromFile);
+  connect(ui->saveToFile, &QAbstractButton::clicked, this, &MemoryWidget::saveToFile);
   connect(ui->startAddress, QOverload<int>::of(&QSpinBox::valueChanged), this, &MemoryWidget::changeStartAddress);
+  connect(ui->endAddress, QOverload<int>::of(&QSpinBox::valueChanged), this, &MemoryWidget::changeEndAddress);
   setMonospaceFont(ui->textView);
-  ui->operationSelector->setCurrentIndex(Save);
+  setMonospaceFont(ui->startAddress);
+  setMonospaceFont(ui->endAddress);
 }
 
 MemoryWidget::~MemoryWidget() {
@@ -23,14 +21,14 @@ MemoryWidget::~MemoryWidget() {
 }
 
 void MemoryWidget::updateMemoryView(AddressRange range) {
-  if (addressRange_.overlapsWith(range)) updateMemoryView();
+  if (addressRange_.overlapsWith(range)) updateView();
 }
 
 void MemoryWidget::resizeEvent(QResizeEvent* event) {
-  if (event->size() != event->oldSize()) { updateMemoryView(); }
+  if (event->size() != event->oldSize()) { updateView(); }
 }
 
-void MemoryWidget::updateMemoryView() {
+void MemoryWidget::updateView() {
   QString html("<div style='white-space:pre; display:inline-block; color:darkseagreen'>");
   int rows = rowsInView();
   int cols = colsInView();
@@ -53,35 +51,27 @@ int MemoryWidget::colsInView() const {
   return ui->textView->width() / ui->textView->fontMetrics().horizontalAdvance('0');
 }
 
-void MemoryWidget::prepareOperation(int sel) {
-  switch (static_cast<Operation>(sel)) {
-  case Load:
-    ui->executeOperation->setText("From File...");
-    ui->endLabel->setVisible(false);
-    ui->endAddress->setVisible(false);
-    break;
-  case Save:
-    ui->executeOperation->setText("To File...");
-    ui->endLabel->setVisible(true);
-    ui->endAddress->setVisible(true);
-    break;
+void MemoryWidget::loadFromFile() {
+  if (auto fname = QFileDialog::getOpenFileName(this, tr("Open Binary File")); !fname.isEmpty()) {
+    emit loadFromFileRequested(static_cast<uint16_t>(ui->startAddress->value()), fname);
   }
 }
 
-void MemoryWidget::executeOperation() {
-  switch (static_cast<Operation>(ui->operationSelector->currentIndex())) {
-  case Load:
-    if (auto fname = QFileDialog::getOpenFileName(this, tr("Open Object File")); !fname.isEmpty()) {
-      emit loadFromFileRequested(addressRange_.first, fname);
-    }
-    break;
-  case Save: break;
+void MemoryWidget::saveToFile() {
+  if (auto fname = QFileDialog::getSaveFileName(this, tr("Save Binary File")); !fname.isEmpty()) {
+    emit saveToFileRequested({static_cast<uint16_t>(ui->startAddress->value()), static_cast<uint16_t>(ui->endAddress->value())},
+                             fname);
   }
 }
 
 void MemoryWidget::changeStartAddress(uint16_t addr) {
   if (addressRange_.first != addr) {
     addressRange_.first = addr;
-    updateMemoryView();
+    updateView();
   }
+  ui->endAddress->setMinimum(addressRange_.first + 1);
+}
+
+void MemoryWidget::changeEndAddress(uint16_t addr) {
+  ui->endAddress->setValue(std::max(addressRange_.first, addr));
 }

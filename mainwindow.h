@@ -30,6 +30,7 @@ public:
 public slots:
   void changeAsmFileName(const QString&);
   void showMessageBox(const QString& message, bool success = true);
+  void showInStatusLine(const QString& message, bool success = true);
 
 private:
   CentralWidget* viewWidget_;

@@ -25,7 +25,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
   connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);
-  connect(emulator_, &Emulator::operationCompleted, this, &MainWindow::showMessageBox);
+  connect(emulator_, &Emulator::memoryContentChanged, memoryWidget_, &MemoryWidget::updateMemoryView);
+  connect(emulator_, &Emulator::operationCompleted, this, &MainWindow::showInStatusLine);
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
@@ -59,6 +60,10 @@ void MainWindow::showMessageBox(const QString& message, bool success) {
     QMessageBox::information(this, "", message);
   else
     QMessageBox::warning(this, "", message);
+}
+
+void MainWindow::showInStatusLine(const QString& message, bool) {
+  ui->statusbar->showMessage(message, 10000);
 }
 
 void MainWindow::initConfigStorage() {

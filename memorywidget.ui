@@ -69,10 +69,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="operationSelector"/>
+      <widget class="QPushButton" name="loadFromFile">
+       <property name="text">
+        <string>Load</string>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="executeOperation">
+      <widget class="QPushButton" name="saveToFile">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -80,7 +84,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>File...</string>
+        <string>Save</string>
        </property>
       </widget>
      </item>

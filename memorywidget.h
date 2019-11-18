@@ -33,14 +33,15 @@ private:
   const Memory& memory_;
   AddressRange addressRange_;
 
-  void updateMemoryView();
+  void updateView();
   int rowsInView() const;
   int colsInView() const;
 
 private slots:
-  void prepareOperation(int);
-  void executeOperation();
+  void loadFromFile();
+  void saveToFile();
   void changeStartAddress(uint16_t);
+  void changeEndAddress(uint16_t);
 };
 
 #endif // MEMORYWIDGET_H
