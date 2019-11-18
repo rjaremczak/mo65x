@@ -11,6 +11,7 @@ struct AddressRange {
   uint16_t first;
   uint16_t last;
 
+  size_t size() const { return last - first + 1; }
   bool overlapsWith(AddressRange range) const {
     return first == std::clamp(first, range.first, range.last) || last == std::clamp(last, range.first, range.last);
   }

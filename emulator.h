@@ -19,15 +19,16 @@ public:
 signals:
   void cpuStateChanged(CpuInfo);
   void memoryContentChanged(AddressRange);
-  void memoryLoaded(quint16, qint64);
+  void operationCompleted(const QString& message, bool success);
 
 public slots:
   void executeSingleStep();
   void changeProgramCounter(uint16_t pc);
   void propagateCurrentState();
+  void resetCycleCounter();
   void loadMemory(uint16_t first, const Data& data);
   void loadMemoryFromFile(uint16_t start, const QString& fname);
-  void resetCycleCounter();
+  void saveMemoryToFile(AddressRange range, const QString& fname);
 
 private:
   Memory memory_;

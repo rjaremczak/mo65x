@@ -26,14 +26,6 @@ void MemoryWidget::updateMemoryView(AddressRange range) {
   if (addressRange_.overlapsWith(range)) updateMemoryView();
 }
 
-void MemoryWidget::handleFileOperationStatus(quint16 start, qint64 rsize) {
-  if (rsize > 0) {
-    QMessageBox::information(this, "", QString::asprintf("%lld bytes loaded at $%04X", rsize, start));
-  } else {
-    QMessageBox::warning(this, "", "binary loading failed");
-  }
-}
-
 void MemoryWidget::resizeEvent(QResizeEvent* event) {
   if (event->size() != event->oldSize()) { updateMemoryView(); }
 }

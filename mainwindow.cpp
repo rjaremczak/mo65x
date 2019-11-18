@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDir>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
   connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);
+  connect(emulator_, &Emulator::operationCompleted, this, &MainWindow::showMessageBox);
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
 
   connect(memoryWidget_, &MemoryWidget::loadFromFileRequested, emulator_, &Emulator::loadMemoryFromFile);
+  connect(memoryWidget_, &MemoryWidget::saveToFileRequested, emulator_, &Emulator::saveMemoryToFile);
 
   emulator_->propagateCurrentState();
 
@@ -49,6 +52,13 @@ void MainWindow::changeAsmFileName(const QString& fileName) {
 
   QFileInfo fileInfo(fileName);
   setWindowTitle("mo65plus: " + fileInfo.fileName());
+}
+
+void MainWindow::showMessageBox(const QString& message, bool success) {
+  if (success)
+    QMessageBox::information(this, "", message);
+  else
+    QMessageBox::warning(this, "", message);
 }
 
 void MainWindow::initConfigStorage() {

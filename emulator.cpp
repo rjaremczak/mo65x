@@ -21,7 +21,18 @@ void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname) {
     rsize = file.read(reinterpret_cast<char*>(buf.data()), size);
     if (rsize == size) loadMemory(start, buf);
   }
-  emit memoryLoaded(start, rsize);
+  emit operationCompleted(rsize > 0 ? tr("loaded %1lld B\nfrom file %2").arg(rsize).arg(fname) : "load error", rsize > 0);
+}
+
+void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
+  QFile file(fname);
+  qint64 rsize = -1;
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    Data buf(range.size());
+    std::copy_n(&memory_[range.first], range.size(), buf.begin());
+    auto rsize = file.write(reinterpret_cast<char*>(buf.data()), static_cast<int>(buf.size()));
+  }
+  emit operationCompleted(rsize > 0 ? tr("saved %1lld B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
 }
 
 void Emulator::resetCycleCounter() {

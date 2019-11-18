@@ -18,12 +18,12 @@ public:
   ~MemoryWidget() override;
 
 signals:
-  void memoryContentChanged(uint16_t first, uint16_t last);
-  void loadFromFileRequested(uint16_t start, QString fname);
+  void memoryContentChanged(AddressRange);
+  void loadFromFileRequested(uint16_t start, const QString& fname);
+  void saveToFileRequested(AddressRange, const QString& fname);
 
 public slots:
   void updateMemoryView(AddressRange);
-  void handleFileOperationStatus(quint16 start, qint64 rsize);
 
 protected:
   void resizeEvent(QResizeEvent*) override;
