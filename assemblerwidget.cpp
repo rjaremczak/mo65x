@@ -70,12 +70,8 @@ bool AssemblerWidget::process() {
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    if (auto result = assembler_.process(line); result != Assembler::Result::Ok) {
-      QMessageBox::warning(this, tr("Assembly Error"),
-                           QString("%1 at line %2")
-                               .arg(QMetaEnum::fromType<Assembler::Result>().valueToKey(static_cast<int>(result)))
-                               .arg(lineNum + 1));
-
+    if (auto result = assembler_.process(line); result != AssemblerResult::Ok) {
+      emit showMessageRequested(tr("%1 at line %2").arg(assemblerResultStr(result)).arg(lineNum + 1), true);
       auto block = ui->sourceCode->document()->findBlockByLineNumber(lineNum);
       auto cursor = ui->sourceCode->textCursor();
       cursor.setPosition(block.position() + block.length() - 1, QTextCursor::MoveAnchor);

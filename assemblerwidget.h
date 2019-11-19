@@ -18,6 +18,7 @@ signals:
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
   void machineCodeGenerated(uint16_t address, const Data& code);
+  void showMessageRequested(const QString& message, bool success = true);
 
 public slots:
   void loadFile(const QString& fname);

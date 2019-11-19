@@ -40,6 +40,10 @@ void Emulator::resetCycleCounter() {
   cpu_.cycles = 0;
 }
 
+void Emulator::notifyCpuStateChanged() {
+  emit cpuStateChanged(cpu_.info());
+}
+
 void Emulator::triggerIrq() {
   cpu_.triggerIrq();
 }
@@ -52,15 +56,14 @@ void Emulator::triggerReset() {
   cpu_.triggerReset();
 }
 
-bool Emulator::stopExecution() {
+void Emulator::stopExecution() {
   cpu_.state = ExecutionState::Stopping;
   QThread::msleep(100);
-  return cpu_.state == ExecutionState::Stopped;
 }
 
 void Emulator::executeOneInstruction() {
   cpu_.execute(false);
-  emit cpuStateChanged(cpu_.info());
+  notifyCpuStateChanged();
 }
 
 void Emulator::startExecution() {
@@ -71,10 +74,45 @@ void Emulator::startExecution() {
 void Emulator::changeProgramCounter(uint16_t pc) {
   if (cpu_.state != ExecutionState::Running && cpu_.regs.pc != pc) {
     cpu_.regs.pc = pc;
-    emit cpuStateChanged(cpu_.info());
+    if (cpu_.state == ExecutionState::Halted || cpu_.state == ExecutionState::Stopped) cpu_.state = ExecutionState::Idle;
+    notifyCpuStateChanged();
   }
 }
 
-void Emulator::propagateCurrentState() {
-  emit cpuStateChanged(cpu_.info());
+void Emulator::changeStackPointer(uint16_t sp) {
+  const auto offset = static_cast<uint8_t>(sp);
+  if (cpu_.regs.sp.offset != offset) {
+    cpu_.regs.sp.offset = offset;
+    notifyCpuStateChanged();
+  }
+}
+
+void Emulator::changeAccumulator(uint8_t a) {
+  if (cpu_.regs.a != a) {
+    cpu_.regs.a = a;
+    notifyCpuStateChanged();
+  }
+}
+
+void Emulator::changeRegisterX(uint8_t x) {
+  if (cpu_.regs.x != x) {
+    cpu_.regs.x = x;
+    notifyCpuStateChanged();
+  }
+}
+
+void Emulator::changeRegisterY(uint8_t y) {
+  if (cpu_.regs.y != y) {
+    cpu_.regs.y = y;
+    notifyCpuStateChanged();
+  }
+}
+
+void Emulator::changeMemory(uint16_t addr, uint8_t b) {
+  memory_[addr] = b;
+  emit memoryContentChanged(addr);
+}
+
+void Emulator::notifyStateChanged() {
+  notifyCpuStateChanged();
 }

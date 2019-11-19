@@ -29,23 +29,21 @@ public:
 
 public slots:
   void changeAsmFileName(const QString&);
-  void showMessageBox(const QString& message, bool success = true);
-  void showInStatusLine(const QString& message, bool success = true);
+  void showMessage(const QString& message, bool success = true);
 
 private:
   CentralWidget* viewWidget_;
   AssemblerWidget* assemblerWidget_;
   MemoryWidget* memoryWidget_;
   CpuWidget* cpuWidget_;
-  QTimer* pollTimer_;
   Emulator* emulator_;
   FileDataStorage<Config>* configStorage_;
   Config config_;
-
-  QThread systemThread_;
+  QTimer* pollTimer_;
+  QThread emulatorThread_;
 
   void initConfigStorage();
-  void startSystem();
+  void startEmulator();
 };
 
 #endif // MAINWINDOW_H

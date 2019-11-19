@@ -2,6 +2,7 @@
 
 #include "executionstate.h"
 #include "registers.h"
+#include <QMetaType>
 
 struct CpuInfo {
   ExecutionState state;

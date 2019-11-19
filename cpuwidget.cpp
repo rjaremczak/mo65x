@@ -2,27 +2,28 @@
 #include "ui_cpuwidget.h"
 #include "uitools.h"
 #include <QFontDatabase>
+#include <QMetaEnum>
 #include <QResizeEvent>
 
 static QString flagStr(bool flagStatus, const char* flagCode) {
   return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
 }
 
-static std::map<ExecutionState, const char*> ExecutionStateStr{
-    {ExecutionState::Idle, "Idle"},          {ExecutionState::Stopped, "Stopped"},      {ExecutionState::Halted, "Halted"},
-    {ExecutionState::Running, "Running..."}, {ExecutionState::Stopping, "Stopping..."}, {ExecutionState::Halting, "Halting..."}};
-
 CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
     : QDockWidget(parent), ui(new Ui::CpuWidget), memory_(memory), disassembler_(memory) {
   ui->setupUi(this);
 
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
+  connect(ui->regSP, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::stackPointerChanged);
+  connect(ui->regA, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerAChanged);
+  connect(ui->regX, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerXChanged);
+  connect(ui->regY, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerYChanged);
   connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::executeOneInstructionRequested);
   connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
-  connect(ui->reset, &QAbstractButton::clicked, [&] { emit resetRequested(); });
-  connect(ui->nmi, &QAbstractButton::clicked, [&] { emit nmiRequested(); });
-  connect(ui->irq, &QAbstractButton::clicked, [&] { emit irqRequested(); });
-  connect(ui->clearCycleCounter, &QAbstractButton::clicked, [&] { emit clearCycleCounterRequested(); });
+  connect(ui->reset, &QAbstractButton::clicked, this, &CpuWidget::resetRequested);
+  connect(ui->nmi, &QAbstractButton::clicked, this, &CpuWidget::nmiRequested);
+  connect(ui->irq, &QAbstractButton::clicked, this, &CpuWidget::irqRequested);
+  connect(ui->clearCycleCounter, &QAbstractButton::clicked, this, &CpuWidget::clearCycleCounterRequested);
 
   setMonospaceFont(ui->disassemblerView);
   setMonospaceFont(ui->cycleCounter);
@@ -40,7 +41,7 @@ void CpuWidget::updateMemoryView(AddressRange range) {
 void CpuWidget::updateState(CpuInfo info) {
   const auto& regs = info.regs;
 
-  setWindowTitle(QString("CPU : %1").arg(ExecutionStateStr[info.state]));
+  setWindowTitle(tr("cpu : %1").arg(executionStateStr(info.state)));
 
   ui->regA->setValue(regs.a);
   ui->regX->setValue(regs.x);
@@ -75,8 +76,8 @@ void CpuWidget::updateState(CpuInfo info) {
   ui->cpuFrame->setDisabled(processing);
   ui->auxFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
-  ui->startExecution->setDisabled(!processing);
-  ui->stopExecution->setDisabled(processing);
+  ui->startExecution->setDisabled(processing);
+  ui->stopExecution->setDisabled(!processing);
   ui->executeSingleStep->setDisabled(processing || info.state == ExecutionState::Halted);
 }
 

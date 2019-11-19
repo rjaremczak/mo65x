@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>246</width>
-    <height>396</height>
+    <width>253</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -69,6 +69,12 @@
        </property>
        <item row="0" column="3">
         <widget class="ByteSpinBox" name="regA">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Courier</family>
@@ -408,7 +414,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>50</width>
           <height>0</height>
          </size>
         </property>
@@ -429,6 +435,18 @@
       </item>
       <item row="0" column="1">
        <widget class="WordSpinBox" name="nmiVector">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>65</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Courier</family>
@@ -441,10 +459,10 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -490,6 +508,12 @@
       </item>
       <item row="2" column="1">
        <widget class="WordSpinBox" name="irqVector">
+        <property name="minimumSize">
+         <size>
+          <width>65</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Courier</family>
@@ -502,7 +526,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>
@@ -532,7 +556,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>50</width>
           <height>0</height>
          </size>
         </property>
@@ -554,7 +578,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>50</width>
           <height>0</height>
          </size>
         </property>
@@ -573,7 +597,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>55</width>
+          <width>50</width>
           <height>0</height>
          </size>
         </property>
@@ -584,6 +608,12 @@
       </item>
       <item row="1" column="1">
        <widget class="WordSpinBox" name="resetVector">
+        <property name="minimumSize">
+         <size>
+          <width>65</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Courier</family>
@@ -596,7 +626,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
         </property>
         <property name="maximum">
          <number>65535</number>

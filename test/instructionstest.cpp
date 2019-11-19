@@ -35,7 +35,7 @@
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
-  QCOMPARE(assembler.process(instr), Assembler::Result::Ok);                                                                     \
+  QCOMPARE(assembler.process(instr), AssemblerResult::Ok);                                                                       \
   memory.writeData(AsmOrigin, assembler.code());                                                                                 \
   cpu.execute(false);                                                                                                            \
   QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
@@ -78,7 +78,7 @@ void OpCodesTest::init() {
 }
 
 void OpCodesTest::testIRQ() {
-  memory.write16(Cpu::VectorIRQ, 0xabcd);
+  memory.write16(Cpu::irqVector, 0xabcd);
   cpu.regs.p = 0b11001111;
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc;
@@ -92,7 +92,7 @@ void OpCodesTest::testIRQ() {
 }
 
 void OpCodesTest::testReset() {
-  memory.write16(Cpu::VectorRESET, 0xFCE2);
+  memory.write16(Cpu::resetVector, 0xFCE2);
   cpu.reset();
   QCOMPARE(cpu.regs.pc, 0xFCE2);
 }
@@ -745,7 +745,7 @@ void OpCodesTest::testRTS() {
 }
 
 void OpCodesTest::testBRK() {
-  memory.write16(Cpu::VectorIRQ, 0xabcd);
+  memory.write16(Cpu::irqVector, 0xabcd);
   cpu.regs.p = 0b11001111;
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc + 2;

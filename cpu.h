@@ -11,11 +11,11 @@
 
 class Cpu {
 public:
-  constexpr static uint16_t IOPortConfig = 0x00;
-  constexpr static uint16_t IOPortData = 0x01;
-  constexpr static uint16_t VectorNMI = 0xfffa;
-  constexpr static uint16_t VectorRESET = 0xfffc;
-  constexpr static uint16_t VectorIRQ = 0xfffe;
+  constexpr static uint16_t IoPortConfig = 0x00;
+  constexpr static uint16_t IoPortData = 0x01;
+  constexpr static uint16_t nmiVector = 0xfffa;
+  constexpr static uint16_t resetVector = 0xfffc;
+  constexpr static uint16_t irqVector = 0xfffe;
 
   using Handler = void (Cpu::*)();
 
@@ -99,7 +99,7 @@ private:
   void nmi();
   void irq();
   void reset();
-  void halt();
+  void execHalt();
 
   void prepImpliedMode();
   void prepAccumulatorMode();

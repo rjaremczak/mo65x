@@ -1,9 +1,9 @@
 #pragma once
 
 #include "assemblerline.h"
+#include "assemblerresult.h"
 #include "commons.h"
 #include "instruction.h"
-#include <QMetaType>
 #include <QString>
 #include <iterator>
 #include <map>
@@ -12,26 +12,12 @@
 
 class Assembler
 {
-  Q_GADGET
-
 public:
   using Symbols = std::map<QString, uint16_t>;
 
   static constexpr uint16_t DefaultOrigin = 0;
 
   enum class Mode { ScanForSymbols, EmitCode };
-  enum class Result {
-    Ok,
-    OriginAlreadyDefined,
-    SymbolAlreadyDefined,
-    UndefinedSymbol,
-    MissingOperand,
-    NumericOperandRequired,
-    SyntaxError,
-    CommandProcessingError
-  };
-
-  Q_ENUM(Result)
 
   Assembler();
 
@@ -40,13 +26,13 @@ public:
   auto locationCounter() const { return locationCounter_; }
   const Data& code() const { return code_; }
 
-  Result defineOrigin(uint16_t addr);
+  AssemblerResult defineOrigin(uint16_t addr);
   void resetOrigin(uint16_t addr = DefaultOrigin);
   void clearCode() { code_.clear(); }
   void clearSymbols() { symbols_.clear(); }
   void changeMode(Mode mode) { mode_ = mode; }
   uint8_t lastInstructionByte(size_t) const;
-  Result process(const QString&);
+  AssemblerResult process(const QString&);
   std::optional<int> symbol(const QString&) const;
 
 private:
@@ -59,11 +45,11 @@ private:
   std::back_insert_iterator<Data> iterator_;
   Symbols symbols_;
 
-  Result addSymbol(const QString&, uint16_t);
-  Result processControlCommand(const AssemblerLine&);
-  Result processInstruction(const AssemblerLine&);
-  Result cmdSetOrigin(const AssemblerLine&);
-  Result cmdEmitByte(const AssemblerLine&);
-  Result assemble(InstructionType type, OperandsFormat mode, int operand = 0);
+  AssemblerResult addSymbol(const QString&, uint16_t);
+  AssemblerResult processControlCommand(const AssemblerLine&);
+  AssemblerResult processInstruction(const AssemblerLine&);
+  AssemblerResult cmdSetOrigin(const AssemblerLine&);
+  AssemblerResult cmdEmitByte(const AssemblerLine&);
+  AssemblerResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
   void addByte(uint8_t);
 };

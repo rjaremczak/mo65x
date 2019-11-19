@@ -1,7 +1,7 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr) QCOMPARE(assembler.process(instr), Assembler::Result::Ok)
+#define TEST_INST(instr) QCOMPARE(assembler.process(instr), AssemblerResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
@@ -103,7 +103,7 @@ void AssemblerTest::testRelativeModePlus() {
 void AssemblerTest::testOrg() {
   TEST_INST("  .ORG $3000 ;origin");
   QCOMPARE(assembler.locationCounter(), 0x3000);
-  QCOMPARE(assembler.process("  .org $4000 ;origin"), Assembler::Result::OriginAlreadyDefined);
+  QCOMPARE(assembler.process("  .org $4000 ;origin"), AssemblerResult::OriginAlreadyDefined);
   QCOMPARE(assembler.locationCounter(), 0x3000);
 }
 

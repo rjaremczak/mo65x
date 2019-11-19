@@ -79,43 +79,43 @@ void Assembler::resetOrigin(uint16_t addr) {
   locationCounter_ = addr;
 }
 
-Assembler::Result Assembler::defineOrigin(uint16_t addr) {
-  if (originDefined_) return Result::OriginAlreadyDefined;
+AssemblerResult Assembler::defineOrigin(uint16_t addr) {
+  if (originDefined_) return AssemblerResult::OriginAlreadyDefined;
 
   originDefined_ = true;
   origin_ = addr;
   locationCounter_ = addr;
-  return Result::Ok;
+  return AssemblerResult::Ok;
 }
 
 uint8_t Assembler::lastInstructionByte(size_t num) const {
   return code_[std::min(lastInstructionIndex_ + num, code_.size() - 1)];
 }
 
-Assembler::Result Assembler::process(const QString& str) {
+AssemblerResult Assembler::process(const QString& str) {
   if (const auto re = EmptyLine.match(str); re.hasMatch()) {
     if (const auto& label = re.captured(1); !label.isNull()) return addSymbol(label, locationCounter_);
-    return Result::Ok;
+    return AssemblerResult::Ok;
   }
 
   const auto line = parseAssemblyLine(str);
-  if (!line.valid) return Result::SyntaxError;
+  if (!line.valid) return AssemblerResult::SyntaxError;
   if (!line.label.isEmpty()) {
-    if (auto res = addSymbol(line.label, locationCounter_); res != Result::Ok) return res;
+    if (auto res = addSymbol(line.label, locationCounter_); res != AssemblerResult::Ok) return res;
   }
   if (line.isControlCommand()) return processControlCommand(line);
   return processInstruction(line);
 }
 
-Assembler::Result Assembler::assemble(InstructionType type, OperandsFormat mode, int operand) {
+AssemblerResult Assembler::assemble(InstructionType type, OperandsFormat mode, int operand) {
   lastInstructionIndex_ = code_.size();
   if (const auto insIt = findInstruction(type, mode)) {
     addByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt)));
     if (insIt->size > 1) addByte(static_cast<uint8_t>(operand));
     if (insIt->size > 2) addByte(static_cast<uint8_t>(operand >> 8));
-    return Result::Ok;
+    return AssemblerResult::Ok;
   }
-  return Result::SyntaxError;
+  return AssemblerResult::SyntaxError;
 }
 
 std::optional<int> Assembler::symbol(const QString& name) const {
@@ -123,17 +123,17 @@ std::optional<int> Assembler::symbol(const QString& name) const {
   return std::nullopt;
 }
 
-Assembler::Result Assembler::processControlCommand(const AssemblerLine& line) {
+AssemblerResult Assembler::processControlCommand(const AssemblerLine& line) {
   switch (line.command) {
   case ControlCommand::DefineOrigin: return cmdSetOrigin(line);
   case ControlCommand::EmitBytes: return cmdEmitByte(line);
-  default: return Result::CommandProcessingError;
+  default: return AssemblerResult::CommandProcessingError;
   }
 }
 
-Assembler::Result Assembler::processInstruction(const AssemblerLine& line) {
+AssemblerResult Assembler::processInstruction(const AssemblerLine& line) {
   if (line.operandsFormat == NoOperands) return assemble(line.instructionType, NoOperands);
-  if (line.operands.isEmpty()) return Result::MissingOperand;
+  if (line.operands.isEmpty()) return AssemblerResult::MissingOperand;
 
   int num;
   if (line.isOperandNumeric()) {
@@ -145,34 +145,34 @@ Assembler::Result Assembler::processInstruction(const AssemblerLine& line) {
       num = *opt;
     }
   } else {
-    return Result::UndefinedSymbol;
+    return AssemblerResult::UndefinedSymbol;
   }
 
   return assemble(line.instructionType, line.operandsFormat, num);
 }
 
-Assembler::Result Assembler::cmdSetOrigin(const AssemblerLine& line) {
+AssemblerResult Assembler::cmdSetOrigin(const AssemblerLine& line) {
   if (line.isOperandNumeric()) {
     return defineOrigin(static_cast<uint16_t>(line.operandAsNumber()));
   } else {
-    return Result::NumericOperandRequired;
+    return AssemblerResult::NumericOperandRequired;
   }
 }
 
-Assembler::Result Assembler::cmdEmitByte(const AssemblerLine& line) {
+AssemblerResult Assembler::cmdEmitByte(const AssemblerLine& line) {
   for (auto num = 0; num < line.operands.size(); num++) {
-    if (!line.isOperandNumeric(num)) return Result::NumericOperandRequired;
+    if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
     addByte(static_cast<uint8_t>(line.operandAsNumber(num)));
   }
-  return Result::Ok;
+  return AssemblerResult::Ok;
 }
 
-Assembler::Result Assembler::addSymbol(const QString& name, uint16_t value) {
+AssemblerResult Assembler::addSymbol(const QString& name, uint16_t value) {
   if (mode_ == Mode::ScanForSymbols) {
-    if (symbols_.find(name) != symbols_.end()) return Result::SymbolAlreadyDefined;
+    if (symbols_.find(name) != symbols_.end()) return AssemblerResult::SymbolAlreadyDefined;
     symbols_[name] = value;
   }
-  return Result::Ok;
+  return AssemblerResult::Ok;
 }
 
 void Assembler::addByte(uint8_t b) {

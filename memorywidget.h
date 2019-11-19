@@ -1,6 +1,7 @@
 #ifndef MEMORYWIDGET_H
 #define MEMORYWIDGET_H
 
+#include "addressrange.h"
 #include "commons.h"
 #include "memory.h"
 #include <QWidget>

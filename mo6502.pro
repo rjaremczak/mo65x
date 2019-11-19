@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     assembler.cpp \
     assemblerline.cpp \
+    assemblerresult.cpp \
     assemblerwidget.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
@@ -24,6 +25,7 @@ SOURCES += \
     cpuwidget.cpp \
     disassembler.cpp \
     emulator.cpp \
+    executionstate.cpp \
     filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -36,8 +38,10 @@ SOURCES += \
     test/flagstest.cpp
 
 HEADERS += \
+    addressrange.h \
     assembler.h \
     assemblerline.h \
+    assemblerresult.h \
     assemblerwidget.h \
     centralwidget.h \
     commons.h \

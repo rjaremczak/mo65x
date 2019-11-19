@@ -311,25 +311,25 @@ void Cpu::execBRK() {
   pushWord(regs.pc + 1);
   push(regs.p | ProcessorStatus::BreakBitMask);
   regs.p.interrupt = true;
-  regs.pc = memory_.read16(VectorIRQ);
+  regs.pc = memory_.read16(irqVector);
 }
 
 void Cpu::irq() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory_.read16(VectorIRQ);
+  regs.pc = memory_.read16(irqVector);
 }
 
 void Cpu::nmi() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory_.read16(VectorNMI);
+  regs.pc = memory_.read16(nmiVector);
 }
 
 void Cpu::reset() {
-  regs.pc = memory_.read16(VectorRESET);
+  regs.pc = memory_.read16(resetVector);
   regs.a = 0;
   regs.x = 0;
   regs.y = 0;
@@ -342,7 +342,8 @@ void Cpu::reset() {
   regs.p.carry = false;
 }
 
-void Cpu::halt() {
+void Cpu::execHalt() {
+  regs.pc--;
   state = ExecutionState::Halted;
 }
 
