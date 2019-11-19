@@ -18,7 +18,7 @@ signals:
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
   void machineCodeGenerated(uint16_t address, const Data& code);
-  void showMessageRequested(const QString& message, bool success = true);
+  void operationCompleted(const QString& message, bool success = true);
 
 public slots:
   void loadFile(const QString& fname);
@@ -26,12 +26,13 @@ public slots:
 
 private:
   Ui::AssemblerWidget* ui;
-  QString fileName_;
-  Assembler assembler_;
+  QString fileName;
+  Assembler assembler;
 
   bool process();
 
 private slots:
+  void newFile();
   void loadEditorFile();
   void saveEditorFile();
   void saveEditorFileAs();

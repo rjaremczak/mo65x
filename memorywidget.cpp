@@ -29,14 +29,15 @@ void MemoryWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void MemoryWidget::updateView() {
-  QString html("<div style='white-space:pre; display:inline-block; color:darkseagreen'>");
-  int rows = rowsInView();
+  QString html("<div style='white-space:pre; display:inline-block; color:gray'>");
+  int rows = rowsInView() - 1;
   int cols = colsInView();
   uint16_t addr = addressRange_.first;
   for (int row = 0; row < rows; row++) {
-    html.append(formatHexWord(addr).toUpper()).append("   ");
+    html.append("<div>");
+    html.append(formatHexWord(addr).toUpper()).append(" <span style='color:lightgreen'>");
     for (int x = 0; x < (cols - 7) / 3; x++) { html.append(formatHexByte(memory_[addr++]).toUpper()).append(" "); }
-    html.append("<br>");
+    html.append("</span></div>");
   }
   html.append("</div>");
   ui->textView->setHtml(html);

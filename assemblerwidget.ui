@@ -23,6 +23,13 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QToolButton" name="newFile">
+       <property name="text">
+        <string>New</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="loadFile">
        <property name="text">
         <string>Load</string>

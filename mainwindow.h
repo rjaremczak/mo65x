@@ -29,7 +29,7 @@ public:
 
 public slots:
   void changeAsmFileName(const QString&);
-  void showMessage(const QString& message, bool success = true);
+  void showResult(const QString& message, bool success = true);
 
 private:
   CentralWidget* viewWidget_;

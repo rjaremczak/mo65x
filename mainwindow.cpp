@@ -37,12 +37,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
   connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);
   connect(emulator_, &Emulator::memoryContentChanged, memoryWidget_, &MemoryWidget::updateMemoryView);
-  connect(emulator_, &Emulator::operationCompleted, this, &MainWindow::showMessage);
+  connect(emulator_, &Emulator::operationCompleted, this, &MainWindow::showResult);
 
   connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, emulator_, &Emulator::loadMemory);
   connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
+  connect(assemblerWidget_, &AssemblerWidget::operationCompleted, this, &MainWindow::showResult);
 
   connect(memoryWidget_, &MemoryWidget::loadFromFileRequested, emulator_, &Emulator::loadMemoryFromFile);
   connect(memoryWidget_, &MemoryWidget::saveToFileRequested, emulator_, &Emulator::saveMemoryToFile);
@@ -66,11 +67,14 @@ void MainWindow::changeAsmFileName(const QString& fileName) {
   setWindowTitle("mo65plus: " + fileInfo.fileName());
 }
 
-void MainWindow::showMessage(const QString& message, bool success) {
-  if (success)
-    ui->statusbar->showMessage(message, 5000);
-  else
-    QMessageBox::warning(this, "", message);
+void MainWindow::showResult(const QString& message, bool success) {
+  if (success) {
+    ui->statusbar->setStyleSheet("color: darkseagreen");
+    ui->statusbar->showMessage(message, 10000);
+  } else {
+    ui->statusbar->setStyleSheet("color: red");
+    ui->statusbar->showMessage(message);
+  }
 }
 
 void MainWindow::initConfigStorage() {

@@ -34,6 +34,11 @@
      </item>
      <item>
       <widget class="WordSpinBox" name="startAddress">
+       <property name="font">
+        <font>
+         <family>Courier</family>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:darkslategray</string>
        </property>
@@ -57,6 +62,11 @@
      </item>
      <item>
       <widget class="WordSpinBox" name="endAddress">
+       <property name="font">
+        <font>
+         <family>Courier</family>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color:darkslategray</string>
        </property>
@@ -113,7 +123,7 @@
      </property>
      <property name="font">
       <font>
-       <family>Courier 10 Pitch</family>
+       <family>Courier</family>
       </font>
      </property>
      <property name="sizeAdjustPolicy">
