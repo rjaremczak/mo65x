@@ -2,8 +2,8 @@
 
 #include "addressrange.h"
 #include "commons.h"
-#include "cpuinfo.h"
 #include "disassembler.h"
+#include "emulatorinfo.h"
 #include <QDockWidget>
 
 namespace Ui {
@@ -34,7 +34,7 @@ signals:
 
 public slots:
   void updateMemoryView(AddressRange);
-  void updateState(CpuInfo);
+  void updateState(EmulatorInfo);
   void updateDisassemblerView();
   void changeProgramCounter(uint16_t);
 

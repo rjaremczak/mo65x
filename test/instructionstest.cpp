@@ -39,16 +39,16 @@
   memory.writeData(AsmOrigin, assembler.code());                                                                                 \
   cpu.execute(false);                                                                                                            \
   QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
-  QCOMPARE(cpu.cycles, numCycles)
+  QCOMPARE(cpu.cycles, static_cast<uint64_t>(numCycles))
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
   const auto base = assembler.locationCounter();                                                                                 \
   QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr_.lo);                                                                             \
-  QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
+  QCOMPARE(cpu.cycles, static_cast<uint64_t>((base ^ cpu.regs.pc) & 0xff00 ? 4 : 3))
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
   QCOMPARE(cpu.regs.pc, assembler.locationCounter());                                                                            \
-  QCOMPARE(cpu.cycles, 2)
+  QCOMPARE(cpu.cycles, 2U)
 
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
@@ -60,7 +60,7 @@ void OpCodesTest::initTestCase() {
   QVERIFY(&cpu.memory_ == &memory);
   std::fill(memory.begin(), memory.end(), 0);
   QVERIFY(std::accumulate(memory.begin(), memory.end(), 0) == 0);
-  QCOMPARE(cpu.cycles, 0);
+  QCOMPARE(cpu.cycles, 0U);
 }
 
 void OpCodesTest::init() {
@@ -75,6 +75,7 @@ void OpCodesTest::init() {
   cpu.regs.sp.offset = StackPointerOffset;
   cpu.regs.p = 0;
   cpu.cycles = 0;
+  cpu.duration = std::chrono::microseconds::zero();
 }
 
 void OpCodesTest::testIRQ() {
@@ -220,7 +221,7 @@ void OpCodesTest::testBranchForward() {
   cpu.operandPtr_.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 13);
-  QCOMPARE(cpu.cycles, 1);
+  QCOMPARE(cpu.cycles, 1U);
 }
 
 void OpCodesTest::testBranchBackward() {
@@ -229,7 +230,7 @@ void OpCodesTest::testBranchBackward() {
   cpu.operandPtr_.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 20);
-  QCOMPARE(cpu.cycles, 1);
+  QCOMPARE(cpu.cycles, 1U);
 }
 
 void OpCodesTest::testBranchWithPageBoundaryCrossed() {
@@ -238,7 +239,7 @@ void OpCodesTest::testBranchWithPageBoundaryCrossed() {
   cpu.operandPtr_.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 263);
-  QCOMPARE(cpu.cycles, 2);
+  QCOMPARE(cpu.cycles, 2U);
 }
 
 void OpCodesTest::testWordPushPull() {

@@ -3,7 +3,7 @@
 #include "addressrange.h"
 #include "commons.h"
 #include "cpu.h"
-#include "cpuinfo.h"
+#include "emulatorinfo.h"
 #include "memory.h"
 #include <QObject>
 
@@ -15,7 +15,7 @@ public:
   const Memory& memoryView() const { return memory_; }
 
 signals:
-  void cpuStateChanged(CpuInfo);
+  void cpuStateChanged(EmulatorInfo);
   void memoryContentChanged(AddressRange);
   void operationCompleted(const QString& message, bool success);
 

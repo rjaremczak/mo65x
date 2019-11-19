@@ -38,10 +38,11 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
 
 void Emulator::resetCycleCounter() {
   cpu_.cycles = 0;
+  cpu_.duration = std::chrono::microseconds::zero();
 }
 
 void Emulator::notifyCpuStateChanged() {
-  emit cpuStateChanged(cpu_.info());
+  emit cpuStateChanged({cpu_.state, cpu_.regs, cpu_.cycles, cpu_.duration});
 }
 
 void Emulator::triggerIrq() {
@@ -68,7 +69,7 @@ void Emulator::executeOneInstruction() {
 
 void Emulator::startExecution() {
   cpu_.execute(true);
-  emit cpuStateChanged(cpu_.info());
+  notifyCpuStateChanged();
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {

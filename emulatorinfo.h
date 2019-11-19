@@ -3,9 +3,11 @@
 #include "executionstate.h"
 #include "registers.h"
 #include <QMetaType>
+#include <chrono>
 
-struct CpuInfo {
+struct EmulatorInfo {
   ExecutionState state;
   Registers regs;
-  int cycles;
+  uint64_t totalCycles;
+  std::chrono::microseconds duration;
 };

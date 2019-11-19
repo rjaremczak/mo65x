@@ -18,12 +18,14 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->regA, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerAChanged);
   connect(ui->regX, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerXChanged);
   connect(ui->regY, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerYChanged);
-  connect(ui->executeSingleStep, &QToolButton::clicked, this, &CpuWidget::executeOneInstructionRequested);
-  connect(ui->skipInstruction, &QToolButton::clicked, this, &CpuWidget::skipInstruction);
   connect(ui->reset, &QAbstractButton::clicked, this, &CpuWidget::resetRequested);
   connect(ui->nmi, &QAbstractButton::clicked, this, &CpuWidget::nmiRequested);
   connect(ui->irq, &QAbstractButton::clicked, this, &CpuWidget::irqRequested);
   connect(ui->clearCycleCounter, &QAbstractButton::clicked, this, &CpuWidget::clearCycleCounterRequested);
+  connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::executeOneInstructionRequested);
+  connect(ui->skipInstruction, &QAbstractButton::clicked, this, &CpuWidget::skipInstruction);
+  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startExecutionRequested);
+  connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
   setMonospaceFont(ui->disassemblerView);
   setMonospaceFont(ui->cycleCounter);
@@ -38,7 +40,7 @@ void CpuWidget::updateMemoryView(AddressRange range) {
   if (disassemblerRange_.overlapsWith(range)) updateDisassemblerView();
 }
 
-void CpuWidget::updateState(CpuInfo info) {
+void CpuWidget::updateState(EmulatorInfo info) {
   const auto& regs = info.regs;
 
   setWindowTitle(tr("cpu : %1").arg(executionStateStr(info.state)));
@@ -60,7 +62,7 @@ void CpuWidget::updateState(CpuInfo info) {
   str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  ui->cycleCounter->setNum(info.cycles);
+  ui->cycleCounter->setNum(static_cast<int>(info.totalCycles));
   ui->ioPortDirection->setValue(memory_[IOPortConfig]);
   ui->ioPortData->setValue(memory_[IOPortData]);
 

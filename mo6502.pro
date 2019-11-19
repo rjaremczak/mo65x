@@ -48,13 +48,13 @@ HEADERS += \
     config.h \
     controlcommand.h \
     cpudefs.h \
-    cpuinfo.h \
     cpuwidget.h \
     decodetable.h \
     bytespinbox.h \
     cpu.h \
     disassembler.h \
     emulator.h \
+    emulatorinfo.h \
     executionstate.h \
     filedatastorage.h \
     instruction.h \

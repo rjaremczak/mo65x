@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "decodetable.h"
+#include <chrono>
 
 Cpu::Cpu(Memory& memory) : memory_(memory) {
 }
@@ -348,7 +349,7 @@ void Cpu::execHalt() {
 }
 
 void Cpu::execute(bool continuous) {
-  state = ExecutionState::Running;
+  const auto t0 = std::chrono::high_resolution_clock::now();
   while (state == ExecutionState::Running) {
     pageBoundaryCrossed_ = false;
     const auto pcPtr = &memory_[regs.pc];
@@ -371,6 +372,7 @@ void Cpu::execute(bool continuous) {
   case ExecutionState::Halting: state = ExecutionState::Halted; break;
   default: break;
   }
+  const auto dt = std::chrono::high_resolution_clock::now() - t0;
 }
 
 void Cpu::triggerReset() {

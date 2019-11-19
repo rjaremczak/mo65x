@@ -1,6 +1,6 @@
 #include "commons.h"
 #include "config.h"
-#include "cpuinfo.h"
+#include "emulatorinfo.h"
 #include "filedatastorage.h"
 #include "mainwindow.h"
 #include <QApplication>
@@ -10,7 +10,7 @@
 #include <QScreen>
 #include <QStyleFactory>
 
-Q_DECLARE_METATYPE(CpuInfo)
+Q_DECLARE_METATYPE(EmulatorInfo)
 Q_DECLARE_METATYPE(Data)
 Q_DECLARE_METATYPE(AddressRange)
 Q_DECLARE_METATYPE(FileOperationCallBack)
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   qRegisterMetaType<uint16_t>("uint16_t");
 
   // register own custom types
-  qRegisterMetaType<CpuInfo>();
+  qRegisterMetaType<EmulatorInfo>();
   qRegisterMetaType<Data>();
   qRegisterMetaType<AddressRange>();
   qRegisterMetaType<FileOperationCallBack>();

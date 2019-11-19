@@ -1,12 +1,12 @@
 #pragma once
 
-#include "cpuinfo.h"
 #include "executionstate.h"
 #include "instruction.h"
 #include "memory.h"
 #include "operandptr.h"
 #include "registers.h"
 #include <atomic>
+#include <chrono>
 #include <map>
 
 class Cpu {
@@ -24,11 +24,11 @@ public:
 
   ExecutionState state = ExecutionState::Idle;
   Registers regs;
-  int cycles = 0;
+  uint64_t cycles = 0;
+  std::chrono::microseconds duration{0};
 
   Cpu(Memory&);
   void execute(bool continuous);
-  CpuInfo info() const { return {state, regs, cycles}; }
   bool running() const { return state == ExecutionState::Running; }
   void triggerReset();
   void triggerNmi();
