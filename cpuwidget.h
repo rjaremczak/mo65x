@@ -1,9 +1,9 @@
 #pragma once
 
 #include "addressrange.h"
-#include "commons.h"
+#include "defs.h"
 #include "disassembler.h"
-#include "emulatorinfo.h"
+#include "emulatorstate.h"
 #include <QDockWidget>
 
 namespace Ui {
@@ -19,10 +19,10 @@ public:
   ~CpuWidget() override;
 
 signals:
-  void executeOneInstructionRequested();
-  void startExecutionRequested();
+  void startStepExecution();
+  void startContinuousExecution();
   void stopExecutionRequested();
-  void clearCycleCounterRequested();
+  void clearStatisticsRequested();
   void resetRequested();
   void nmiRequested();
   void irqRequested();
@@ -34,7 +34,7 @@ signals:
 
 public slots:
   void updateMemoryView(AddressRange);
-  void updateState(EmulatorInfo);
+  void updateState(EmulatorState);
   void updateDisassemblerView();
   void changeProgramCounter(uint16_t);
 

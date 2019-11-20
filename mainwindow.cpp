@@ -8,60 +8,60 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   initConfigStorage();
   startEmulator();
 
-  cpuWidget_ = new CpuWidget(this, emulator_->memoryView());
-  this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget_);
+  cpuWidget = new CpuWidget(this, emulator->memoryView());
+  this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget);
 
-  assemblerWidget_ = new AssemblerWidget;
-  memoryWidget_ = new MemoryWidget(this, emulator_->memoryView());
-  viewWidget_ = new CentralWidget(this, assemblerWidget_, memoryWidget_);
-  setCentralWidget(viewWidget_);
+  assemblerWidget = new AssemblerWidget;
+  memoryWidget = new MemoryWidget(this, emulator->memoryView());
+  viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget);
+  setCentralWidget(viewWidget);
 
-  pollTimer_ = new QTimer(this);
-  connect(pollTimer_, &QTimer::timeout, emulator_, &Emulator::notifyStateChanged);
+  pollTimer = new QTimer(this);
   // pollTimer->start(1000);
 
-  connect(cpuWidget_, &CpuWidget::executeOneInstructionRequested, emulator_, &Emulator::executeOneInstruction);
-  connect(cpuWidget_, &CpuWidget::startExecutionRequested, emulator_, &Emulator::startExecution);
-  connect(cpuWidget_, &CpuWidget::programCounterChanged, emulator_, &Emulator::changeProgramCounter);
-  connect(cpuWidget_, &CpuWidget::stackPointerChanged, emulator_, &Emulator::changeStackPointer);
-  connect(cpuWidget_, &CpuWidget::registerAChanged, emulator_, &Emulator::changeAccumulator);
-  connect(cpuWidget_, &CpuWidget::registerXChanged, emulator_, &Emulator::changeRegisterX);
-  connect(cpuWidget_, &CpuWidget::registerYChanged, emulator_, &Emulator::changeRegisterY);
+  connect(cpuWidget, &CpuWidget::startStepExecution, [&] { emulator->startExecution(false); });
+  connect(cpuWidget, &CpuWidget::startContinuousExecution, [&] { emulator->startExecution(true); });
+  connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
+  connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &Emulator::changeStackPointer);
+  connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &Emulator::changeAccumulator);
+  connect(cpuWidget, &CpuWidget::registerXChanged, emulator, &Emulator::changeRegisterX);
+  connect(cpuWidget, &CpuWidget::registerYChanged, emulator, &Emulator::changeRegisterY);
+  connect(cpuWidget, &CpuWidget::clearStatisticsRequested, emulator, &Emulator::clearStatistics);
 
-  connect(cpuWidget_, &CpuWidget::stopExecutionRequested, emulator_, &Emulator::stopExecution, Qt::DirectConnection);
-  connect(cpuWidget_, &CpuWidget::clearCycleCounterRequested, emulator_, &Emulator::resetCycleCounter, Qt::DirectConnection);
-  connect(cpuWidget_, &CpuWidget::resetRequested, emulator_, &Emulator::triggerReset, Qt::DirectConnection);
-  connect(cpuWidget_, &CpuWidget::nmiRequested, emulator_, &Emulator::triggerNmi, Qt::DirectConnection);
-  connect(cpuWidget_, &CpuWidget::irqRequested, emulator_, &Emulator::triggerIrq, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::stopExecutionRequested, emulator, &Emulator::stopExecution, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::resetRequested, emulator, &Emulator::triggerReset, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::nmiRequested, emulator, &Emulator::triggerNmi, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::irqRequested, emulator, &Emulator::triggerIrq, Qt::DirectConnection);
 
-  connect(emulator_, &Emulator::cpuStateChanged, cpuWidget_, &CpuWidget::updateState);
-  connect(emulator_, &Emulator::memoryContentChanged, cpuWidget_, &CpuWidget::updateMemoryView);
-  connect(emulator_, &Emulator::memoryContentChanged, memoryWidget_, &MemoryWidget::updateMemoryView);
-  connect(emulator_, &Emulator::operationCompleted, this, &MainWindow::showResult);
+  connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::updateState);
+  connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemoryView);
+  connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemoryView);
+  connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showResult);
 
-  connect(assemblerWidget_, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget_, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, emulator_, &Emulator::loadMemory);
-  connect(assemblerWidget_, &AssemblerWidget::machineCodeGenerated, cpuWidget_, &CpuWidget::changeProgramCounter);
-  connect(assemblerWidget_, &AssemblerWidget::operationCompleted, this, &MainWindow::showResult);
+  connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
+  connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
+  connect(assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showResult);
+  connect(assemblerWidget, &AssemblerWidget::machineCodeGenerated, emulator, &Emulator::loadMemory);
+  connect(assemblerWidget, &AssemblerWidget::machineCodeGenerated, emulator, &Emulator::changeProgramCounter);
+  connect(assemblerWidget, &AssemblerWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
 
-  connect(memoryWidget_, &MemoryWidget::loadFromFileRequested, emulator_, &Emulator::loadMemoryFromFile);
-  connect(memoryWidget_, &MemoryWidget::saveToFileRequested, emulator_, &Emulator::saveMemoryToFile);
+  connect(memoryWidget, &MemoryWidget::loadFromFileRequested, emulator, &Emulator::loadMemoryFromFile);
+  connect(memoryWidget, &MemoryWidget::saveToFileRequested, emulator, &Emulator::saveMemoryToFile);
 
-  emulator_->notifyStateChanged();
+  emulator->stateChanged(emulator->currentState());
 
-  if (!config_.asmFileName.isEmpty()) assemblerWidget_->loadFile(config_.asmFileName);
+  if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
 }
 
 MainWindow::~MainWindow() {
-  emulatorThread_.quit();
-  emulatorThread_.wait();
+  emulatorThread.quit();
+  emulatorThread.wait();
   delete ui;
 }
 
 void MainWindow::changeAsmFileName(const QString& fileName) {
-  config_.asmFileName = fileName;
-  configStorage_->write(config_);
+  config.asmFileName = fileName;
+  configStorage->write(config);
 
   QFileInfo fileInfo(fileName);
   setWindowTitle("mo65plus: " + fileInfo.fileName());
@@ -81,13 +81,13 @@ void MainWindow::initConfigStorage() {
   auto appDir = QDir(QDir::homePath() + "/.mo65plus");
   if (!appDir.exists()) appDir.mkpath(".");
 
-  configStorage_ = new FileDataStorage<Config>(appDir.filePath("config.json"));
-  config_ = configStorage_->readOrCreate();
+  configStorage = new FileDataStorage<Config>(appDir.filePath("config.json"));
+  config = configStorage->readOrCreate();
 }
 
 void MainWindow::startEmulator() {
-  emulator_ = new Emulator();
-  emulator_->moveToThread(&emulatorThread_);
-  connect(&emulatorThread_, &QThread::finished, emulator_, &Emulator::deleteLater);
-  emulatorThread_.start();
+  emulator = new Emulator();
+  emulator->moveToThread(&emulatorThread);
+  connect(&emulatorThread, &QThread::finished, emulator, &Emulator::deleteLater);
+  emulatorThread.start();
 }

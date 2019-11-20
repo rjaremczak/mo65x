@@ -1,5 +1,6 @@
 #include "assemblerwidget.h"
 #include "assembler.h"
+#include "formatters.h"
 #include "ui_assemblerwidget.h"
 #include "uitools.h"
 #include <QFileDialog>
@@ -16,6 +17,8 @@ AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::
   connect(ui->saveFile, &QAbstractButton::clicked, this, &AssemblerWidget::saveEditorFile);
   connect(ui->saveFileAs, &QAbstractButton::clicked, this, &AssemblerWidget::saveEditorFileAs);
   connect(ui->assembleSourceCode, &QAbstractButton::clicked, this, &AssemblerWidget::assembleSourceCode);
+  connect(ui->goToOrigin, &QAbstractButton::clicked, [&] { emit programCounterChanged(assembler.origin()); });
+
   setMonospaceFont(ui->sourceCode);
 }
 

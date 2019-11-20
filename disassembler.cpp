@@ -1,5 +1,6 @@
 #include "disassembler.h"
-#include "commons.h"
+#include "defs.h"
+#include "formatters.h"
 #include "instruction.h"
 #include "instructiontable.h"
 #include "mnemonics.h"

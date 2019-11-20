@@ -32,15 +32,15 @@ public slots:
   void showResult(const QString& message, bool success = true);
 
 private:
-  CentralWidget* viewWidget_;
-  AssemblerWidget* assemblerWidget_;
-  MemoryWidget* memoryWidget_;
-  CpuWidget* cpuWidget_;
-  Emulator* emulator_;
-  FileDataStorage<Config>* configStorage_;
-  Config config_;
-  QTimer* pollTimer_;
-  QThread emulatorThread_;
+  CentralWidget* viewWidget;
+  AssemblerWidget* assemblerWidget;
+  MemoryWidget* memoryWidget;
+  CpuWidget* cpuWidget;
+  Emulator* emulator;
+  FileDataStorage<Config>* configStorage;
+  Config config;
+  QTimer* pollTimer;
+  QThread emulatorThread;
 
   void initConfigStorage();
   void startEmulator();

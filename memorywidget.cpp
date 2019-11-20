@@ -1,4 +1,5 @@
 #include "memorywidget.h"
+#include "formatters.h"
 #include "ui_memorywidget.h"
 #include "uitools.h"
 #include <QFileDialog>

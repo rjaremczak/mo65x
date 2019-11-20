@@ -2,7 +2,7 @@
 #define MEMORYWIDGET_H
 
 #include "addressrange.h"
-#include "commons.h"
+#include "defs.h"
 #include "memory.h"
 #include <QWidget>
 

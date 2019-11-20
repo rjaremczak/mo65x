@@ -2,7 +2,7 @@
 
 #include "assemblerline.h"
 #include "assemblerresult.h"
-#include "commons.h"
+#include "defs.h"
 #include "instruction.h"
 #include <QString>
 #include <iterator>

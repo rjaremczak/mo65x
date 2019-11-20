@@ -21,10 +21,10 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->reset, &QAbstractButton::clicked, this, &CpuWidget::resetRequested);
   connect(ui->nmi, &QAbstractButton::clicked, this, &CpuWidget::nmiRequested);
   connect(ui->irq, &QAbstractButton::clicked, this, &CpuWidget::irqRequested);
-  connect(ui->clearCycleCounter, &QAbstractButton::clicked, this, &CpuWidget::clearCycleCounterRequested);
-  connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::executeOneInstructionRequested);
+  connect(ui->clearCycleCounter, &QAbstractButton::clicked, this, &CpuWidget::clearStatisticsRequested);
+  connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::startStepExecution);
   connect(ui->skipInstruction, &QAbstractButton::clicked, this, &CpuWidget::skipInstruction);
-  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startExecutionRequested);
+  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startContinuousExecution);
   connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
   setMonospaceFont(ui->disassemblerView);
@@ -40,7 +40,7 @@ void CpuWidget::updateMemoryView(AddressRange range) {
   if (disassemblerRange_.overlapsWith(range)) updateDisassemblerView();
 }
 
-void CpuWidget::updateState(EmulatorInfo info) {
+void CpuWidget::updateState(EmulatorState info) {
   const auto& regs = info.regs;
 
   setWindowTitle(tr("cpu : %1").arg(executionStateStr(info.state)));

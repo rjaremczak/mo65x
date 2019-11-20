@@ -3,13 +3,13 @@
 #include <QThread>
 #include <algorithm>
 
-Emulator::Emulator(QObject* parent) : QObject(parent), cpu_(memory_) {
-  std::generate(memory_.begin(), memory_.end(), [] { return std::rand(); });
+Emulator::Emulator(QObject* parent) : QObject(parent), cpu(memory) {
+  std::generate(memory.begin(), memory.end(), [] { return std::rand(); });
 }
 
 void Emulator::loadMemory(uint16_t start, const Data& data) {
-  auto size = static_cast<uint16_t>(std::min(static_cast<size_t>(data.size()), memory_.size() - start));
-  std::copy_n(data.begin(), size, memory_.begin() + start);
+  auto size = static_cast<uint16_t>(std::min(static_cast<size_t>(data.size()), memory.size() - start));
+  std::copy_n(data.begin(), size, memory.begin() + start);
   emit memoryContentChanged({start, static_cast<uint16_t>(start + size - 1)});
 }
 
@@ -30,90 +30,83 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
   qint64 rsize = -1;
   if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     Data buf(range.size());
-    std::copy_n(&memory_[range.first], range.size(), buf.begin());
+    std::copy_n(&memory[range.first], range.size(), buf.begin());
     rsize = file.write(reinterpret_cast<char*>(buf.data()), static_cast<int>(buf.size()));
   }
   emit operationCompleted(rsize > 0 ? tr("saved %1 B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
 }
 
-void Emulator::resetCycleCounter() {
-  cpu_.cycles = 0;
-  cpu_.duration = std::chrono::microseconds::zero();
+void Emulator::clearStatistics() {
+  cpu.clearStatistics();
+  emit stateChanged(currentState());
 }
 
-void Emulator::notifyCpuStateChanged() {
-  emit cpuStateChanged({cpu_.state, cpu_.regs, cpu_.cycles, cpu_.duration});
+const EmulatorState Emulator::currentState(uint64_t lastCycles, Duration lastDuration) {
+  return {cpu.state, cpu.regs, cpu.cycles, cpu.duration, lastCycles, lastDuration};
 }
 
 void Emulator::triggerIrq() {
-  cpu_.triggerIrq();
+  cpu.triggerIrq();
 }
 
 void Emulator::triggerNmi() {
-  cpu_.triggerNmi();
+  cpu.triggerNmi();
 }
 
 void Emulator::triggerReset() {
-  cpu_.triggerReset();
+  cpu.triggerReset();
 }
 
 void Emulator::stopExecution() {
-  cpu_.state = ExecutionState::Stopping;
+  cpu.state = ExecutionState::Stopping;
   QThread::msleep(100);
 }
 
-void Emulator::executeOneInstruction() {
-  cpu_.execute(false);
-  notifyCpuStateChanged();
-}
-
-void Emulator::startExecution() {
-  cpu_.execute(true);
-  notifyCpuStateChanged();
+void Emulator::startExecution(bool continuous) {
+  const auto d0 = cpu.duration;
+  const auto c0 = cpu.cycles;
+  cpu.execute(continuous);
+  emit stateChanged(currentState(cpu.cycles - c0, cpu.duration - d0));
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {
-  if (cpu_.state != ExecutionState::Running && cpu_.regs.pc != pc) {
-    cpu_.regs.pc = pc;
-    if (cpu_.state == ExecutionState::Halted || cpu_.state == ExecutionState::Stopped) cpu_.state = ExecutionState::Idle;
-    notifyCpuStateChanged();
+  if (cpu.state != ExecutionState::Running && cpu.regs.pc != pc) {
+    cpu.regs.pc = pc;
+    if (cpu.state == ExecutionState::Halted || cpu.state == ExecutionState::Stopped) cpu.state = ExecutionState::Idle;
+    emit stateChanged(currentState());
   }
 }
 
 void Emulator::changeStackPointer(uint16_t sp) {
   const auto offset = static_cast<uint8_t>(sp);
-  if (cpu_.regs.sp.offset != offset) {
-    cpu_.regs.sp.offset = offset;
-    notifyCpuStateChanged();
+  if (cpu.regs.sp.offset != offset) {
+    cpu.regs.sp.offset = offset;
+    emit stateChanged(currentState());
   }
 }
 
 void Emulator::changeAccumulator(uint8_t a) {
-  if (cpu_.regs.a != a) {
-    cpu_.regs.a = a;
-    notifyCpuStateChanged();
+  if (cpu.regs.a != a) {
+    cpu.regs.a = a;
+    emit stateChanged(currentState());
   }
 }
 
 void Emulator::changeRegisterX(uint8_t x) {
-  if (cpu_.regs.x != x) {
-    cpu_.regs.x = x;
-    notifyCpuStateChanged();
+  if (cpu.regs.x != x) {
+    cpu.regs.x = x;
+    emit stateChanged(currentState());
   }
 }
 
 void Emulator::changeRegisterY(uint8_t y) {
-  if (cpu_.regs.y != y) {
-    cpu_.regs.y = y;
-    notifyCpuStateChanged();
+  if (cpu.regs.y != y) {
+    cpu.regs.y = y;
+    emit stateChanged(currentState());
   }
 }
 
 void Emulator::changeMemory(uint16_t addr, uint8_t b) {
-  memory_[addr] = b;
+  memory[addr] = b;
   emit memoryContentChanged(addr);
-}
-
-void Emulator::notifyStateChanged() {
-  notifyCpuStateChanged();
 }

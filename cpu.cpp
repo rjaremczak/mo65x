@@ -2,7 +2,7 @@
 #include "decodetable.h"
 #include <chrono>
 
-Cpu::Cpu(Memory& memory) : memory_(memory) {
+Cpu::Cpu(Memory& memory) : memory(memory) {
 }
 
 void Cpu::prepImpliedMode() {
@@ -10,7 +10,7 @@ void Cpu::prepImpliedMode() {
 }
 
 void Cpu::prepAccumulatorMode() {
-  effectiveOperandPtr_.lo = &regs.a;
+  effectiveOperandPtr.lo = &regs.a;
 }
 
 void Cpu::prepRelativeMode() {
@@ -18,92 +18,92 @@ void Cpu::prepRelativeMode() {
 }
 
 void Cpu::prepIndirectMode() {
-  effectiveAddress_ = memory_.read16(operandPtr_.word());
+  effectiveAddress = memory.read16(operandPtr.word());
 }
 
 void Cpu::prepImmediateMode() {
-  effectiveOperandPtr_.lo = operandPtr_.lo;
+  effectiveOperandPtr.lo = operandPtr.lo;
 }
 
 void Cpu::prepZeroPageMode() {
-  effectiveAddress_ = *operandPtr_.lo;
+  effectiveAddress = *operandPtr.lo;
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepZeroPageXMode() {
-  calculateZeroPageEffectiveAddress(*operandPtr_.lo, regs.x);
+  calculateZeroPageEffectiveAddress(*operandPtr.lo, regs.x);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepZeroPageYMode() {
-  calculateZeroPageEffectiveAddress(*operandPtr_.lo, regs.y);
+  calculateZeroPageEffectiveAddress(*operandPtr.lo, regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndexedIndirectXMode() {
-  effectiveAddress_ = memory_.read16(static_cast<uint8_t>((*operandPtr_.lo + regs.x)));
+  effectiveAddress = memory.read16(static_cast<uint8_t>((*operandPtr.lo + regs.x)));
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndirectIndexedYMode() {
-  calculateEffectiveAddress(memory_.read16(*operandPtr_.lo), regs.y);
+  calculateEffectiveAddress(memory.read16(*operandPtr.lo), regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteMode() {
-  effectiveAddress_ = operandPtr_.word();
+  effectiveAddress = operandPtr.word();
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteXMode() {
-  calculateEffectiveAddress(operandPtr_.word(), regs.x);
+  calculateEffectiveAddress(operandPtr.word(), regs.x);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteYMode() {
-  calculateEffectiveAddress(operandPtr_.word(), regs.y);
+  calculateEffectiveAddress(operandPtr.word(), regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::execLDA() {
-  regs.p.computeNZ(regs.a = *effectiveOperandPtr_.lo);
+  regs.p.computeNZ(regs.a = *effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execLDX() {
-  regs.p.computeNZ(regs.x = *effectiveOperandPtr_.lo);
+  regs.p.computeNZ(regs.x = *effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execLDY() {
-  regs.p.computeNZ(regs.y = *effectiveOperandPtr_.lo);
+  regs.p.computeNZ(regs.y = *effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execSTA() {
-  *effectiveOperandPtr_.lo = regs.a;
+  *effectiveOperandPtr.lo = regs.a;
 }
 
 void Cpu::execSTX() {
-  *effectiveOperandPtr_.lo = regs.x;
+  *effectiveOperandPtr.lo = regs.x;
 }
 
 void Cpu::execSTY() {
-  *effectiveOperandPtr_.lo = regs.y;
+  *effectiveOperandPtr.lo = regs.y;
 }
 
 void Cpu::execADC() {
-  execAddWithCarry(*effectiveOperandPtr_.lo);
+  execAddWithCarry(*effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execSBC() {
-  execAddWithCarry(*effectiveOperandPtr_.lo ^ 0xff);
+  execAddWithCarry(*effectiveOperandPtr.lo ^ 0xff);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execINC() {
-  regs.p.computeNZ(++(*effectiveOperandPtr_.lo));
+  regs.p.computeNZ(++(*effectiveOperandPtr.lo));
 }
 
 void Cpu::execINX() {
@@ -115,7 +115,7 @@ void Cpu::execINY() {
 }
 
 void Cpu::execDEC() {
-  regs.p.computeNZ(--(*effectiveOperandPtr_.lo));
+  regs.p.computeNZ(--(*effectiveOperandPtr.lo));
 }
 
 void Cpu::execDEX() {
@@ -127,41 +127,41 @@ void Cpu::execDEY() {
 }
 
 void Cpu::execASL() {
-  auto val = *effectiveOperandPtr_.lo;
+  auto val = *effectiveOperandPtr.lo;
   regs.p.carry = val & 0x80;
-  regs.p.computeNZ(*effectiveOperandPtr_.lo = static_cast<uint8_t>(val << 1));
+  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(val << 1));
 }
 
 void Cpu::execLSR() {
-  auto val = *effectiveOperandPtr_.lo;
+  auto val = *effectiveOperandPtr.lo;
   regs.p.carry = val & 0x01;
-  regs.p.computeNZ(*effectiveOperandPtr_.lo = static_cast<uint8_t>(val >> 1));
+  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(val >> 1));
 }
 
 void Cpu::execROL() {
-  const uint16_t res = static_cast<uint16_t>(*effectiveOperandPtr_.lo << 1) | regs.p.carry;
+  const uint16_t res = static_cast<uint16_t>(*effectiveOperandPtr.lo << 1) | regs.p.carry;
   regs.p.carry = res & 0x100;
-  regs.p.computeNZ(*effectiveOperandPtr_.lo = static_cast<uint8_t>(res));
+  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(res));
 }
 
 void Cpu::execROR() {
-  const uint16_t tmp = *effectiveOperandPtr_.lo | (regs.p.carry ? 0x100 : 0x00);
+  const uint16_t tmp = *effectiveOperandPtr.lo | (regs.p.carry ? 0x100 : 0x00);
   regs.p.carry = tmp & 0x01;
-  regs.p.computeNZ(*effectiveOperandPtr_.lo = static_cast<uint8_t>(tmp >> 1));
+  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(tmp >> 1));
 }
 
 void Cpu::execAND() {
-  regs.p.computeNZ(regs.a &= *effectiveOperandPtr_.lo);
+  regs.p.computeNZ(regs.a &= *effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execORA() {
-  regs.p.computeNZ(regs.a |= *effectiveOperandPtr_.lo);
+  regs.p.computeNZ(regs.a |= *effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
 void Cpu::execEOR() {
-  regs.p.computeNZ(regs.a ^= *effectiveOperandPtr_.lo);
+  regs.p.computeNZ(regs.a ^= *effectiveOperandPtr.lo);
   applyExtraCycleOnPageBoundaryCrossing();
 }
 
@@ -179,7 +179,7 @@ void Cpu::execCPY() {
 }
 
 void Cpu::execBIT() {
-  const auto operand = *effectiveOperandPtr_.lo;
+  const auto operand = *effectiveOperandPtr.lo;
   regs.p.zero = !(regs.a & operand);
   regs.p.negative = operand & 0x80;
   regs.p.overflow = operand & 0x40;
@@ -290,12 +290,12 @@ void Cpu::execBVS() {
 }
 
 void Cpu::execJMP() {
-  regs.pc = effectiveAddress_;
+  regs.pc = effectiveAddress;
 }
 
 void Cpu::execJSR() {
   pushWord(regs.pc - 1);
-  regs.pc = effectiveAddress_;
+  regs.pc = effectiveAddress;
 }
 
 void Cpu::execRTS() {
@@ -312,25 +312,25 @@ void Cpu::execBRK() {
   pushWord(regs.pc + 1);
   push(regs.p | ProcessorStatus::BreakBitMask);
   regs.p.interrupt = true;
-  regs.pc = memory_.read16(irqVector);
+  regs.pc = memory.read16(irqVector);
 }
 
 void Cpu::irq() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory_.read16(irqVector);
+  regs.pc = memory.read16(irqVector);
 }
 
 void Cpu::nmi() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory_.read16(nmiVector);
+  regs.pc = memory.read16(nmiVector);
 }
 
 void Cpu::reset() {
-  regs.pc = memory_.read16(resetVector);
+  regs.pc = memory.read16(resetVector);
   regs.a = 0;
   regs.x = 0;
   regs.y = 0;
@@ -341,6 +341,12 @@ void Cpu::reset() {
   regs.p.interrupt = true;
   regs.p.zero = false;
   regs.p.carry = false;
+  clearStatistics();
+}
+
+void Cpu::clearStatistics() {
+  cycles = 0;
+  duration = std::chrono::microseconds::zero();
 }
 
 void Cpu::execHalt() {
@@ -349,12 +355,13 @@ void Cpu::execHalt() {
 }
 
 void Cpu::execute(bool continuous) {
-  const auto t0 = std::chrono::high_resolution_clock::now();
+  state = ExecutionState::Running;
   while (state == ExecutionState::Running) {
-    pageBoundaryCrossed_ = false;
-    const auto pcPtr = &memory_[regs.pc];
-    operandPtr_.lo = &memory_[regs.pc + 1];
-    operandPtr_.hi = &memory_[regs.pc + 2];
+    const auto t0 = Clock::now();
+    pageBoundaryCrossed = false;
+    const auto pcPtr = &memory[regs.pc];
+    operandPtr.lo = &memory[regs.pc + 1];
+    operandPtr.hi = &memory[regs.pc + 2];
     const auto& entry = DecodeTable[*pcPtr];
     const auto ins = entry.instruction;
 
@@ -364,6 +371,7 @@ void Cpu::execute(bool continuous) {
     (this->*entry.prepareOperands)();
     (this->*entry.executeInstruction)();
 
+    duration += std::chrono::duration_cast<Duration>(Clock::now() - t0);
     if (!continuous) break;
   }
   switch (state) {
@@ -372,12 +380,11 @@ void Cpu::execute(bool continuous) {
   case ExecutionState::Halting: state = ExecutionState::Halted; break;
   default: break;
   }
-  const auto dt = std::chrono::high_resolution_clock::now() - t0;
 }
 
 void Cpu::triggerReset() {
   if (running()) {
-    pendingReset_ = true;
+    pendingReset = true;
   } else {
     reset();
   }
@@ -385,7 +392,7 @@ void Cpu::triggerReset() {
 
 void Cpu::triggerNmi() {
   if (running()) {
-    pendingNmi_ = true;
+    pendingNmi = true;
   } else {
     nmi();
   }
@@ -394,7 +401,7 @@ void Cpu::triggerNmi() {
 void Cpu::triggerIrq() {
   if (regs.p.interrupt) return;
   if (!running()) {
-    pendingIrq_ = true;
+    pendingIrq = true;
   } else {
     irq();
   }

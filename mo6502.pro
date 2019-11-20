@@ -44,7 +44,6 @@ HEADERS += \
     assemblerresult.h \
     assemblerwidget.h \
     centralwidget.h \
-    commons.h \
     config.h \
     controlcommand.h \
     cpudefs.h \
@@ -52,11 +51,13 @@ HEADERS += \
     decodetable.h \
     bytespinbox.h \
     cpu.h \
+    defs.h \
     disassembler.h \
     emulator.h \
-    emulatorinfo.h \
+    emulatorstate.h \
     executionstate.h \
     filedatastorage.h \
+    formatters.h \
     instruction.h \
     instructiontable.h \
     instructiontype.h \

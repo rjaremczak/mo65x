@@ -7,6 +7,7 @@
 #include "registers.h"
 #include <atomic>
 #include <chrono>
+#include <defs.h>
 #include <map>
 
 class Cpu {
@@ -24,10 +25,13 @@ public:
 
   ExecutionState state = ExecutionState::Idle;
   Registers regs;
-  uint64_t cycles = 0;
-  std::chrono::microseconds duration{0};
+  uint64_t cycles;
+  Duration duration;
 
   Cpu(Memory&);
+  void reset();
+  void clearStatistics();
+
   void execute(bool continuous);
   bool running() const { return state == ExecutionState::Running; }
   void triggerReset();
@@ -37,24 +41,24 @@ public:
 private:
   friend class OpCodesTest;
 
-  std::atomic_bool pendingIrq_ = false;
-  std::atomic_bool pendingNmi_ = false;
-  std::atomic_bool pendingReset_ = false;
+  std::atomic_bool pendingIrq = false;
+  std::atomic_bool pendingNmi = false;
+  std::atomic_bool pendingReset = false;
 
-  Memory& memory_;
-  OperandPtr operandPtr_;
-  OperandPtr effectiveOperandPtr_;
-  uint16_t effectiveAddress_;
-  bool pageBoundaryCrossed_;
+  Memory& memory;
+  OperandPtr operandPtr;
+  OperandPtr effectiveOperandPtr;
+  uint16_t effectiveAddress;
+  bool pageBoundaryCrossed;
 
   void push(uint8_t b) {
-    memory_[regs.sp.address()] = b;
+    memory[regs.sp.address()] = b;
     regs.sp.decrement();
   }
 
   uint8_t pull() {
     regs.sp.increment();
-    return memory_[regs.sp.address()];
+    return memory[regs.sp.address()];
   }
 
   void pushWord(uint16_t word) {
@@ -66,24 +70,24 @@ private:
 
   void calculateZeroPageEffectiveAddress(uint8_t address, uint8_t offset) {
     const uint8_t result = address + offset;
-    effectiveAddress_ = result;
+    effectiveAddress = result;
   }
 
   void calculateEffectiveAddress(uint16_t address, int16_t offset) {
-    effectiveAddress_ = static_cast<uint16_t>(address + offset);
-    pageBoundaryCrossed_ = (address ^ effectiveAddress_) & 0xff00;
+    effectiveAddress = static_cast<uint16_t>(address + offset);
+    pageBoundaryCrossed = (address ^ effectiveAddress) & 0xff00;
   }
 
-  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr_.lo = &memory_[effectiveAddress_]; }
+  void setEffectiveOperandPtrToAddress() { effectiveOperandPtr.lo = &memory[effectiveAddress]; }
 
   void applyExtraCycleOnPageBoundaryCrossing() {
-    if (pageBoundaryCrossed_) ++cycles;
+    if (pageBoundaryCrossed) ++cycles;
   }
 
   void execBranch() {
     cycles++;
-    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr_.lo));
-    regs.pc = effectiveAddress_;
+    calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr.lo));
+    regs.pc = effectiveAddress;
     applyExtraCycleOnPageBoundaryCrossing();
   }
 
@@ -94,11 +98,10 @@ private:
     regs.a = uint8_t(result);
   }
 
-  void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr_.lo ^ 0xff) + uint8_t(1)); }
+  void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr.lo ^ 0xff) + uint8_t(1)); }
 
   void nmi();
   void irq();
-  void reset();
   void execHalt();
 
   void prepImpliedMode();
