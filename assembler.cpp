@@ -71,7 +71,6 @@ static AssemblerLine parseAssemblyLine(const QString& str) {
 }
 
 void Assembler::init(uint16_t addr) {
-  addressRange = addr;
   locationCounter = addr;
   written = 0;
 }
@@ -186,6 +185,5 @@ void Assembler::addByte(Memory& memory, uint8_t b) {
 }
 
 void Assembler::updateAddressRange(uint16_t addr) {
-  addressRange.first = std::min(addressRange.first, addr);
-  addressRange.last = std::max(addressRange.last, addr);
+  addressRange.expand(addr);
 }
