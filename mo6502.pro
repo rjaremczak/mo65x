@@ -56,6 +56,7 @@ HEADERS += \
     emulator.h \
     emulatorstate.h \
     executionstate.h \
+    executionstatistics.h \
     filedatastorage.h \
     formatters.h \
     instruction.h \
@@ -69,6 +70,7 @@ HEADERS += \
     operandsformat.h \
     processorstatus.h \
     registers.h \
+    runlevel.h \
     stackpointer.h \
     uitools.h \
     wordspinbox.h \

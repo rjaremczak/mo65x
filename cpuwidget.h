@@ -34,7 +34,7 @@ signals:
 
 public slots:
   void updateMemoryView(AddressRange);
-  void updateState(EmulatorState);
+  void processState(EmulatorState);
   void updateDisassemblerView();
   void changeProgramCounter(uint16_t);
 
@@ -44,9 +44,9 @@ protected:
 private:
   Ui::CpuWidget* ui;
 
-  const Memory& memory_;
-  Disassembler disassembler_;
-  AddressRange disassemblerRange_;
+  const Memory& memory;
+  Disassembler disassembler;
+  AddressRange disassemblerRange;
 
   int rowsInView() const;
 

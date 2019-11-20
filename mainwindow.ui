@@ -14,7 +14,11 @@
    <string>mo65emu</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+  </widget>
   <action name="actionShow_Memory">
    <property name="text">
     <string>&amp;Memory</string>

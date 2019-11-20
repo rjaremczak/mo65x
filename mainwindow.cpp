@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "formatters.h"
 #include "ui_mainwindow.h"
 #include <QDir>
 #include <QMessageBox>
@@ -33,14 +34,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(cpuWidget, &CpuWidget::nmiRequested, emulator, &Emulator::triggerNmi, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::irqRequested, emulator, &Emulator::triggerIrq, Qt::DirectConnection);
 
-  connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::updateState);
+  connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::processState);
+  connect(emulator, &Emulator::stateChanged, this, &MainWindow::processEmulatorState);
   connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemoryView);
   connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemoryView);
-  connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showResult);
+  connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
 
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showResult);
+  connect(assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showMessage);
   connect(assemblerWidget, &AssemblerWidget::machineCodeGenerated, emulator, &Emulator::loadMemory);
   connect(assemblerWidget, &AssemblerWidget::machineCodeGenerated, emulator, &Emulator::changeProgramCounter);
   connect(assemblerWidget, &AssemblerWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
@@ -67,14 +69,19 @@ void MainWindow::changeAsmFileName(const QString& fileName) {
   setWindowTitle("mo65plus: " + fileInfo.fileName());
 }
 
-void MainWindow::showResult(const QString& message, bool success) {
+void MainWindow::showMessage(const QString& message, bool success) {
   if (success) {
-    ui->statusbar->setStyleSheet("color: darkseagreen");
-    ui->statusbar->showMessage(message, 10000);
+    ui->statusbar->setStyleSheet("color: white");
   } else {
-    ui->statusbar->setStyleSheet("color: red");
-    ui->statusbar->showMessage(message);
+    ui->statusbar->setStyleSheet("color: orange");
   }
+  ui->statusbar->showMessage(message);
+}
+
+void MainWindow::processEmulatorState(EmulatorState emulatorState) {
+  QString msg(tr(formatExecutionState(emulatorState.executionState)));
+  if (auto es = emulatorState.lastExecutionStatistics; es.valid()) msg.append(" : ").append(formatExecutionStatistics(es));
+  showMessage(msg, emulatorState.executionState != ExecutionState::Halted);
 }
 
 void MainWindow::initConfigStorage() {

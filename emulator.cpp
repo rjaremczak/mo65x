@@ -38,10 +38,11 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
 
 void Emulator::clearStatistics() {
   cpu.clearStatistics();
+  cpu.state = ExecutionState::Idle;
   emit stateChanged(currentState());
 }
 
-const EmulatorState Emulator::currentState(uint64_t lastCycles, Duration lastDuration) {
+const EmulatorState Emulator::currentState(long lastCycles, Duration lastDuration) {
   return {cpu.state, cpu.regs, cpu.cycles, cpu.duration, lastCycles, lastDuration};
 }
 

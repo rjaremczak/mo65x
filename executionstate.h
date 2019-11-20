@@ -2,4 +2,4 @@
 
 enum class ExecutionState { Idle, Stopped, Halted, Running, Stopping, Halting };
 
-const char* executionStateStr(ExecutionState es);
+const char* formatExecutionState(ExecutionState es);

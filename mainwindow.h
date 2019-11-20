@@ -29,7 +29,8 @@ public:
 
 public slots:
   void changeAsmFileName(const QString&);
-  void showResult(const QString& message, bool success = true);
+  void showMessage(const QString& message, bool success = true);
+  void processEmulatorState(EmulatorState);
 
 private:
   CentralWidget* viewWidget;

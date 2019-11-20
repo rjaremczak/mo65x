@@ -38,13 +38,13 @@
   QCOMPARE(assembler.process(instr), AssemblerResult::Ok);                                                                       \
   memory.writeData(AsmOrigin, assembler.code());                                                                                 \
   cpu.execute(false);                                                                                                            \
-  QCOMPARE(cpu.state, ExecutionState::Stopped);                                                                                  \
-  QCOMPARE(cpu.cycles, static_cast<uint64_t>(numCycles))
+  QCOMPARE(cpu.state, ExecutionState::Idle);                                                                                     \
+  QCOMPARE(cpu.cycles, numCycles)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
   const auto base = assembler.locationCounter();                                                                                 \
   QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr.lo);                                                                              \
-  QCOMPARE(cpu.cycles, static_cast<uint64_t>((base ^ cpu.regs.pc) & 0xff00 ? 4 : 3))
+  QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
   QCOMPARE(cpu.regs.pc, assembler.locationCounter());                                                                            \
@@ -60,7 +60,6 @@ void OpCodesTest::initTestCase() {
   QVERIFY(&cpu.memory == &memory);
   std::fill(memory.begin(), memory.end(), 0);
   QVERIFY(std::accumulate(memory.begin(), memory.end(), 0) == 0);
-  QCOMPARE(cpu.cycles, 0U);
 }
 
 void OpCodesTest::init() {
@@ -71,9 +70,7 @@ void OpCodesTest::init() {
   cpu.reset();
   cpu.regs.pc = AsmOrigin;
   cpu.regs.sp.offset = StackPointerOffset;
-  cpu.regs.p = 0;
-  cpu.cycles = 0;
-  cpu.duration = std::chrono::microseconds::zero();
+  QCOMPARE(cpu.cycles, 0);
 }
 
 void OpCodesTest::testIRQ() {
@@ -99,7 +96,6 @@ void OpCodesTest::testReset() {
 void OpCodesTest::testImpliedMode() {
   cpu.regs.p.interrupt = true;
   TEST_INST("CLI", 2);
-  QVERIFY(!cpu.regs.p.interrupt);
 }
 
 void OpCodesTest::testAccumulatorMode() {

@@ -8,12 +8,12 @@ firstloop:
   PHA
   INX
   INY
-  CPY #$10
-  BNE firstloop ;loop until Y is $10
+  CPY #$ff
+  BNE firstloop ;loop one
 secondloop:
   PLA
   STA $0200,Y
   INY
-  CPY #$20      ;loop until Y is $20
-  BNE secondloop
+  CPY #$ff
+  BNE secondloop ; loop two
   KIL

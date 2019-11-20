@@ -34,7 +34,5 @@ QMainWindow::separator:hover {
 }
 
 QStatusBar {
-    /*
-    border-top: 2px solid rgb(41,41,41);
-    */
+    /* border-top: 1px solid rgb(41,41,41); */
 }

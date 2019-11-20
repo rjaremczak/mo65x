@@ -346,7 +346,7 @@ void Cpu::reset() {
 
 void Cpu::clearStatistics() {
   cycles = 0;
-  duration = std::chrono::microseconds::zero();
+  duration = Duration::zero();
 }
 
 void Cpu::execHalt() {
@@ -357,7 +357,7 @@ void Cpu::execHalt() {
 void Cpu::execute(bool continuous) {
   state = ExecutionState::Running;
   while (state == ExecutionState::Running) {
-    const auto t0 = Clock::now();
+    const auto t0 = PreciseClock::now();
     pageBoundaryCrossed = false;
     const auto pcPtr = &memory[regs.pc];
     operandPtr.lo = &memory[regs.pc + 1];
@@ -371,7 +371,8 @@ void Cpu::execute(bool continuous) {
     (this->*entry.prepareOperands)();
     (this->*entry.executeInstruction)();
 
-    duration += std::chrono::duration_cast<Duration>(Clock::now() - t0);
+    duration += std::chrono::duration_cast<Duration>(PreciseClock::now() - t0);
+
     if (!continuous) break;
   }
   switch (state) {
@@ -383,16 +384,18 @@ void Cpu::execute(bool continuous) {
 }
 
 void Cpu::triggerReset() {
+  if (runLevel < RunLevel::Reset) return;
   if (running()) {
-    pendingReset = true;
+    runLevel = RunLevel::Reset;
   } else {
     reset();
   }
 }
 
 void Cpu::triggerNmi() {
+  if (runLevel < RunLevel::Nmi) return;
   if (running()) {
-    pendingNmi = true;
+    // runLevel = Nmi;
   } else {
     nmi();
   }
@@ -401,7 +404,7 @@ void Cpu::triggerNmi() {
 void Cpu::triggerIrq() {
   if (regs.p.interrupt) return;
   if (!running()) {
-    pendingIrq = true;
+    // pendingIrq = true;
   } else {
     irq();
   }

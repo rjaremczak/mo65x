@@ -1,4 +1,5 @@
 #include "cpuwidget.h"
+#include "formatters.h"
 #include "ui_cpuwidget.h"
 #include "uitools.h"
 #include <QFontDatabase>
@@ -10,7 +11,7 @@ static QString flagStr(bool flagStatus, const char* flagCode) {
 }
 
 CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
-    : QDockWidget(parent), ui(new Ui::CpuWidget), memory_(memory), disassembler_(memory) {
+    : QDockWidget(parent), ui(new Ui::CpuWidget), memory(memory), disassembler(memory) {
   ui->setupUi(this);
 
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
@@ -28,7 +29,6 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
   setMonospaceFont(ui->disassemblerView);
-  setMonospaceFont(ui->cycleCounter);
   setMonospaceFont(ui->flags);
 }
 
@@ -37,13 +37,13 @@ CpuWidget::~CpuWidget() {
 }
 
 void CpuWidget::updateMemoryView(AddressRange range) {
-  if (disassemblerRange_.overlapsWith(range)) updateDisassemblerView();
+  if (disassemblerRange.overlapsWith(range)) updateDisassemblerView();
 }
 
-void CpuWidget::updateState(EmulatorState info) {
-  const auto& regs = info.regs;
+void CpuWidget::processState(EmulatorState es) {
+  const auto& regs = es.registers;
 
-  setWindowTitle(tr("cpu : %1").arg(executionStateStr(info.state)));
+  setWindowTitle(tr("cpu : %1").arg(formatExecutionState(es.executionState)));
 
   ui->regA->setValue(regs.a);
   ui->regX->setValue(regs.x);
@@ -62,25 +62,25 @@ void CpuWidget::updateState(EmulatorState info) {
   str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  ui->cycleCounter->setNum(static_cast<int>(info.totalCycles));
-  ui->ioPortDirection->setValue(memory_[IOPortConfig]);
-  ui->ioPortData->setValue(memory_[IOPortData]);
+  ui->ioPortDirection->setValue(memory[IOPortConfig]);
+  ui->ioPortData->setValue(memory[IOPortData]);
+  ui->avgStatistics->setText(formatExecutionStatistics(es.avgExecutionStatistics));
 
   ui->regPC->setValue(regs.pc);
-  if (disassemblerRange_.first != regs.pc) {
-    disassemblerRange_.first = regs.pc;
+  if (disassemblerRange.first != regs.pc) {
+    disassemblerRange.first = regs.pc;
     updateDisassemblerView();
   }
 
-  const auto processing =
-      info.state == ExecutionState::Running || info.state == ExecutionState::Halting || info.state == ExecutionState::Stopping;
+  const auto processing = es.executionState == ExecutionState::Running || es.executionState == ExecutionState::Halting ||
+                          es.executionState == ExecutionState::Stopping;
 
   ui->cpuFrame->setDisabled(processing);
   ui->auxFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->startExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);
-  ui->executeSingleStep->setDisabled(processing || info.state == ExecutionState::Halted);
+  ui->executeSingleStep->setDisabled(processing || es.executionState == ExecutionState::Halted);
 }
 
 void CpuWidget::resizeEvent(QResizeEvent* event) {
@@ -92,25 +92,25 @@ int CpuWidget::rowsInView() const {
 }
 
 void CpuWidget::updateDisassemblerView() {
-  disassembler_.setOrigin(disassemblerRange_.first);
+  disassembler.setOrigin(disassemblerRange.first);
   QString html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
   if (rows--) {
     html.append("<div style='color:black; background-color: lightgreen'>");
-    html.append(disassembler_.disassemble()).append("</div>");
-    disassembler_.nextInstruction();
+    html.append(disassembler.disassemble()).append("</div>");
+    disassembler.nextInstruction();
 
     html.append("<div style='color:darkseagreen'>");
     while (rows--) {
-      html.append(disassembler_.disassemble() + "<br>");
-      disassembler_.nextInstruction();
+      html.append(disassembler.disassemble() + "<br>");
+      disassembler.nextInstruction();
     }
 
     html.append("</div>");
   }
   html.append("</div>");
   ui->disassemblerView->setHtml(html);
-  disassemblerRange_.last = disassembler_.currentAddress();
+  disassemblerRange.last = disassembler.currentAddress();
 }
 
 void CpuWidget::changeProgramCounter(uint16_t addr) {
@@ -118,7 +118,7 @@ void CpuWidget::changeProgramCounter(uint16_t addr) {
 }
 
 void CpuWidget::skipInstruction() {
-  disassembler_.setOrigin(disassemblerRange_.first);
-  disassembler_.nextInstruction();
-  emit programCounterChanged(disassembler_.currentAddress());
+  disassembler.setOrigin(disassemblerRange.first);
+  disassembler.nextInstruction();
+  emit programCounterChanged(disassembler.currentAddress());
 }

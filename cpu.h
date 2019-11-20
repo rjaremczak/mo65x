@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "operandptr.h"
 #include "registers.h"
+#include "runlevel.h"
 #include <atomic>
 #include <chrono>
 #include <defs.h>
@@ -25,7 +26,7 @@ public:
 
   ExecutionState state = ExecutionState::Idle;
   Registers regs;
-  uint64_t cycles;
+  long cycles;
   Duration duration;
 
   Cpu(Memory&);
@@ -41,9 +42,7 @@ public:
 private:
   friend class OpCodesTest;
 
-  std::atomic_bool pendingIrq = false;
-  std::atomic_bool pendingNmi = false;
-  std::atomic_bool pendingReset = false;
+  std::atomic<RunLevel> runLevel = RunLevel::Program;
 
   Memory& memory;
   OperandPtr operandPtr;

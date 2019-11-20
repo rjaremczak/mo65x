@@ -1,6 +1,6 @@
 #include "executionstate.h"
 
-const char* executionStateStr(ExecutionState es) {
+const char* formatExecutionState(ExecutionState es) {
   switch (es) {
   case ExecutionState::Idle: return "idle";
   case ExecutionState::Stopped: return "stopped";
