@@ -12,7 +12,7 @@ class CpuWidget;
 
 class CpuWidget : public QDockWidget {
   Q_OBJECT
-  Q_ENUM(ExecutionState)
+  Q_ENUM(CpuState)
 
 public:
   explicit CpuWidget(QWidget* parent, const Memory&);

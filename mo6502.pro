@@ -32,6 +32,7 @@ SOURCES += \
     memory.cpp \
     memorywidget.cpp \
     mnemonics.cpp \
+    runlevel.cpp \
     wordspinbox.cpp \
     test/assemblertest.cpp \
     test/instructionstest.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     config.h \
     controlcommand.h \
     cpudefs.h \
+    cpuinfo.h \
     cpuwidget.h \
     decodetable.h \
     bytespinbox.h \

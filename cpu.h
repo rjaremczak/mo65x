@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cpuinfo.h"
 #include "executionstate.h"
 #include "instruction.h"
 #include "memory.h"
@@ -24,25 +25,27 @@ public:
   friend constexpr Handler operandsHandler(OperandsFormat);
   friend constexpr Handler instructionHandler(InstructionType);
 
-  ExecutionState state = ExecutionState::Idle;
   Registers regs;
   long cycles;
   Duration duration;
 
   Cpu(Memory&);
+  bool running() const { return state == CpuState::Running; }
   void reset();
-  void clearStatistics();
-
+  void resetExecutionState();
+  void resetStatistics();
+  void stopExecution();
   void execute(bool continuous);
-  bool running() const { return state == ExecutionState::Running; }
   void triggerReset();
   void triggerNmi();
   void triggerIrq();
+  CpuInfo info() const;
 
 private:
   friend class OpCodesTest;
 
-  std::atomic<RunLevel> runLevel = RunLevel::Program;
+  std::atomic<CpuRunLevel> runLevel = CpuRunLevel::Program;
+  std::atomic<CpuState> state = CpuState::Idle;
 
   Memory& memory;
   OperandPtr operandPtr;

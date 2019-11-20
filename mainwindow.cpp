@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   cpuWidget = new CpuWidget(this, emulator->memoryView());
   this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget);
 
-  assemblerWidget = new AssemblerWidget;
+  assemblerWidget = new AssemblerWidget(this, emulator->memoryRef());
   memoryWidget = new MemoryWidget(this, emulator->memoryView());
   viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget);
   setCentralWidget(viewWidget);
@@ -43,8 +43,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showMessage);
-  connect(assemblerWidget, &AssemblerWidget::machineCodeGenerated, emulator, &Emulator::loadMemory);
-  connect(assemblerWidget, &AssemblerWidget::machineCodeGenerated, emulator, &Emulator::changeProgramCounter);
+  connect(assemblerWidget, &AssemblerWidget::codeWritten, emulator, &Emulator::memoryContentChanged);
   connect(assemblerWidget, &AssemblerWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
 
   connect(memoryWidget, &MemoryWidget::loadFromFileRequested, emulator, &Emulator::loadMemoryFromFile);
@@ -81,7 +80,7 @@ void MainWindow::showMessage(const QString& message, bool success) {
 void MainWindow::processEmulatorState(EmulatorState emulatorState) {
   QString msg(tr(formatExecutionState(emulatorState.executionState)));
   if (auto es = emulatorState.lastExecutionStatistics; es.valid()) msg.append(" : ").append(formatExecutionStatistics(es));
-  showMessage(msg, emulatorState.executionState != ExecutionState::Halted);
+  showMessage(msg, emulatorState.executionState != CpuState::Halted);
 }
 
 void MainWindow::initConfigStorage() {

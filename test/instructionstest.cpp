@@ -35,19 +35,18 @@
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
-  QCOMPARE(assembler.process(instr), AssemblerResult::Ok);                                                                       \
-  memory.writeData(AsmOrigin, assembler.code());                                                                                 \
+  QCOMPARE(assembler.processLine(memory, instr), AssemblerResult::Ok);                                                           \
   cpu.execute(false);                                                                                                            \
-  QCOMPARE(cpu.state, ExecutionState::Idle);                                                                                     \
+  QCOMPARE(cpu.state, CpuState::Idle);                                                                                           \
   QCOMPARE(cpu.cycles, numCycles)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
-  const auto base = assembler.locationCounter();                                                                                 \
+  const auto base = assembler.locationCounter;                                                                                   \
   QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr.lo);                                                                              \
   QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
-  QCOMPARE(cpu.regs.pc, assembler.locationCounter());                                                                            \
+  QCOMPARE(cpu.regs.pc, assembler.locationCounter);                                                                              \
   QCOMPARE(cpu.cycles, 2U)
 
 static constexpr auto AsmOrigin = 0x800;
@@ -63,10 +62,9 @@ void OpCodesTest::initTestCase() {
 }
 
 void OpCodesTest::init() {
-  assembler.resetOrigin(AsmOrigin);
-  assembler.clearCode();
+  assembler.init(AsmOrigin);
   assembler.clearSymbols();
-  assembler.changeMode(Assembler::Mode::EmitCode);
+  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   cpu.reset();
   cpu.regs.pc = AsmOrigin;
   cpu.regs.sp.offset = StackPointerOffset;

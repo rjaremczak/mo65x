@@ -70,69 +70,69 @@ static AssemblerLine parseAssemblyLine(const QString& str) {
   return {};
 }
 
-Assembler::Assembler() : iterator_(std::back_inserter(code_)) {
+void Assembler::init(uint16_t addr) {
+  addressRange = addr;
+  locationCounter = addr;
+  written = 0;
 }
 
-void Assembler::resetOrigin(uint16_t addr) {
-  originDefined_ = false;
-  origin_ = addr;
-  locationCounter_ = addr;
+void Assembler::clearSymbols() {
+  symbolTable.clear();
 }
 
-AssemblerResult Assembler::defineOrigin(uint16_t addr) {
-  if (originDefined_) return AssemblerResult::OriginAlreadyDefined;
-
-  originDefined_ = true;
-  origin_ = addr;
-  locationCounter_ = addr;
-  return AssemblerResult::Ok;
+void Assembler::changeMode(Assembler::ProcessingMode mode) {
+  this->mode = mode;
 }
 
-uint8_t Assembler::lastInstructionByte(size_t num) const {
-  return code_[std::min(lastInstructionIndex_ + num, code_.size() - 1)];
-}
-
-AssemblerResult Assembler::process(const QString& str) {
+AssemblerResult Assembler::processLine(Memory& memory, const QString& str) {
   if (const auto re = EmptyLine.match(str); re.hasMatch()) {
-    if (const auto& label = re.captured(1); !label.isNull()) return addSymbol(label, locationCounter_);
+    if (const auto& label = re.captured(1); !label.isNull()) return addSymbol(label, locationCounter);
     return AssemblerResult::Ok;
   }
 
   const auto line = parseAssemblyLine(str);
   if (!line.valid) return AssemblerResult::SyntaxError;
   if (!line.label.isEmpty()) {
-    if (auto res = addSymbol(line.label, locationCounter_); res != AssemblerResult::Ok) return res;
+    if (auto res = addSymbol(line.label, locationCounter); res != AssemblerResult::Ok) return res;
   }
-  if (line.isControlCommand()) return processControlCommand(line);
-  return processInstruction(line);
+  if (line.isControlCommand()) return processControlCommand(memory, line);
+  return processInstruction(memory, line);
 }
 
-AssemblerResult Assembler::assemble(InstructionType type, OperandsFormat mode, int operand) {
-  lastInstructionIndex_ = code_.size();
+AssemblerResult Assembler::assemble(Memory& memory, InstructionType type, OperandsFormat mode, int operand) {
+  lastInstructionAddress = locationCounter;
   if (const auto insIt = findInstruction(type, mode)) {
-    addByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt)));
-    if (insIt->size > 1) addByte(static_cast<uint8_t>(operand));
-    if (insIt->size > 2) addByte(static_cast<uint8_t>(operand >> 8));
+    addByte(memory, static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt)));
+    if (insIt->size > 1) addByte(memory, static_cast<uint8_t>(operand));
+    if (insIt->size > 2) addByte(memory, static_cast<uint8_t>(operand >> 8));
     return AssemblerResult::Ok;
   }
   return AssemblerResult::SyntaxError;
 }
 
 std::optional<int> Assembler::symbol(const QString& name) const {
-  if (const auto it = symbols_.find(name); it != symbols_.end()) return it->second;
+  if (const auto it = symbolTable.find(name); it != symbolTable.end()) return it->second;
   return std::nullopt;
 }
 
-AssemblerResult Assembler::processControlCommand(const AssemblerLine& line) {
+AddressRange Assembler::affectedAddressRange() const {
+  return addressRange;
+}
+
+size_t Assembler::bytesWritten() const {
+  return written;
+}
+
+AssemblerResult Assembler::processControlCommand(Memory& memory, const AssemblerLine& line) {
   switch (line.command) {
   case ControlCommand::DefineOrigin: return cmdSetOrigin(line);
-  case ControlCommand::EmitBytes: return cmdEmitByte(line);
+  case ControlCommand::EmitBytes: return cmdEmitByte(memory, line);
   default: return AssemblerResult::CommandProcessingError;
   }
 }
 
-AssemblerResult Assembler::processInstruction(const AssemblerLine& line) {
-  if (line.operandsFormat == NoOperands) return assemble(line.instructionType, NoOperands);
+AssemblerResult Assembler::processInstruction(Memory& memory, const AssemblerLine& line) {
+  if (line.operandsFormat == NoOperands) return assemble(memory, line.instructionType, NoOperands);
   if (line.operands.isEmpty()) return AssemblerResult::MissingOperand;
 
   int num;
@@ -140,42 +140,52 @@ AssemblerResult Assembler::processInstruction(const AssemblerLine& line) {
     num = line.operandAsNumber();
   } else if (auto opt = symbol(line.operands[0])) {
     if (line.operandsFormat == Branch) {
-      num = *opt - locationCounter_ - line.instructionSize();
+      num = *opt - locationCounter - line.instructionSize();
     } else {
       num = *opt;
     }
   } else {
-    return AssemblerResult::UndefinedSymbol;
+    return AssemblerResult::SymbolNotDefined;
   }
 
-  return assemble(line.instructionType, line.operandsFormat, num);
+  return assemble(memory, line.instructionType, line.operandsFormat, num);
 }
 
 AssemblerResult Assembler::cmdSetOrigin(const AssemblerLine& line) {
   if (line.isOperandNumeric()) {
-    return defineOrigin(static_cast<uint16_t>(line.operandAsNumber()));
+    locationCounter = static_cast<uint16_t>(line.operandAsNumber());
+    return AssemblerResult::Ok;
   } else {
     return AssemblerResult::NumericOperandRequired;
   }
 }
 
-AssemblerResult Assembler::cmdEmitByte(const AssemblerLine& line) {
+AssemblerResult Assembler::cmdEmitByte(Memory& memory, const AssemblerLine& line) {
   for (auto num = 0; num < line.operands.size(); num++) {
     if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
-    addByte(static_cast<uint8_t>(line.operandAsNumber(num)));
+    addByte(memory, static_cast<uint8_t>(line.operandAsNumber(num)));
   }
   return AssemblerResult::Ok;
 }
 
 AssemblerResult Assembler::addSymbol(const QString& name, uint16_t value) {
-  if (mode_ == Mode::ScanForSymbols) {
-    if (symbols_.find(name) != symbols_.end()) return AssemblerResult::SymbolAlreadyDefined;
-    symbols_[name] = value;
+  if (mode == ProcessingMode::ScanForSymbols) {
+    if (symbolTable.find(name) != symbolTable.end()) return AssemblerResult::SymbolAlreadyDefined;
+    symbolTable[name] = value;
   }
   return AssemblerResult::Ok;
 }
 
-void Assembler::addByte(uint8_t b) {
-  if (mode_ == Mode::EmitCode) *iterator_++ = b;
-  locationCounter_++;
+void Assembler::addByte(Memory& memory, uint8_t b) {
+  if (mode == ProcessingMode::EmitCode) {
+    updateAddressRange(locationCounter);
+    memory[locationCounter] = b;
+    written++;
+  }
+  locationCounter++;
+}
+
+void Assembler::updateAddressRange(uint16_t addr) {
+  addressRange.first = std::min(addressRange.first, addr);
+  addressRange.last = std::max(addressRange.last, addr);
 }

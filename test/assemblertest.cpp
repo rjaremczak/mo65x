@@ -1,28 +1,27 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr) QCOMPARE(assembler.process(instr), AssemblerResult::Ok)
+#define TEST_INST(instr) QCOMPARE(assembler.processLine(memory, instr), AssemblerResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
-  QCOMPARE(assembler.lastInstructionByte(0), opCode)
+  QCOMPARE(memory[assembler.lastInstructionAddress], opCode)
 
 #define TEST_INST_2(instr, opCode, lo)                                                                                           \
   TEST_INST_1(instr, opCode);                                                                                                    \
-  if (lo >= 0) QCOMPARE(lo, assembler.lastInstructionByte(1))
+  if (lo >= 0) QCOMPARE(lo, memory[assembler.lastInstructionAddress + 1])
 
 #define TEST_INST_3(instr, opCode, lo, hi)                                                                                       \
   TEST_INST_2(instr, opCode, lo);                                                                                                \
-  if (hi >= 0) QCOMPARE(hi, assembler.lastInstructionByte(2))
+  if (hi >= 0) QCOMPARE(hi, memory[assembler.lastInstructionAddress + 2])
 
 AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent) {
 }
 
 void AssemblerTest::init() {
-  assembler.resetOrigin(AsmOrigin);
-  assembler.clearCode();
+  assembler.init(AsmOrigin);
   assembler.clearSymbols();
-  assembler.changeMode(Assembler::Mode::EmitCode);
+  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
 }
 
 void AssemblerTest::testByteOperand() {
@@ -90,9 +89,9 @@ void AssemblerTest::testRelativeModeMinus() {
 }
 
 void AssemblerTest::testRelativeModeLabel() {
-  assembler.changeMode(Assembler::Mode::ScanForSymbols);
+  assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST("firstloop:");
-  assembler.changeMode(Assembler::Mode::EmitCode);
+  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   TEST_INST_1("  BNE firstloop ;loop until Y is $10", 0xd0);
 }
 
@@ -102,14 +101,14 @@ void AssemblerTest::testRelativeModePlus() {
 
 void AssemblerTest::testOrg() {
   TEST_INST("  .ORG $3000 ;origin");
-  QCOMPARE(assembler.locationCounter(), 0x3000);
-  QCOMPARE(assembler.process("  .org $4000 ;origin"), AssemblerResult::OriginAlreadyDefined);
-  QCOMPARE(assembler.locationCounter(), 0x3000);
+  QCOMPARE(assembler.locationCounter, 0x3000);
+  TEST_INST("  .ORG $4000 ;origin");
+  QCOMPARE(assembler.locationCounter, 0x4000);
 }
 
 void AssemblerTest::testOrgStar() {
   TEST_INST("  *= $5000 ;origin");
-  QCOMPARE(assembler.locationCounter(), 0x5000);
+  QCOMPARE(assembler.locationCounter, 0x5000);
 }
 
 void AssemblerTest::testComment() {
@@ -119,29 +118,29 @@ void AssemblerTest::testComment() {
 }
 
 void AssemblerTest::testEmptyLineLabel() {
-  assembler.changeMode(Assembler::Mode::ScanForSymbols);
+  assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST("Label_001:");
-  QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter());
+  QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter);
   QCOMPARE(assembler.symbol("dummy"), std::nullopt);
 }
 
 void AssemblerTest::testSymbolPass() {
-  assembler.changeMode(Assembler::Mode::ScanForSymbols);
-  assembler.defineOrigin(1000);
+  assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
+  assembler.locationCounter = 1000;
   TEST_INST("TestLabel_01:  SEI   ; disable interrupts ");
   QCOMPARE(assembler.symbol("TestLabel_01"), 1000);
-  QCOMPARE(assembler.code().size(), 0U);
-  QCOMPARE(assembler.locationCounter(), 1001U);
+  QCOMPARE(assembler.written, 0U);
+  QCOMPARE(assembler.locationCounter, 1001U);
 }
 
 void AssemblerTest::testAssemblyPass() {
-  assembler.changeMode(Assembler::Mode::EmitCode);
-  assembler.defineOrigin(2002);
+  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
+  assembler.locationCounter = 2002;
   TEST_INST("CLI");
   TEST_INST("TestLabel_11:  LDA #$20   ; this is a one weird comment  ");
   QCOMPARE(assembler.symbol("TestLabel_11"), std::nullopt);
-  QCOMPARE(assembler.code().size(), 3U);
-  QCOMPARE(assembler.locationCounter(), 2005);
+  QCOMPARE(assembler.written, 3U);
+  QCOMPARE(assembler.locationCounter, 2005);
 }
 
 void AssemblerTest::testEmitByte() {

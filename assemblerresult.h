@@ -2,9 +2,8 @@
 
 enum class AssemblerResult {
   Ok,
-  OriginAlreadyDefined,
   SymbolAlreadyDefined,
-  UndefinedSymbol,
+  SymbolNotDefined,
   MissingOperand,
   NumericOperandRequired,
   SyntaxError,

@@ -10,14 +10,14 @@
 #include <QTextBlock>
 #include <QTextStream>
 
-AssemblerWidget::AssemblerWidget(QWidget* parent) : QWidget(parent), ui(new Ui::AssemblerWidget) {
+AssemblerWidget::AssemblerWidget(QWidget* parent, Memory& memory) : QWidget(parent), ui(new Ui::AssemblerWidget), memory(memory) {
   ui->setupUi(this);
   connect(ui->newFile, &QAbstractButton::clicked, this, &AssemblerWidget::newFile);
   connect(ui->loadFile, &QAbstractButton::clicked, this, &AssemblerWidget::loadEditorFile);
   connect(ui->saveFile, &QAbstractButton::clicked, this, &AssemblerWidget::saveEditorFile);
   connect(ui->saveFileAs, &QAbstractButton::clicked, this, &AssemblerWidget::saveEditorFileAs);
   connect(ui->assembleSourceCode, &QAbstractButton::clicked, this, &AssemblerWidget::assembleSourceCode);
-  connect(ui->goToOrigin, &QAbstractButton::clicked, [&] { emit programCounterChanged(assembler.origin()); });
+  connect(ui->goToOrigin, &QAbstractButton::clicked, [&] { emit programCounterChanged(assembler.affectedAddressRange().first); });
 
   setMonospaceFont(ui->sourceCode);
 }
@@ -66,14 +66,14 @@ void AssemblerWidget::saveEditorFileAs() {
     saveFile(fname);
 }
 
-bool AssemblerWidget::process() {
+bool AssemblerWidget::process(Memory& memory) {
   QString src = ui->sourceCode->toPlainText();
   QTextStream is(&src, QIODevice::ReadOnly);
   int lineNum = 0;
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    if (auto result = assembler.process(line); result != AssemblerResult::Ok) {
+    if (auto result = assembler.processLine(memory, line); result != AssemblerResult::Ok) {
       emit operationCompleted(tr("%1 at line %2").arg(assemblerResultStr(result)).arg(lineNum + 1), true);
       auto block = ui->sourceCode->document()->findBlockByLineNumber(lineNum);
       auto cursor = ui->sourceCode->textCursor();
@@ -94,19 +94,20 @@ void AssemblerWidget::newFile() {
 }
 
 void AssemblerWidget::assembleSourceCode() {
-  assembler.resetOrigin();
-  assembler.clearCode();
+  assembler.init();
   assembler.clearSymbols();
-  assembler.changeMode(Assembler::Mode::ScanForSymbols);
-  if (process()) {
-    assembler.resetOrigin();
-    assembler.changeMode(Assembler::Mode::EmitCode);
-    if (process()) {
-      emit machineCodeGenerated(assembler.origin(), assembler.code());
-      emit operationCompleted(tr("assembled, origin: $%1, size: %2 B, symbols: %3")
-                                  .arg(formatHexWord(assembler.origin()))
-                                  .arg(assembler.symbols().size())
-                                  .arg(assembler.code().size()));
+  assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
+  if (process(memory)) {
+    assembler.init();
+    assembler.changeMode(Assembler::ProcessingMode::EmitCode);
+    if (process(memory)) {
+      emit codeWritten(assembler.affectedAddressRange());
+      emit programCounterChanged(assembler.affectedAddressRange().first);
+      emit operationCompleted(tr("%1 B written in range $%2-$%3, symbols: %4")
+                                  .arg(assembler.bytesWritten())
+                                  .arg(formatHexWord(assembler.affectedAddressRange().first))
+                                  .arg(formatHexWord(assembler.affectedAddressRange().last))
+                                  .arg(assembler.symbols().size()));
       return;
     }
   }

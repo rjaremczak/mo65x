@@ -37,13 +37,14 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
 }
 
 void Emulator::clearStatistics() {
-  cpu.clearStatistics();
-  cpu.state = ExecutionState::Idle;
+  cpu.resetStatistics();
+  cpu.resetExecutionState();
   emit stateChanged(currentState());
 }
 
-const EmulatorState Emulator::currentState(ExecutionStatistics lastExStats) {
-  return {cpu.state, cpu.regs, cpu.cycles, cpu.duration, lastExStats};
+const EmulatorState Emulator::currentState(long cycles, Duration duration) {
+  const auto info = cpu.info();
+  return {info.executionState, info.runLevel, cpu.regs, {cpu.cycles, cpu.duration}, {cycles, duration}};
 }
 
 void Emulator::triggerIrq() {
@@ -59,7 +60,7 @@ void Emulator::triggerReset() {
 }
 
 void Emulator::stopExecution() {
-  cpu.state = ExecutionState::Stopping;
+  cpu.stopExecution();
   QThread::msleep(100);
 }
 
@@ -67,13 +68,13 @@ void Emulator::startExecution(bool continuous) {
   const auto d0 = cpu.duration;
   const auto c0 = cpu.cycles;
   cpu.execute(continuous);
-  emit stateChanged(currentState({cpu.cycles - c0, cpu.duration - d0}));
+  emit stateChanged(currentState(cpu.cycles - c0, cpu.duration - d0));
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {
-  if (cpu.state != ExecutionState::Running && cpu.regs.pc != pc) {
+  if (!cpu.running() && cpu.regs.pc != pc) {
     cpu.regs.pc = pc;
-    if (cpu.state == ExecutionState::Halted || cpu.state == ExecutionState::Stopped) cpu.state = ExecutionState::Idle;
+    cpu.resetExecutionState();
     emit stateChanged(currentState());
   }
 }

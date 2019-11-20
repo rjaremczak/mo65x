@@ -72,15 +72,15 @@ void CpuWidget::processState(EmulatorState es) {
     updateDisassemblerView();
   }
 
-  const auto processing = es.executionState == ExecutionState::Running || es.executionState == ExecutionState::Halting ||
-                          es.executionState == ExecutionState::Stopping;
+  const auto processing =
+      es.executionState == CpuState::Running || es.executionState == CpuState::Halting || es.executionState == CpuState::Stopping;
 
   ui->cpuFrame->setDisabled(processing);
   ui->auxFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->startExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);
-  ui->executeSingleStep->setDisabled(processing || es.executionState == ExecutionState::Halted);
+  ui->executeSingleStep->setDisabled(processing || es.executionState == CpuState::Halted);
 }
 
 void CpuWidget::resizeEvent(QResizeEvent* event) {

@@ -13,7 +13,8 @@ class Emulator : public QObject {
 public:
   explicit Emulator(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory; }
-  const EmulatorState currentState(ExecutionStatistics lastExStats = ExecutionStatistics());
+  Memory& memoryRef() { return memory; }
+  const EmulatorState currentState(long cycles = 0, Duration duration = Duration::zero());
 
 signals:
   void stateChanged(EmulatorState);

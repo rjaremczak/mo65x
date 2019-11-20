@@ -11,13 +11,13 @@ class AssemblerWidget : public QWidget {
   Q_OBJECT
 
 public:
-  explicit AssemblerWidget(QWidget* parent = nullptr);
+  explicit AssemblerWidget(QWidget* parent, Memory& memory);
   ~AssemblerWidget();
 
 signals:
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
-  void machineCodeGenerated(uint16_t address, const Data& code);
+  void codeWritten(AddressRange);
   void operationCompleted(const QString& message, bool success = true);
   void programCounterChanged(uint16_t);
 
@@ -30,7 +30,9 @@ private:
   QString fileName;
   Assembler assembler;
 
-  bool process();
+  Memory& memory; // considered not clean, to be refactored some time...
+
+  bool process(Memory&);
 
 private slots:
   void newFile();

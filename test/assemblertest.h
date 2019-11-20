@@ -10,6 +10,7 @@ class AssemblerTest : public QObject {
 
 public:
   Assembler assembler;
+  Memory memory;
 
   explicit AssemblerTest(QObject* parent = nullptr);
 

@@ -1,5 +1,5 @@
 #pragma once
 
-enum class ExecutionState { Idle, Stopped, Halted, Running, Stopping, Halting };
+enum class CpuState { Idle, Stopped, Halted, Running, Stopping, Halting };
 
-const char* formatExecutionState(ExecutionState es);
+const char* formatExecutionState(CpuState es);

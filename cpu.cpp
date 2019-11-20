@@ -320,7 +320,7 @@ void Cpu::irq() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory.read16(irqVector);
-  runLevel = RunLevel::Program;
+  runLevel = CpuRunLevel::Program;
 }
 
 void Cpu::nmi() {
@@ -328,7 +328,7 @@ void Cpu::nmi() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory.read16(nmiVector);
-  runLevel = RunLevel::Program;
+  runLevel = CpuRunLevel::Program;
 }
 
 void Cpu::reset() {
@@ -343,24 +343,32 @@ void Cpu::reset() {
   regs.p.interrupt = true;
   regs.p.zero = false;
   regs.p.carry = false;
-  clearStatistics();
-  runLevel = RunLevel::Program;
+  resetStatistics();
+  runLevel = CpuRunLevel::Program;
 }
 
-void Cpu::clearStatistics() {
+void Cpu::resetExecutionState() {
+  if (state == CpuState::Halted || state == CpuState::Stopped) state = CpuState::Idle;
+}
+
+void Cpu::resetStatistics() {
   cycles = 0;
   duration = Duration::zero();
 }
 
+void Cpu::stopExecution() {
+  if (state == CpuState::Running) state = CpuState::Stopping;
+}
+
 void Cpu::execHalt() {
   regs.pc--;
-  state = ExecutionState::Halted;
+  state = CpuState::Halted;
 }
 
 void Cpu::execute(bool continuous) {
-  state = ExecutionState::Running;
-  runLevel = continuous ? RunLevel::Program : RunLevel::SingleStep;
-  while (state == ExecutionState::Running) {
+  state = CpuState::Running;
+  runLevel = continuous ? CpuRunLevel::Program : CpuRunLevel::SingleStep;
+  while (state == CpuState::Running) {
     const auto t0 = PreciseClock::now();
     pageBoundaryCrossed = false;
     const auto pcPtr = &memory[regs.pc];
@@ -378,36 +386,36 @@ void Cpu::execute(bool continuous) {
     duration += std::chrono::duration_cast<Duration>(PreciseClock::now() - t0);
 
     switch (runLevel) {
-    case RunLevel::Program: break;
-    case RunLevel::SingleStep: goto ExitLoop;
-    case RunLevel::Reset: reset(); break;
-    case RunLevel::Nmi: nmi(); break;
-    case RunLevel::Irq: irq(); break;
+    case CpuRunLevel::Program: break;
+    case CpuRunLevel::SingleStep: goto ExitLoop;
+    case CpuRunLevel::Reset: reset(); break;
+    case CpuRunLevel::Nmi: nmi(); break;
+    case CpuRunLevel::Irq: irq(); break;
     }
   }
 
 ExitLoop:
   switch (state) {
-  case ExecutionState::Running: state = ExecutionState::Idle; break;
-  case ExecutionState::Stopping: state = ExecutionState::Stopped; break;
-  case ExecutionState::Halting: state = ExecutionState::Halted; break;
+  case CpuState::Running: state = CpuState::Idle; break;
+  case CpuState::Stopping: state = CpuState::Stopped; break;
+  case CpuState::Halting: state = CpuState::Halted; break;
   default: break;
   }
 }
 
 void Cpu::triggerReset() {
-  if (runLevel < RunLevel::Reset) {
+  if (runLevel < CpuRunLevel::Reset) {
     if (running()) {
-      runLevel = RunLevel::Reset;
+      runLevel = CpuRunLevel::Reset;
     } else
       reset();
   }
 }
 
 void Cpu::triggerNmi() {
-  if (runLevel < RunLevel::Nmi) {
+  if (runLevel < CpuRunLevel::Nmi) {
     if (running()) {
-      runLevel = RunLevel::Nmi;
+      runLevel = CpuRunLevel::Nmi;
     } else {
       nmi();
     }
@@ -415,11 +423,15 @@ void Cpu::triggerNmi() {
 }
 
 void Cpu::triggerIrq() {
-  if (runLevel < RunLevel::Irq && !regs.p.interrupt) {
+  if (runLevel < CpuRunLevel::Irq && !regs.p.interrupt) {
     if (!running()) {
-      runLevel = RunLevel::Irq;
+      runLevel = CpuRunLevel::Irq;
     } else {
       irq();
     }
   }
+}
+
+CpuInfo Cpu::info() const {
+  return {runLevel, state};
 }
