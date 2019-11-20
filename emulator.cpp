@@ -42,8 +42,8 @@ void Emulator::clearStatistics() {
   emit stateChanged(currentState());
 }
 
-const EmulatorState Emulator::currentState(long lastCycles, Duration lastDuration) {
-  return {cpu.state, cpu.regs, cpu.cycles, cpu.duration, lastCycles, lastDuration};
+const EmulatorState Emulator::currentState(ExecutionStatistics lastExStats) {
+  return {cpu.state, cpu.regs, cpu.cycles, cpu.duration, lastExStats};
 }
 
 void Emulator::triggerIrq() {
@@ -67,7 +67,7 @@ void Emulator::startExecution(bool continuous) {
   const auto d0 = cpu.duration;
   const auto c0 = cpu.cycles;
   cpu.execute(continuous);
-  emit stateChanged(currentState(cpu.cycles - c0, cpu.duration - d0));
+  emit stateChanged(currentState({cpu.cycles - c0, cpu.duration - d0}));
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {

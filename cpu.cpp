@@ -320,6 +320,7 @@ void Cpu::irq() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory.read16(irqVector);
+  runLevel = RunLevel::Program;
 }
 
 void Cpu::nmi() {
@@ -327,6 +328,7 @@ void Cpu::nmi() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory.read16(nmiVector);
+  runLevel = RunLevel::Program;
 }
 
 void Cpu::reset() {
@@ -342,6 +344,7 @@ void Cpu::reset() {
   regs.p.zero = false;
   regs.p.carry = false;
   clearStatistics();
+  runLevel = RunLevel::Program;
 }
 
 void Cpu::clearStatistics() {
@@ -356,6 +359,7 @@ void Cpu::execHalt() {
 
 void Cpu::execute(bool continuous) {
   state = ExecutionState::Running;
+  runLevel = continuous ? RunLevel::Program : RunLevel::SingleStep;
   while (state == ExecutionState::Running) {
     const auto t0 = PreciseClock::now();
     pageBoundaryCrossed = false;
@@ -373,8 +377,16 @@ void Cpu::execute(bool continuous) {
 
     duration += std::chrono::duration_cast<Duration>(PreciseClock::now() - t0);
 
-    if (!continuous) break;
+    switch (runLevel) {
+    case RunLevel::Program: break;
+    case RunLevel::SingleStep: goto ExitLoop;
+    case RunLevel::Reset: reset(); break;
+    case RunLevel::Nmi: nmi(); break;
+    case RunLevel::Irq: irq(); break;
+    }
   }
+
+ExitLoop:
   switch (state) {
   case ExecutionState::Running: state = ExecutionState::Idle; break;
   case ExecutionState::Stopping: state = ExecutionState::Stopped; break;
@@ -384,28 +396,30 @@ void Cpu::execute(bool continuous) {
 }
 
 void Cpu::triggerReset() {
-  if (runLevel < RunLevel::Reset) return;
-  if (running()) {
-    runLevel = RunLevel::Reset;
-  } else {
-    reset();
+  if (runLevel < RunLevel::Reset) {
+    if (running()) {
+      runLevel = RunLevel::Reset;
+    } else
+      reset();
   }
 }
 
 void Cpu::triggerNmi() {
-  if (runLevel < RunLevel::Nmi) return;
-  if (running()) {
-    // runLevel = Nmi;
-  } else {
-    nmi();
+  if (runLevel < RunLevel::Nmi) {
+    if (running()) {
+      runLevel = RunLevel::Nmi;
+    } else {
+      nmi();
+    }
   }
 }
 
 void Cpu::triggerIrq() {
-  if (regs.p.interrupt) return;
-  if (!running()) {
-    // pendingIrq = true;
-  } else {
-    irq();
+  if (runLevel < RunLevel::Irq && !regs.p.interrupt) {
+    if (!running()) {
+      runLevel = RunLevel::Irq;
+    } else {
+      irq();
+    }
   }
 }

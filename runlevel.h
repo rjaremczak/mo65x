@@ -1,3 +1,3 @@
 #pragma once
 
-enum class RunLevel { Break = 0, Reset, Nmi, Irq, Program };
+enum class RunLevel { Program = 0, Irq, Nmi, Reset, SingleStep };
