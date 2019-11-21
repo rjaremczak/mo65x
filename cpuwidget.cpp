@@ -79,7 +79,6 @@ void CpuWidget::updateState(EmulatorState es) {
   const auto processing = es.state == CpuState::Running || es.state == CpuState::Halting || es.state == CpuState::Stopping;
 
   ui->cpuFrame->setDisabled(processing);
-  ui->auxFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->startExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);

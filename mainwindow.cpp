@@ -111,5 +111,5 @@ void MainWindow::startEmulator() {
 }
 
 void MainWindow::polling() {
-  if (const auto es = emulator->state(); es.running()) emit polledState(es);
+  if (const auto es = emulator->state(); es.running()) { emit polledState(es); }
 }
