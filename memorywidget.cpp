@@ -21,8 +21,12 @@ MemoryWidget::~MemoryWidget() {
   delete ui;
 }
 
-void MemoryWidget::updateMemoryView(AddressRange range) {
+void MemoryWidget::updateMemory(AddressRange range) {
   if (addressRange_.overlapsWith(range)) updateView();
+}
+
+void MemoryWidget::updatePolledData(EmulatorState, AddressRange range) {
+  updateMemory(range);
 }
 
 void MemoryWidget::resizeEvent(QResizeEvent* event) {

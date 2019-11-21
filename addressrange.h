@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defs.h"
+#include "commondefs.h"
 #include <algorithm>
 #include <cstdint>
 
@@ -8,9 +8,9 @@ struct AddressRange {
   Address first;
   Address last;
 
-  AddressRange() : first(0xffff), last(0) {}
-  AddressRange(Address addr) : first(addr), last(addr) {}
-  AddressRange(Address first, Address last) : first(first), last(last) {}
+  constexpr AddressRange() : first(0xffff), last(0) {}
+  constexpr AddressRange(Address addr) : first(addr), last(addr) {}
+  constexpr AddressRange(Address first, Address last) : first(first), last(last) {}
 
   bool valid() const { return first <= last; }
   size_t size() const { return last - first + 1; }
@@ -25,4 +25,6 @@ struct AddressRange {
       first = last = addr;
     }
   }
+
+  static const AddressRange Max;
 };

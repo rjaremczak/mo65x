@@ -1,7 +1,7 @@
 #pragma once
 
-#include "defs.h"
-#include "executionstate.h"
+#include "commondefs.h"
+#include "cpustate.h"
 #include "executionstatistics.h"
 #include "registers.h"
 #include "runlevel.h"
@@ -9,9 +9,11 @@
 #include <chrono>
 
 struct EmulatorState {
-  CpuState executionState;
+  CpuState state;
   CpuRunLevel runLevel;
-  Registers registers;
+  Registers regs;
   ExecutionStatistics avgExecutionStatistics;
   ExecutionStatistics lastExecutionStatistics;
+
+  bool running() const { return runLevel != CpuRunLevel::SingleStep && state == CpuState::Running; }
 };

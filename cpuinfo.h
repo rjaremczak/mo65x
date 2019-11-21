@@ -1,6 +1,6 @@
 #pragma once
 
-#include "executionstate.h"
+#include "cpustate.h"
 #include "runlevel.h"
 
 struct CpuInfo {

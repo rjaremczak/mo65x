@@ -1,8 +1,8 @@
 #pragma once
 
 #include "addressrange.h"
+#include "commondefs.h"
 #include "cpu.h"
-#include "defs.h"
 #include "emulatorstate.h"
 #include "memory.h"
 #include <QObject>
@@ -14,7 +14,7 @@ public:
   explicit Emulator(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory; }
   Memory& memoryRef() { return memory; }
-  const EmulatorState currentState(long cycles = 0, Duration duration = Duration::zero());
+  const EmulatorState state(long cycles = 0, Duration duration = Duration::zero());
 
 signals:
   void stateChanged(EmulatorState);

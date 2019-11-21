@@ -2,7 +2,7 @@
 #define DISASSEMBLERVIEW_H
 
 #include "addressrange.h"
-#include "defs.h"
+#include "commondefs.h"
 #include "disassembler.h"
 #include "memory.h"
 #include <QWidget>

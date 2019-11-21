@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cstdint>
+#include "commondefs.h"
 
-constexpr static uint16_t IOPortConfig = 0x00;
-constexpr static uint16_t IOPortData = 0x01;
-constexpr static uint16_t StackPointerBase = 0x100;
-constexpr static uint16_t VectorNMI = 0xfffa;
-constexpr static uint16_t VectorRESET = 0xfffc;
-constexpr static uint16_t VectorIRQ = 0xfffe;
+enum CpuAddress : Address {
+  IoPortConfig = 0x00,
+  IoPortData = 0x01,
+  StackPointerBase = 0x100,
+  NmiVector = 0xfffa,
+  ResetVector = 0xfffc,
+  IrqVector = 0xfffe
+};

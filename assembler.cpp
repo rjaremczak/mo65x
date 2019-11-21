@@ -34,6 +34,7 @@ static const QString OpWord("((?:" + HexWord + ")|(?:" + BinWord + ")|(?:" + Dec
 static const QString OpOffset("((?:[+|-]?\\d{1,3})|(?:" + Label + "))\\s*");
 static const QString OriginCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
 static const QString ByteCmd("(\\.(?:BYTE))\\s+");
+static const QString WordCmd("(\\.(?:WORD))\\s+");
 
 const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + Comment, ControlCommand::DefineOrigin},
                                                {LabelDef + ByteCmd + OpByte + "+", ControlCommand::EmitBytes},
@@ -163,6 +164,16 @@ AssemblerResult Assembler::cmdEmitByte(Memory& memory, const AssemblerLine& line
   for (auto num = 0; num < line.operands.size(); num++) {
     if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
     addByte(memory, static_cast<uint8_t>(line.operandAsNumber(num)));
+  }
+  return AssemblerResult::Ok;
+}
+
+AssemblerResult Assembler::cmdEmitWord(Memory& memory, const AssemblerLine& line) {
+  for (auto num = 0; num < line.operands.size(); num++) {
+    if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
+    const auto word = static_cast<uint16_t>(line.operandAsNumber(num));
+    addByte(memory, static_cast<uint8_t>(word));
+    addByte(memory, word >> 8);
   }
   return AssemblerResult::Ok;
 }

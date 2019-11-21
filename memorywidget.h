@@ -2,7 +2,8 @@
 #define MEMORYWIDGET_H
 
 #include "addressrange.h"
-#include "defs.h"
+#include "commondefs.h"
+#include "emulatorstate.h"
 #include "memory.h"
 #include <QWidget>
 
@@ -24,7 +25,8 @@ signals:
   void saveToFileRequested(AddressRange, const QString& fname);
 
 public slots:
-  void updateMemoryView(AddressRange);
+  void updateMemory(AddressRange);
+  void updatePolledData(EmulatorState, AddressRange);
 
 protected:
   void resizeEvent(QResizeEvent*) override;

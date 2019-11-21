@@ -1,7 +1,7 @@
 #pragma once
 
 #include "addressrange.h"
-#include "defs.h"
+#include "commondefs.h"
 #include "disassemblerview.h"
 #include "emulatorstate.h"
 #include <QDockWidget>
@@ -33,8 +33,9 @@ signals:
   void registerYChanged(uint8_t);
 
 public slots:
-  void updateMemoryView(AddressRange);
-  void processState(EmulatorState);
+  void updateMemory(AddressRange);
+  void updateState(EmulatorState);
+  void updatePolledData(EmulatorState, AddressRange);
   void changeProgramCounter(uint16_t);
 
 private:

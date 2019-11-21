@@ -18,7 +18,7 @@ void Cpu::prepRelativeMode() {
 }
 
 void Cpu::prepIndirectMode() {
-  effectiveAddress = memory.read16(operandPtr.word());
+  effectiveAddress = memory.word(operandPtr.word());
 }
 
 void Cpu::prepImmediateMode() {
@@ -41,12 +41,12 @@ void Cpu::prepZeroPageYMode() {
 }
 
 void Cpu::prepIndexedIndirectXMode() {
-  effectiveAddress = memory.read16(static_cast<uint8_t>((*operandPtr.lo + regs.x)));
+  effectiveAddress = memory.word(static_cast<uint8_t>((*operandPtr.lo + regs.x)));
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndirectIndexedYMode() {
-  calculateEffectiveAddress(memory.read16(*operandPtr.lo), regs.y);
+  calculateEffectiveAddress(memory.word(*operandPtr.lo), regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
@@ -312,14 +312,14 @@ void Cpu::execBRK() {
   pushWord(regs.pc + 1);
   push(regs.p | ProcessorStatus::BreakBitMask);
   regs.p.interrupt = true;
-  regs.pc = memory.read16(irqVector);
+  regs.pc = memory.word(CpuAddress::IrqVector);
 }
 
 void Cpu::irq() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory.read16(irqVector);
+  regs.pc = memory.word(CpuAddress::IrqVector);
   runLevel = CpuRunLevel::Program;
 }
 
@@ -327,12 +327,12 @@ void Cpu::nmi() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory.read16(nmiVector);
+  regs.pc = memory.word(CpuAddress::NmiVector);
   runLevel = CpuRunLevel::Program;
 }
 
 void Cpu::reset() {
-  regs.pc = memory.read16(resetVector);
+  regs.pc = memory.word(CpuAddress::ResetVector);
   regs.a = 0;
   regs.x = 0;
   regs.y = 0;

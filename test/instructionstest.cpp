@@ -72,7 +72,7 @@ void InstructionsTest::init() {
 }
 
 void InstructionsTest::testIRQ() {
-  memory.write16(Cpu::irqVector, 0xabcd);
+  memory.setWord(CpuAddress::IrqVector, 0xabcd);
   cpu.regs.p = 0b11001111;
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc;
@@ -86,7 +86,7 @@ void InstructionsTest::testIRQ() {
 }
 
 void InstructionsTest::testReset() {
-  memory.write16(Cpu::resetVector, 0xFCE2);
+  memory.setWord(CpuAddress::ResetVector, 0xFCE2);
   cpu.reset();
   QCOMPARE(cpu.regs.pc, 0xFCE2);
 }
@@ -138,7 +138,7 @@ void InstructionsTest::testZeroPageYMode() {
 
 void InstructionsTest::testAbsoluteMode() {
   memory[0x20fa] = 0xf0;
-  memory.write16(0x1002, 0x20fa);
+  memory.setWord(0x1002, 0x20fa);
   cpu.operandPtr.lo = &memory[0x1002];
   cpu.operandPtr.hi = &memory[0x1003];
   cpu.prepAbsoluteMode();
@@ -148,7 +148,7 @@ void InstructionsTest::testAbsoluteMode() {
 
 void InstructionsTest::testAbsoluteXMode() {
   memory[0x20b0] = 0x34;
-  memory.write16(0x1002, 0x20a0);
+  memory.setWord(0x1002, 0x20a0);
   cpu.operandPtr.lo = &memory[0x1002];
   cpu.operandPtr.hi = &memory[0x1003];
   cpu.regs.x = 0x10;
@@ -159,7 +159,7 @@ void InstructionsTest::testAbsoluteXMode() {
 
 void InstructionsTest::testAbsoluteYMode() {
   memory[0xa020] = 0x84;
-  memory.write16(0x2002, 0xa010);
+  memory.setWord(0x2002, 0xa010);
   cpu.operandPtr.lo = &memory[0x2002];
   cpu.operandPtr.hi = &memory[0x2003];
   cpu.regs.y = 0x10;
@@ -169,8 +169,8 @@ void InstructionsTest::testAbsoluteYMode() {
 }
 
 void InstructionsTest::testIndirectMode() {
-  memory.write16(0xfff0, 0xfab0);
-  memory.write16(0xfab0, 0x34f0);
+  memory.setWord(0xfff0, 0xfab0);
+  memory.setWord(0xfab0, 0x34f0);
   cpu.operandPtr.lo = &memory[0xfff0];
   cpu.operandPtr.hi = &memory[0xfff1];
   cpu.prepIndirectMode();
@@ -178,7 +178,7 @@ void InstructionsTest::testIndirectMode() {
 }
 
 void InstructionsTest::testIndexedIndirectXMode() {
-  memory.write16(0x82, 0xaf01);
+  memory.setWord(0x82, 0xaf01);
   memory[0x2001] = 0x70;
   cpu.operandPtr.lo = &memory[0x2001];
   cpu.regs.x = 0x12;
@@ -189,7 +189,7 @@ void InstructionsTest::testIndexedIndirectXMode() {
 
 void InstructionsTest::testIndirectIndexedYMode() {
   uint8_t vector = 0x82;
-  memory.write16(vector, 0xcf81);
+  memory.setWord(vector, 0xcf81);
   memory[0xd001] = 0xea;
   cpu.operandPtr.lo = &vector;
   cpu.regs.y = 0x80;
@@ -304,7 +304,7 @@ void InstructionsTest::testAND() {
 
   cpu.regs.a = 0x84;
   cpu.regs.y = 0x12;
-  memory.write16(0x70, 0x20f0);
+  memory.setWord(0x70, 0x20f0);
   memory[0x2102] = 0xfb;
   TEST_INST("AND ($70),Y", 6);
   TEST_ANZCV(0x80, 1, 0, 0, 0);
@@ -461,7 +461,7 @@ void InstructionsTest::testLDA() {
   TEST_INST("LDA #$23", 2);
   TEST_ANZC(0x23, 0, 0, 0);
 
-  memory.write16(0xf0, 0x2080);
+  memory.setWord(0xf0, 0x2080);
   cpu.regs.y = 0x92;
   memory[0x2112] = 0xf4;
   TEST_INST("LDA ($f0),Y", 6);
@@ -684,7 +684,7 @@ void InstructionsTest::testJMP_absolute() {
 }
 
 void InstructionsTest::testJMP_indirect() {
-  memory.write16(0xa000, 0x1f80);
+  memory.setWord(0xa000, 0x1f80);
   TEST_INST("JMP ($a000)", 5);
   QCOMPARE(cpu.regs.pc, 0x1f80);
 }
@@ -738,7 +738,7 @@ void InstructionsTest::testRTS() {
 }
 
 void InstructionsTest::testBRK() {
-  memory.write16(Cpu::irqVector, 0xabcd);
+  memory.setWord(CpuAddress::IrqVector, 0xabcd);
   cpu.regs.p = 0b11001111;
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc + 2;

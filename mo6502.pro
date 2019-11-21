@@ -14,6 +14,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    addressrange.cpp \
     assembler.cpp \
     assemblerline.cpp \
     assemblerresult.cpp \
@@ -22,12 +23,12 @@ SOURCES += \
     centralwidget.cpp \
     config.cpp \
     cpu.cpp \
+    cpustate.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
     disassemblerview.cpp \
     disassemblerwidget.cpp \
     emulator.cpp \
-    executionstate.cpp \
     filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -47,21 +48,21 @@ HEADERS += \
     assemblerresult.h \
     assemblerwidget.h \
     centralwidget.h \
+    commondefs.h \
     config.h \
     controlcommand.h \
     cpudefs.h \
     cpuinfo.h \
+    cpustate.h \
     cpuwidget.h \
     decodetable.h \
     bytespinbox.h \
     cpu.h \
-    defs.h \
     disassembler.h \
     disassemblerview.h \
     disassemblerwidget.h \
     emulator.h \
     emulatorstate.h \
-    executionstate.h \
     executionstatistics.h \
     filedatastorage.h \
     formatters.h \

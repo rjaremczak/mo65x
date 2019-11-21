@@ -17,15 +17,15 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory) : QDockWidget(parent
   QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->dockWidgetContents->layout());
   layout->insertWidget(layout->indexOf(ui->auxFrame), disassemblerView);
 
+  connect(ui->reset, &QAbstractButton::clicked, this, &CpuWidget::resetRequested);
+  connect(ui->nmi, &QAbstractButton::clicked, this, &CpuWidget::nmiRequested);
+  connect(ui->irq, &QAbstractButton::clicked, this, &CpuWidget::irqRequested);
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
   connect(ui->regSP, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::stackPointerChanged);
   connect(ui->regA, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerAChanged);
   connect(ui->regX, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerXChanged);
   connect(ui->regY, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerYChanged);
-  connect(ui->reset, &QAbstractButton::clicked, this, &CpuWidget::resetRequested);
-  connect(ui->nmi, &QAbstractButton::clicked, this, &CpuWidget::nmiRequested);
-  connect(ui->irq, &QAbstractButton::clicked, this, &CpuWidget::irqRequested);
-  connect(ui->clearCycleCounter, &QAbstractButton::clicked, this, &CpuWidget::clearStatisticsRequested);
+  connect(ui->clearStatistics, &QAbstractButton::clicked, this, &CpuWidget::clearStatisticsRequested);
   connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::startStepExecution);
   connect(ui->skipInstruction, &QAbstractButton::clicked, this, &CpuWidget::skipInstruction);
   connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startContinuousExecution);
@@ -39,14 +39,19 @@ CpuWidget::~CpuWidget() {
   delete ui;
 }
 
-void CpuWidget::updateMemoryView(AddressRange range) {
+void CpuWidget::updateMemory(AddressRange range) {
   disassemblerView->updateMemoryView(range);
+  if (range.contains(CpuAddress::ResetVector)) ui->resetVector->setValue(memory.word(CpuAddress::ResetVector));
+  if (range.contains(CpuAddress::NmiVector)) ui->nmiVector->setValue(memory.word(CpuAddress::NmiVector));
+  if (range.contains(CpuAddress::IrqVector)) ui->irqVector->setValue(memory.word(CpuAddress::IrqVector));
+  if (range.contains(CpuAddress::IoPortData)) ui->ioPortData->setValue(memory.word(CpuAddress::IoPortData));
+  if (range.contains(CpuAddress::IoPortConfig)) ui->ioPortConfig->setValue(memory.word(CpuAddress::IoPortConfig));
 }
 
-void CpuWidget::processState(EmulatorState es) {
-  const auto& regs = es.registers;
+void CpuWidget::updateState(EmulatorState es) {
+  const auto& regs = es.regs;
 
-  setWindowTitle(tr("cpu : %1").arg(formatExecutionState(es.executionState)));
+  setWindowTitle(tr("run level: %1").arg(formatRunLevel(es.runLevel)));
 
   ui->regA->setValue(regs.a);
   ui->regX->setValue(regs.x);
@@ -65,22 +70,25 @@ void CpuWidget::processState(EmulatorState es) {
   str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  ui->ioPortDirection->setValue(memory[IOPortConfig]);
-  ui->ioPortData->setValue(memory[IOPortData]);
-  ui->avgStatistics->setText(formatExecutionStatistics(es.avgExecutionStatistics));
+  QString statsStr = formatExecutionStatistics(es.avgExecutionStatistics);
+  ui->avgStatistics->setText(statsStr.isEmpty() ? statsStr : "avg: " + statsStr);
 
   ui->regPC->setValue(regs.pc);
   disassemblerView->changeStart(regs.pc);
 
-  const auto processing =
-      es.executionState == CpuState::Running || es.executionState == CpuState::Halting || es.executionState == CpuState::Stopping;
+  const auto processing = es.state == CpuState::Running || es.state == CpuState::Halting || es.state == CpuState::Stopping;
 
   ui->cpuFrame->setDisabled(processing);
   ui->auxFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->startExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);
-  ui->executeSingleStep->setDisabled(processing || es.executionState == CpuState::Halted);
+  ui->executeSingleStep->setDisabled(processing || es.state == CpuState::Halted);
+}
+
+void CpuWidget::updatePolledData(EmulatorState state, AddressRange range) {
+  updateState(state);
+  updateMemory(range);
 }
 
 void CpuWidget::changeProgramCounter(uint16_t addr) {

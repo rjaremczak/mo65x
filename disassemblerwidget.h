@@ -1,8 +1,9 @@
 #ifndef DISASSEMBLERWIDGET_H
 #define DISASSEMBLERWIDGET_H
 
-#include "defs.h"
+#include "commondefs.h"
 #include "disassemblerview.h"
+#include "emulatorstate.h"
 #include "memory.h"
 #include <QWidget>
 
@@ -24,6 +25,7 @@ signals:
   void goToStartClicked(Address);
 
 public slots:
+  void updatePolledData(EmulatorState, AddressRange);
 
 private:
   Ui::DisassemblerWidget* ui;

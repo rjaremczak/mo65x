@@ -3,7 +3,7 @@
 #include "addressrange.h"
 #include "assemblerline.h"
 #include "assemblerresult.h"
-#include "defs.h"
+#include "commondefs.h"
 #include "instruction.h"
 #include "memory.h"
 #include <QString>
@@ -46,6 +46,7 @@ private:
   AssemblerResult processInstruction(Memory& memory, const AssemblerLine&);
   AssemblerResult cmdSetOrigin(const AssemblerLine&);
   AssemblerResult cmdEmitByte(Memory& memory, const AssemblerLine&);
+  AssemblerResult cmdEmitWord(Memory& memory, const AssemblerLine&);
   AssemblerResult assemble(Memory& data, InstructionType type, OperandsFormat mode, int operand = 0);
   void addByte(Memory&, uint8_t);
   void updateAddressRange(uint16_t);

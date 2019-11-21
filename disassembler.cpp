@@ -1,5 +1,5 @@
 #include "disassembler.h"
-#include "defs.h"
+#include "commondefs.h"
 #include "formatters.h"
 #include "instruction.h"
 #include "instructiontable.h"
@@ -12,7 +12,7 @@ QString Disassembler::formatOperand8() const {
 }
 
 QString Disassembler::formatOperand16() const {
-  return "$" + formatHexWord(memory.read16(address + 1));
+  return "$" + formatHexWord(memory.word(address + 1));
 }
 
 Disassembler::Disassembler(const Memory& memory, uint16_t pc) : memory(memory) {
@@ -37,7 +37,7 @@ QString Disassembler::dumpBytes(uint16_t n) const {
 
 QString Disassembler::dumpWords(uint16_t n) const {
   QString str;
-  for (uint16_t i = 0; i < n; i += 2) { str.append(formatHexWord(memory.read16(address + i))).append(" "); }
+  for (uint16_t i = 0; i < n; i += 2) { str.append(formatHexWord(memory.word(address + i))).append(" "); }
   return str;
 }
 

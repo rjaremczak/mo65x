@@ -47,7 +47,7 @@ void DisassemblerView::updateView() {
     auto hl = shouldHighlightCurrentAddress();
     html.append(hl ? "<div style='color:black; background-color: lightgreen'>" : "<div style='color:darkseagreen'>");
     html.append(hl ? "<span style='color:black'>" : "<span style='color:gray'>");
-    html.append(formatHexWord(disassembler.currentAddress()));
+    html.append(formatHexWord(disassembler.currentAddress()).toUpper());
     html.append("</span> ");
     html.append(disassembler.disassemble());
     html.append("</div>");

@@ -39,43 +39,47 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
 void Emulator::clearStatistics() {
   cpu.resetStatistics();
   cpu.resetExecutionState();
-  emit stateChanged(currentState());
+  emit stateChanged(state());
 }
 
-const EmulatorState Emulator::currentState(long cycles, Duration duration) {
+const EmulatorState Emulator::state(long cycles, Duration duration) {
   const auto info = cpu.info();
   return {info.executionState, info.runLevel, cpu.regs, {cpu.cycles, cpu.duration}, {cycles, duration}};
 }
 
 void Emulator::triggerIrq() {
   cpu.triggerIrq();
+  emit stateChanged(state());
 }
 
 void Emulator::triggerNmi() {
   cpu.triggerNmi();
+  emit stateChanged(state());
 }
 
 void Emulator::triggerReset() {
   cpu.triggerReset();
+  emit stateChanged(state());
 }
 
 void Emulator::stopExecution() {
   cpu.stopExecution();
   QThread::msleep(100);
+  emit stateChanged(state());
 }
 
 void Emulator::startExecution(bool continuous) {
   const auto d0 = cpu.duration;
   const auto c0 = cpu.cycles;
   cpu.execute(continuous);
-  emit stateChanged(currentState(cpu.cycles - c0, cpu.duration - d0));
+  emit stateChanged(state(cpu.cycles - c0, cpu.duration - d0));
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {
   if (!cpu.running() && cpu.regs.pc != pc) {
     cpu.regs.pc = pc;
     cpu.resetExecutionState();
-    emit stateChanged(currentState());
+    emit stateChanged(state());
   }
 }
 
@@ -83,28 +87,28 @@ void Emulator::changeStackPointer(uint16_t sp) {
   const auto offset = static_cast<uint8_t>(sp);
   if (cpu.regs.sp.offset != offset) {
     cpu.regs.sp.offset = offset;
-    emit stateChanged(currentState());
+    emit stateChanged(state());
   }
 }
 
 void Emulator::changeAccumulator(uint8_t a) {
   if (cpu.regs.a != a) {
     cpu.regs.a = a;
-    emit stateChanged(currentState());
+    emit stateChanged(state());
   }
 }
 
 void Emulator::changeRegisterX(uint8_t x) {
   if (cpu.regs.x != x) {
     cpu.regs.x = x;
-    emit stateChanged(currentState());
+    emit stateChanged(state());
   }
 }
 
 void Emulator::changeRegisterY(uint8_t y) {
   if (cpu.regs.y != y) {
     cpu.regs.y = y;
-    emit stateChanged(currentState());
+    emit stateChanged(state());
   }
 }
 

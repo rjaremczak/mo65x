@@ -1,7 +1,7 @@
-#include "executionstate.h"
+#include "cpustate.h"
 
-const char* formatExecutionState(CpuState es) {
-  switch (es) {
+const char* formatCpuState(CpuState state) {
+  switch (state) {
   case CpuState::Idle: return "idle";
   case CpuState::Stopped: return "stopped";
   case CpuState::Halted: return "halted";

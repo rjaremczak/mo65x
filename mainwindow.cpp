@@ -4,6 +4,8 @@
 #include <QDir>
 #include <QMessageBox>
 
+static const QString ProjectName = "mo65plus";
+
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   initConfigStorage();
@@ -19,7 +21,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   setCentralWidget(viewWidget);
 
   pollTimer = new QTimer(this);
-  // pollTimer->start(1000);
+  pollTimer->start(1000);
+  connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
+  connect(this, &MainWindow::polledState, cpuWidget, &CpuWidget::updatePolledData);
+  connect(this, &MainWindow::polledState, memoryWidget, &MemoryWidget::updatePolledData);
+  connect(this, &MainWindow::polledState, disassemblerWidget, &DisassemblerWidget::updatePolledData);
 
   connect(cpuWidget, &CpuWidget::startStepExecution, [&] { emulator->startExecution(false); });
   connect(cpuWidget, &CpuWidget::startContinuousExecution, [&] { emulator->startExecution(true); });
@@ -35,14 +41,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(cpuWidget, &CpuWidget::nmiRequested, emulator, &Emulator::triggerNmi, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::irqRequested, emulator, &Emulator::triggerIrq, Qt::DirectConnection);
 
-  connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::processState);
+  connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::updateState);
   connect(emulator, &Emulator::stateChanged, this, &MainWindow::processEmulatorState);
-  connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemoryView);
-  connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemoryView);
+  connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemory);
+  connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemory);
   connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
   connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget->view, &DisassemblerView::updateMemoryView);
   connect(emulator, &Emulator::stateChanged, disassemblerWidget,
-          [&](EmulatorState es) { disassemblerWidget->view->changeSelected(es.registers.pc); });
+          [&](EmulatorState es) { disassemblerWidget->view->changeSelected(es.regs.pc); });
 
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
@@ -55,7 +61,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(disassemblerWidget, &DisassemblerWidget::goToStartClicked, emulator, &Emulator::changeProgramCounter);
 
-  emulator->stateChanged(emulator->currentState());
+  emit polledState(emulator->state());
 
   if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
 }
@@ -71,7 +77,7 @@ void MainWindow::changeAsmFileName(const QString& fileName) {
   configStorage->write(config);
 
   QFileInfo fileInfo(fileName);
-  setWindowTitle("mo65plus: " + fileInfo.fileName());
+  setWindowTitle(ProjectName + ": " + fileInfo.fileName());
 }
 
 void MainWindow::showMessage(const QString& message, bool success) {
@@ -84,13 +90,13 @@ void MainWindow::showMessage(const QString& message, bool success) {
 }
 
 void MainWindow::processEmulatorState(EmulatorState emulatorState) {
-  QString msg(tr(formatExecutionState(emulatorState.executionState)));
+  QString msg(tr(formatCpuState(emulatorState.state)));
   if (auto es = emulatorState.lastExecutionStatistics; es.valid()) msg.append(" : ").append(formatExecutionStatistics(es));
-  showMessage(msg, emulatorState.executionState != CpuState::Halted);
+  showMessage(msg, emulatorState.state != CpuState::Halted);
 }
 
 void MainWindow::initConfigStorage() {
-  auto appDir = QDir(QDir::homePath() + "/.mo65plus");
+  auto appDir = QDir(QDir::homePath() + "/." + ProjectName);
   if (!appDir.exists()) appDir.mkpath(".");
 
   configStorage = new FileDataStorage<Config>(appDir.filePath("config.json"));
@@ -102,4 +108,8 @@ void MainWindow::startEmulator() {
   emulator->moveToThread(&emulatorThread);
   connect(&emulatorThread, &QThread::finished, emulator, &Emulator::deleteLater);
   emulatorThread.start();
+}
+
+void MainWindow::polling() {
+  if (const auto es = emulator->state(); es.running()) emit polledState(es);
 }

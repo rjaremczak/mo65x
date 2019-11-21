@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defs.h"
+#include "commondefs.h"
 #include <cstdint>
 
 struct ExecutionStatistics {

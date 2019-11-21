@@ -14,7 +14,11 @@ DisassemblerWidget::DisassemblerWidget(QWidget* parent, const Memory& memory) : 
   view->changeStart(static_cast<Address>(ui->startAddress->value()));
 }
 
-DisassemblerWidget::~DisassemblerWidget()
-{
+DisassemblerWidget::~DisassemblerWidget() {
   delete ui;
+}
+
+void DisassemblerWidget::updatePolledData(EmulatorState state, AddressRange range) {
+  view->changeSelected(state.regs.pc);
+  view->updateMemoryView(range);
 }

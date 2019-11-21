@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpuinfo.h"
-#include "executionstate.h"
+#include "cpustate.h"
 #include "instruction.h"
 #include "memory.h"
 #include "operandptr.h"
@@ -9,17 +9,11 @@
 #include "runlevel.h"
 #include <atomic>
 #include <chrono>
-#include <defs.h>
+#include <commondefs.h>
 #include <map>
 
 class Cpu {
 public:
-  constexpr static uint16_t IoPortConfig = 0x00;
-  constexpr static uint16_t IoPortData = 0x01;
-  constexpr static uint16_t nmiVector = 0xfffa;
-  constexpr static uint16_t resetVector = 0xfffc;
-  constexpr static uint16_t irqVector = 0xfffe;
-
   using Handler = void (Cpu::*)();
 
   friend class InstructionsTest;
