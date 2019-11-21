@@ -6,7 +6,7 @@ const char* formatRunLevel(CpuRunLevel runLevel) {
   case CpuRunLevel::Reset: return "reset";
   case CpuRunLevel::Nmi: return "nmi";
   case CpuRunLevel::Irq: return "irq";
-  case CpuRunLevel::Program: return "program";
+  case CpuRunLevel::Normal: return "normal";
   }
   return nullptr;
 }

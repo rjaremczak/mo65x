@@ -1,4 +1,10 @@
-  .ORG $0810
+	.org $810
+
+	lda #%10010101
+	sta $00
+	lda #%11100110
+	sta $01
+	inc $01
 
   LDX #$00
   LDY #$00
@@ -13,10 +19,10 @@ firstloop:
 secondloop:
   PLA
   STA $0200,Y
-  INY
-  CPY #$ff
-  BNE secondloop ; loop two
-  KIL
+  	ldy #$fe
+	cpy #$ff
+  	bne secondloop ; loop two
+	kil
 
 	.org $1000
 	

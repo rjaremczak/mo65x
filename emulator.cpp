@@ -5,6 +5,7 @@
 
 Emulator::Emulator(QObject* parent) : QObject(parent), cpu(memory) {
   std::generate(memory.begin(), memory.end(), [] { return std::rand(); });
+  clearStatistics();
 }
 
 void Emulator::loadMemory(uint16_t start, const Data& data) {
@@ -42,9 +43,9 @@ void Emulator::clearStatistics() {
   emit stateChanged(state());
 }
 
-const EmulatorState Emulator::state(long cycles, Duration duration) {
+const EmulatorState Emulator::state(ExecutionStatistics lastRun) {
   const auto info = cpu.info();
-  return {info.executionState, info.runLevel, cpu.regs, {cpu.cycles, cpu.duration}, {cycles, duration}};
+  return {info.executionState, info.runLevel, cpu.regs, {cpu.cycles, cpu.duration}, lastRun};
 }
 
 void Emulator::triggerIrq() {
@@ -68,19 +69,23 @@ void Emulator::stopExecution() {
   emit stateChanged(state());
 }
 
-void Emulator::startExecution(bool continuous) {
-  const auto d0 = cpu.duration;
-  const auto c0 = cpu.cycles;
+ExecutionStatistics Emulator::execute(bool continuous) {
+  const Duration d0 = cpu.duration;
+  const long c0 = cpu.cycles;
   cpu.execute(continuous);
-  emit stateChanged(state(cpu.cycles - c0, cpu.duration - d0));
+  const Duration d1 = cpu.duration;
+  const long c1 = cpu.cycles;
+  return {c1 - c0, d1 - d0};
 }
 
-void Emulator::startStepExecution() {
-  startExecution(false);
+void Emulator::executeSingleStep() {
+  const auto ex = execute(false);
+  emit stateChanged(state(ex));
 }
 
 void Emulator::startContinuousExecution() {
-  startExecution(true);
+  const auto ex = execute(true);
+  emit stateChanged(state(ex));
 }
 
 void Emulator::changeProgramCounter(uint16_t pc) {

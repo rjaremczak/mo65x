@@ -1,23 +1,28 @@
 #include "disassemblerview.h"
 #include "formatters.h"
 #include "ui_disassemblerview.h"
+#include "uitools.h"
 #include <QResizeEvent>
 
 DisassemblerView::DisassemblerView(QWidget* parent, const Memory& memory, HighlightMode highlight)
     : QWidget(parent), ui(new Ui::DisassemblerView), disassembler(memory), highlightMode(highlight) {
   ui->setupUi(this);
+  setMonospaceFont(ui->view);
 }
 
-DisassemblerView::~DisassemblerView()
-{
+DisassemblerView::~DisassemblerView() {
   delete ui;
+}
+
+Address DisassemblerView::last() const {
+  return addressRange.last;
 }
 
 Address DisassemblerView::selected() const {
   return selectedAddress;
 }
 
-uint16_t DisassemblerView::start() const {
+uint16_t DisassemblerView::first() const {
   return addressRange.first;
 }
 

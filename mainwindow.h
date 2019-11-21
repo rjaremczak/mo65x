@@ -29,12 +29,11 @@ public:
   ~MainWindow();
 
 signals:
-  void polledState(EmulatorState, AddressRange = AddressRange::Max);
+  void statePolled(EmulatorState, AddressRange = AddressRange::Max);
 
 public slots:
   void changeAsmFileName(const QString&);
   void showMessage(const QString& message, bool success = true);
-  void processEmulatorState(EmulatorState);
 
 private:
   CentralWidget* viewWidget;

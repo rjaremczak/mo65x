@@ -21,7 +21,7 @@ public:
 
 signals:
   void memoryContentChanged(AddressRange);
-  void loadFromFileRequested(uint16_t start, const QString& fname);
+  void loadFromFileRequested(Address start, const QString& fname);
   void saveToFileRequested(AddressRange, const QString& fname);
 
 public slots:
@@ -33,8 +33,8 @@ protected:
 
 private:
   Ui::MemoryWidget* ui;
-  const Memory& memory_;
-  AddressRange addressRange_;
+  const Memory& memory;
+  AddressRange addressRange;
 
   void updateView();
   int rowsInView() const;
@@ -43,8 +43,8 @@ private:
 private slots:
   void loadFromFile();
   void saveToFile();
-  void changeStartAddress(uint16_t);
-  void changeEndAddress(uint16_t);
+  void changeStartAddress(Address);
+  void changeEndAddress(Address);
 };
 
 #endif // MEMORYWIDGET_H

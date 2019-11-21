@@ -16,8 +16,6 @@ class DisassemblerWidget : public QWidget
   Q_OBJECT
 
 public:
-  DisassemblerView* view;
-
   explicit DisassemblerWidget(QWidget* parent, const Memory&);
   ~DisassemblerWidget();
 
@@ -26,9 +24,12 @@ signals:
 
 public slots:
   void updatePolledData(EmulatorState, AddressRange);
+  void updateState(EmulatorState);
+  void updateMemory(AddressRange);
 
 private:
   Ui::DisassemblerWidget* ui;
+  DisassemblerView* view;
 };
 
 #endif // DISASSEMBLERWIDGET_H

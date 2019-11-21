@@ -29,6 +29,7 @@ SOURCES += \
     disassemblerview.cpp \
     disassemblerwidget.cpp \
     emulator.cpp \
+    executionstatistics.cpp \
     filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \

@@ -14,7 +14,7 @@ public:
   explicit Emulator(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory; }
   Memory& memoryRef() { return memory; }
-  const EmulatorState state(long cycles = 0, Duration duration = Duration::zero());
+  const EmulatorState state(ExecutionStatistics = {});
 
 signals:
   void stateChanged(EmulatorState);
@@ -22,7 +22,7 @@ signals:
   void operationCompleted(const QString& message, bool success);
 
 public slots:
-  void startStepExecution();
+  void executeSingleStep();
   void startContinuousExecution();
   void changeProgramCounter(uint16_t);
   void changeStackPointer(uint16_t);
@@ -46,5 +46,5 @@ private:
   Memory memory;
   Cpu cpu;
 
-  void startExecution(bool continuous);
+  ExecutionStatistics execute(bool continuous);
 };

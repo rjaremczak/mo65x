@@ -26,13 +26,15 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory) : QDockWidget(parent
   connect(ui->regX, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerXChanged);
   connect(ui->regY, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerYChanged);
   connect(ui->clearStatistics, &QAbstractButton::clicked, this, &CpuWidget::clearStatisticsRequested);
-  connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::startStepExecution);
+  connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::singleStepRequested);
   connect(ui->skipInstruction, &QAbstractButton::clicked, this, &CpuWidget::skipInstruction);
-  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startContinuousExecution);
+  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::continuousExecutionRequested);
   connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
   setMonospaceFont(disassemblerView);
   setMonospaceFont(ui->flags);
+
+  ui->ioPortConfig->setValue(0b11010001);
 }
 
 CpuWidget::~CpuWidget() {
@@ -41,23 +43,21 @@ CpuWidget::~CpuWidget() {
 
 void CpuWidget::updateMemory(AddressRange range) {
   disassemblerView->updateMemoryView(range);
-  if (range.contains(CpuAddress::ResetVector)) ui->resetVector->setValue(memory.word(CpuAddress::ResetVector));
-  if (range.contains(CpuAddress::NmiVector)) ui->nmiVector->setValue(memory.word(CpuAddress::NmiVector));
-  if (range.contains(CpuAddress::IrqVector)) ui->irqVector->setValue(memory.word(CpuAddress::IrqVector));
-  if (range.contains(CpuAddress::IoPortData)) ui->ioPortData->setValue(memory.word(CpuAddress::IoPortData));
-  if (range.contains(CpuAddress::IoPortConfig)) ui->ioPortConfig->setValue(memory.word(CpuAddress::IoPortConfig));
+  updateSpecialCpuAddresses();
 }
 
 void CpuWidget::updateState(EmulatorState es) {
   const auto& regs = es.regs;
 
-  setWindowTitle(tr("run level: %1").arg(formatRunLevel(es.runLevel)));
+  setWindowTitle(tr("%1 @ %2").arg(formatCpuState(es.state)).arg(formatRunLevel(es.runLevel)));
 
   ui->regA->setValue(regs.a);
   ui->regX->setValue(regs.x);
   ui->regY->setValue(regs.y);
   ui->regSP->setValue(regs.sp.address());
   ui->regPC->setValue(regs.pc);
+
+  updateSpecialCpuAddresses();
 
   QString str;
   str.append(flagStr(regs.p.negative, "N"));
@@ -70,8 +70,8 @@ void CpuWidget::updateState(EmulatorState es) {
   str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  QString statsStr = formatExecutionStatistics(es.avgExecutionStatistics);
-  ui->avgStatistics->setText(statsStr.isEmpty() ? statsStr : "avg: " + statsStr);
+  ui->lastStatistics->setText(formatExecutionStatistics(es.lastExecutionStatistics));
+  ui->avgStatistics->setText(formatExecutionStatistics(es.avgExecutionStatistics));
 
   ui->regPC->setValue(regs.pc);
   disassemblerView->changeStart(regs.pc);
@@ -94,7 +94,15 @@ void CpuWidget::changeProgramCounter(uint16_t addr) {
   ui->regPC->setValue(addr);
 }
 
+void CpuWidget::updateSpecialCpuAddresses() {
+  ui->resetVector->setValue(memory.word(CpuAddress::ResetVector));
+  ui->nmiVector->setValue(memory.word(CpuAddress::NmiVector));
+  ui->irqVector->setValue(memory.word(CpuAddress::IrqVector));
+  ui->ioPortData->setValue(memory[CpuAddress::IoPortData]);
+  ui->ioPortConfig->setValue(memory[CpuAddress::IoPortConfig]);
+}
+
 void CpuWidget::skipInstruction() {
   disassemblerView->nextInstruction();
-  emit programCounterChanged(disassemblerView->start());
+  emit programCounterChanged(disassemblerView->first());
 }

@@ -20,7 +20,8 @@ public:
 
   explicit DisassemblerView(QWidget* parent, const Memory& memory, HighlightMode highligt = HighlightMode::First);
   ~DisassemblerView() override;
-  Address start() const;
+  Address first() const;
+  Address last() const;
   Address selected() const;
 
 public slots:

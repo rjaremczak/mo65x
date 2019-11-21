@@ -19,8 +19,8 @@ public:
   ~CpuWidget() override;
 
 signals:
-  void startStepExecution();
-  void startContinuousExecution();
+  void singleStepRequested();
+  void continuousExecutionRequested();
   void stopExecutionRequested();
   void clearStatisticsRequested();
   void resetRequested();
@@ -45,6 +45,7 @@ private:
   const Memory& memory;
 
   int rowsInView() const;
+  void updateSpecialCpuAddresses();
 
 private slots:
   void skipInstruction();

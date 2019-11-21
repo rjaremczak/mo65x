@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commondefs.h"
+#include <QString>
 #include <cstdint>
 
 struct ExecutionStatistics {
@@ -11,3 +12,5 @@ struct ExecutionStatistics {
   double microSec() const { return std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(duration).count(); }
   double clockMHz() const { return cycles / microSec(); }
 };
+
+QString formatExecutionStatistics(ExecutionStatistics es);

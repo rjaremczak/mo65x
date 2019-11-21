@@ -23,12 +23,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   pollTimer = new QTimer(this);
   pollTimer->start(1000);
   connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
-  connect(this, &MainWindow::polledState, cpuWidget, &CpuWidget::updatePolledData);
-  connect(this, &MainWindow::polledState, memoryWidget, &MemoryWidget::updatePolledData);
-  connect(this, &MainWindow::polledState, disassemblerWidget, &DisassemblerWidget::updatePolledData);
+  connect(this, &MainWindow::statePolled, cpuWidget, &CpuWidget::updatePolledData);
+  connect(this, &MainWindow::statePolled, memoryWidget, &MemoryWidget::updatePolledData);
+  connect(this, &MainWindow::statePolled, disassemblerWidget, &DisassemblerWidget::updatePolledData);
 
-  connect(cpuWidget, &CpuWidget::startStepExecution, emulator, &Emulator::startStepExecution);
-  connect(cpuWidget, &CpuWidget::startContinuousExecution, emulator, &Emulator::startContinuousExecution);
+  connect(cpuWidget, &CpuWidget::singleStepRequested, emulator, &Emulator::executeSingleStep, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::continuousExecutionRequested, emulator, &Emulator::startContinuousExecution);
   connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
   connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &Emulator::changeStackPointer);
   connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &Emulator::changeAccumulator);
@@ -42,13 +42,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(cpuWidget, &CpuWidget::irqRequested, emulator, &Emulator::triggerIrq, Qt::DirectConnection);
 
   connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::updateState);
-  connect(emulator, &Emulator::stateChanged, this, &MainWindow::processEmulatorState);
   connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemory);
   connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemory);
   connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
-  connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget->view, &DisassemblerView::updateMemoryView);
-  connect(emulator, &Emulator::stateChanged, disassemblerWidget,
-          [&](EmulatorState es) { disassemblerWidget->view->changeSelected(es.regs.pc); });
+  connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateMemory);
+  connect(emulator, &Emulator::stateChanged, disassemblerWidget, &DisassemblerWidget::updateState);
 
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
@@ -61,9 +59,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(disassemblerWidget, &DisassemblerWidget::goToStartClicked, emulator, &Emulator::changeProgramCounter);
 
-  emit polledState(emulator->state());
-
   if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
+
+  emit statePolled(emulator->state());
 }
 
 MainWindow::~MainWindow() {
@@ -89,12 +87,6 @@ void MainWindow::showMessage(const QString& message, bool success) {
   ui->statusbar->showMessage(message);
 }
 
-void MainWindow::processEmulatorState(EmulatorState emulatorState) {
-  QString msg(tr(formatCpuState(emulatorState.state)));
-  if (auto es = emulatorState.lastExecutionStatistics; es.valid()) msg.append(" : ").append(formatExecutionStatistics(es));
-  showMessage(msg, emulatorState.state != CpuState::Halted);
-}
-
 void MainWindow::initConfigStorage() {
   auto appDir = QDir(QDir::homePath() + "/." + ProjectName);
   if (!appDir.exists()) appDir.mkpath(".");
@@ -111,5 +103,5 @@ void MainWindow::startEmulator() {
 }
 
 void MainWindow::polling() {
-  if (const auto es = emulator->state(); es.running()) { emit polledState(es); }
+  if (const auto es = emulator->state(); es.running()) { emit statePolled(es); }
 }
