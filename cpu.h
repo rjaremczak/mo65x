@@ -37,7 +37,7 @@ public:
   CpuInfo info() const;
 
 private:
-  std::atomic<CpuRunLevel> runLevel = CpuRunLevel::Program;
+  std::atomic<CpuRunLevel> runLevel = CpuRunLevel::Normal;
   std::atomic<CpuState> state = CpuState::Idle;
 
   Memory& memory;

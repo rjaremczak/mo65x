@@ -320,7 +320,7 @@ void Cpu::irq() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory.word(CpuAddress::IrqVector);
-  runLevel = CpuRunLevel::Program;
+  runLevel = CpuRunLevel::Normal;
 }
 
 void Cpu::nmi() {
@@ -328,7 +328,7 @@ void Cpu::nmi() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = memory.word(CpuAddress::NmiVector);
-  runLevel = CpuRunLevel::Program;
+  runLevel = CpuRunLevel::Normal;
 }
 
 void Cpu::reset() {
@@ -344,7 +344,7 @@ void Cpu::reset() {
   regs.p.zero = false;
   regs.p.carry = false;
   resetStatistics();
-  runLevel = CpuRunLevel::Program;
+  runLevel = CpuRunLevel::Normal;
 }
 
 void Cpu::resetExecutionState() {
@@ -367,7 +367,7 @@ void Cpu::execHalt() {
 
 void Cpu::execute(bool continuous) {
   state = CpuState::Running;
-  runLevel = continuous ? CpuRunLevel::Program : CpuRunLevel::SingleStep;
+  runLevel = continuous ? CpuRunLevel::Normal : CpuRunLevel::SingleStep;
   while (state == CpuState::Running) {
     const auto t0 = PreciseClock::now();
     pageBoundaryCrossed = false;
@@ -386,7 +386,7 @@ void Cpu::execute(bool continuous) {
     duration += std::chrono::duration_cast<Duration>(PreciseClock::now() - t0);
 
     switch (runLevel) {
-    case CpuRunLevel::Program: break;
+    case CpuRunLevel::Normal: break;
     case CpuRunLevel::SingleStep: goto ExitLoop;
     case CpuRunLevel::Reset: reset(); break;
     case CpuRunLevel::Nmi: nmi(); break;
