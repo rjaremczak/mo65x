@@ -14,7 +14,6 @@ secondloop:
   PLA
   STA $0200,Y
   INY
-ldy #$fe
   CPY #$ff
   BNE secondloop ; loop two
   KIL
