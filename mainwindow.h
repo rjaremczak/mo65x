@@ -5,9 +5,10 @@
 #include "centralwidget.h"
 #include "config.h"
 #include "cpuwidget.h"
+#include "disassemblerwidget.h"
+#include "emulator.h"
 #include "filedatastorage.h"
 #include "memorywidget.h"
-#include "emulator.h"
 #include <QMainWindow>
 #include <QThread>
 #include <QTimer>
@@ -36,6 +37,7 @@ private:
   CentralWidget* viewWidget;
   AssemblerWidget* assemblerWidget;
   MemoryWidget* memoryWidget;
+  DisassemblerWidget* disassemblerWidget;
   CpuWidget* cpuWidget;
   Emulator* emulator;
   FileDataStorage<Config>* configStorage;

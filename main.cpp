@@ -12,14 +12,16 @@
 
 Q_DECLARE_METATYPE(EmulatorState)
 Q_DECLARE_METATYPE(Data)
+Q_DECLARE_METATYPE(Address)
 Q_DECLARE_METATYPE(AddressRange)
 Q_DECLARE_METATYPE(FileOperationCallBack)
 
 int main(int argc, char* argv[]) {
 
-  // register types aliased by Qt
+  // register types already aliased by Qt
   qRegisterMetaType<uint8_t>("uint8_t");
   qRegisterMetaType<uint16_t>("uint16_t");
+  qRegisterMetaType<Address>("Address");
 
   // register own custom types
   qRegisterMetaType<EmulatorState>();

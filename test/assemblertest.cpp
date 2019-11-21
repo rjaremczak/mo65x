@@ -146,3 +146,7 @@ void AssemblerTest::testAssemblyPass() {
 void AssemblerTest::testEmitByte() {
   TEST_INST(".BYTE $20");
 }
+
+void AssemblerTest::testLowerCaseInstruction() {
+  TEST_INST(" lda #$f0  ;comment");
+}

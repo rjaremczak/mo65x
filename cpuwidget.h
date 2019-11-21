@@ -2,7 +2,7 @@
 
 #include "addressrange.h"
 #include "defs.h"
-#include "disassembler.h"
+#include "disassemblerview.h"
 #include "emulatorstate.h"
 #include <QDockWidget>
 
@@ -35,18 +35,13 @@ signals:
 public slots:
   void updateMemoryView(AddressRange);
   void processState(EmulatorState);
-  void updateDisassemblerView();
   void changeProgramCounter(uint16_t);
-
-protected:
-  void resizeEvent(QResizeEvent*) override;
 
 private:
   Ui::CpuWidget* ui;
 
+  DisassemblerView* disassemblerView;
   const Memory& memory;
-  Disassembler disassembler;
-  AddressRange disassemblerRange;
 
   int rowsInView() const;
 

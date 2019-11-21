@@ -14,7 +14,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   assemblerWidget = new AssemblerWidget(this, emulator->memoryRef());
   memoryWidget = new MemoryWidget(this, emulator->memoryView());
-  viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget);
+  disassemblerWidget = new DisassemblerWidget(this, emulator->memoryView());
+  viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget, disassemblerWidget);
   setCentralWidget(viewWidget);
 
   pollTimer = new QTimer(this);
@@ -39,6 +40,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemoryView);
   connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemoryView);
   connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
+  connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget->view, &DisassemblerView::updateMemoryView);
+  connect(emulator, &Emulator::stateChanged, disassemblerWidget,
+          [&](EmulatorState es) { disassemblerWidget->view->changeSelected(es.registers.pc); });
 
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
@@ -48,6 +52,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(memoryWidget, &MemoryWidget::loadFromFileRequested, emulator, &Emulator::loadMemoryFromFile);
   connect(memoryWidget, &MemoryWidget::saveToFileRequested, emulator, &Emulator::saveMemoryToFile);
+
+  connect(disassemblerWidget, &DisassemblerWidget::goToStartClicked, emulator, &Emulator::changeProgramCounter);
 
   emulator->stateChanged(emulator->currentState());
 

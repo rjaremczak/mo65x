@@ -42,7 +42,7 @@ QString Disassembler::dumpWords(uint16_t n) const {
 }
 
 QString Disassembler::disassemble() const {
-  QString str = formatHexWord(address).append(" ");
+  QString str;
   for (uint8_t i = 0; i < 3; i++) { str.append(i < instruction.size ? formatHexByte(memory[address + i]).append(" ") : "   "); }
   str.append(" ");
   str.append(MnemonicTable.at(instruction.type)).append(" ");

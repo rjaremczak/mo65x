@@ -17,3 +17,10 @@ secondloop:
   CPY #$ff
   BNE secondloop ; loop two
   KIL
+
+	.org $1000
+	
+	lda #$ff
+	ldx #$ff
+	ldy #$a0
+	kil

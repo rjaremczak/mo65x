@@ -24,6 +24,8 @@ SOURCES += \
     cpu.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
+    disassemblerview.cpp \
+    disassemblerwidget.cpp \
     emulator.cpp \
     executionstate.cpp \
     filedatastorage.cpp \
@@ -55,6 +57,8 @@ HEADERS += \
     cpu.h \
     defs.h \
     disassembler.h \
+    disassemblerview.h \
+    disassemblerwidget.h \
     emulator.h \
     emulatorstate.h \
     executionstate.h \
@@ -84,6 +88,8 @@ FORMS += \
     assemblerwidget.ui \
     centralwidget.ui \
     cpuwidget.ui \
+    disassemblerview.ui \
+    disassemblerwidget.ui \
     mainwindow.ui \
     memorywidget.ui
 

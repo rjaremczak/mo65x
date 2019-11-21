@@ -1,22 +1,23 @@
 #pragma once
 
+#include "defs.h"
 #include <algorithm>
 #include <cstdint>
 
 struct AddressRange {
-  uint16_t first;
-  uint16_t last;
+  Address first;
+  Address last;
 
   AddressRange() : first(0xffff), last(0) {}
-  AddressRange(uint16_t addr) : first(addr), last(addr) {}
-  AddressRange(uint16_t first, uint16_t last) : first(first), last(last) {}
+  AddressRange(Address addr) : first(addr), last(addr) {}
+  AddressRange(Address first, Address last) : first(first), last(last) {}
 
   bool valid() const { return first <= last; }
   size_t size() const { return last - first + 1; }
-  bool overlapsWith(AddressRange range) const {
-    return first == std::clamp(first, range.first, range.last) || last == std::clamp(last, range.first, range.last);
-  }
-  void expand(uint16_t addr) {
+  bool contains(Address addr) const { return addr == std::clamp(addr, first, last); }
+  bool overlapsWith(AddressRange range) const { return range.contains(first) || range.contains(last); }
+
+  void expand(Address addr) {
     if (valid()) {
       first = std::min(first, addr);
       last = std::max(last, addr);

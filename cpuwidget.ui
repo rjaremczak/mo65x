@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>257</width>
-    <height>384</height>
+    <height>312</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -657,7 +657,7 @@
       <item row="6" column="0" colspan="3">
        <widget class="QLabel" name="avgStatistics">
         <property name="styleSheet">
-         <string notr="true">color:orange</string>
+         <string notr="true">color:orange; margin-top: 2px; margin-bottom:2px</string>
         </property>
         <property name="text">
          <string>avg</string>
@@ -670,37 +670,10 @@
      </layout>
     </item>
     <item>
-     <widget class="QTextBrowser" name="disassemblerView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Courier</family>
-       </font>
-      </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-      </property>
-      <property name="lineWrapMode">
-       <enum>QTextEdit::NoWrap</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QFrame" name="auxFrame">
       <layout class="QHBoxLayout" name="controlGroup">
        <property name="spacing">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="leftMargin">
         <number>2</number>
@@ -720,7 +693,7 @@
           <string>Execute One Instruction</string>
          </property>
          <property name="text">
-          <string>⇥</string>
+          <string>Step</string>
          </property>
         </widget>
        </item>
@@ -730,7 +703,7 @@
           <string>Skip One Instruction</string>
          </property>
          <property name="text">
-          <string>⇢</string>
+          <string>↷</string>
          </property>
         </widget>
        </item>

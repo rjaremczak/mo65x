@@ -10,9 +10,12 @@ static QString flagStr(bool flagStatus, const char* flagCode) {
   return flagStatus ? flagCode : QString("<span style='color:gray'>%1</span>").arg(flagCode);
 }
 
-CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
-    : QDockWidget(parent), ui(new Ui::CpuWidget), memory(memory), disassembler(memory) {
+CpuWidget::CpuWidget(QWidget* parent, const Memory& memory) : QDockWidget(parent), ui(new Ui::CpuWidget), memory(memory) {
   ui->setupUi(this);
+
+  disassemblerView = new DisassemblerView(this, memory);
+  QVBoxLayout* layout = static_cast<QVBoxLayout*>(ui->dockWidgetContents->layout());
+  layout->insertWidget(layout->indexOf(ui->auxFrame), disassemblerView);
 
   connect(ui->regPC, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::programCounterChanged);
   connect(ui->regSP, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::stackPointerChanged);
@@ -28,7 +31,7 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory)
   connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startContinuousExecution);
   connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
-  setMonospaceFont(ui->disassemblerView);
+  setMonospaceFont(disassemblerView);
   setMonospaceFont(ui->flags);
 }
 
@@ -37,7 +40,7 @@ CpuWidget::~CpuWidget() {
 }
 
 void CpuWidget::updateMemoryView(AddressRange range) {
-  if (disassemblerRange.overlapsWith(range)) updateDisassemblerView();
+  disassemblerView->updateMemoryView(range);
 }
 
 void CpuWidget::processState(EmulatorState es) {
@@ -67,10 +70,7 @@ void CpuWidget::processState(EmulatorState es) {
   ui->avgStatistics->setText(formatExecutionStatistics(es.avgExecutionStatistics));
 
   ui->regPC->setValue(regs.pc);
-  if (disassemblerRange.first != regs.pc) {
-    disassemblerRange.first = regs.pc;
-    updateDisassemblerView();
-  }
+  disassemblerView->changeStart(regs.pc);
 
   const auto processing =
       es.executionState == CpuState::Running || es.executionState == CpuState::Halting || es.executionState == CpuState::Stopping;
@@ -83,42 +83,11 @@ void CpuWidget::processState(EmulatorState es) {
   ui->executeSingleStep->setDisabled(processing || es.executionState == CpuState::Halted);
 }
 
-void CpuWidget::resizeEvent(QResizeEvent* event) {
-  if (event->size().height() != event->oldSize().height()) { updateDisassemblerView(); }
-}
-
-int CpuWidget::rowsInView() const {
-  return 6 + ui->disassemblerView->height() / ui->disassemblerView->fontMetrics().height();
-}
-
-void CpuWidget::updateDisassemblerView() {
-  disassembler.setOrigin(disassemblerRange.first);
-  QString html("<div style='white-space:pre; display:inline-block'>");
-  int rows = rowsInView();
-  if (rows--) {
-    html.append("<div style='color:black; background-color: lightgreen'>");
-    html.append(disassembler.disassemble()).append("</div>");
-    disassembler.nextInstruction();
-
-    html.append("<div style='color:darkseagreen'>");
-    while (rows--) {
-      html.append(disassembler.disassemble() + "<br>");
-      disassembler.nextInstruction();
-    }
-
-    html.append("</div>");
-  }
-  html.append("</div>");
-  ui->disassemblerView->setHtml(html);
-  disassemblerRange.last = disassembler.currentAddress();
-}
-
 void CpuWidget::changeProgramCounter(uint16_t addr) {
   ui->regPC->setValue(addr);
 }
 
 void CpuWidget::skipInstruction() {
-  disassembler.setOrigin(disassemblerRange.first);
-  disassembler.nextInstruction();
-  emit programCounterChanged(disassembler.currentAddress());
+  disassemblerView->nextInstruction();
+  emit programCounterChanged(disassemblerView->start());
 }

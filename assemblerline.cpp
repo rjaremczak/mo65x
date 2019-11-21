@@ -11,7 +11,7 @@ static InstructionType resolveInstructionType(const QString& operation) {
 }
 
 AssemblerLine::AssemblerLine(QRegularExpressionMatch match, OperandsFormat operandsFormat, ControlCommand command)
-    : valid(match.hasMatch()), label(match.captured(LabelGroup)), operation(match.captured(OperationGroup)),
+    : valid(match.hasMatch()), label(match.captured(LabelGroup)), operation(match.captured(OperationGroup).toUpper()),
       operands(match.capturedTexts().mid(FirstOperandGroup).toVector()), operandsFormat(operandsFormat),
       instructionType(command == ControlCommand::None ? resolveInstructionType(operation) : InstructionType::KIL),
       command(command) {

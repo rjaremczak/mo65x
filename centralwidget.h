@@ -12,13 +12,14 @@ class CentralWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit CentralWidget(QWidget* parent, QWidget* assemblerWidget_, QWidget* memoryWidget_);
+  explicit CentralWidget(QWidget* parent, QWidget* assemblerWidget, QWidget* memoryWidget, QWidget* disassemblerWidget);
   ~CentralWidget();
 
 private:
   Ui::CentralWidget *ui;
-  QWidget* assemblerWidget_;
-  QWidget* memoryWidget_;
+  QWidget* const assemblerWidget;
+  QWidget* const memoryWidget;
+  QWidget* const disassemblerWidget;
 };
 
 #endif // CENTRALWIDGET_H

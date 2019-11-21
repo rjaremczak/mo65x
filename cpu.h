@@ -22,6 +22,7 @@ public:
 
   using Handler = void (Cpu::*)();
 
+  friend class InstructionsTest;
   friend constexpr Handler operandsHandler(OperandsFormat);
   friend constexpr Handler instructionHandler(InstructionType);
 
@@ -42,8 +43,6 @@ public:
   CpuInfo info() const;
 
 private:
-  friend class OpCodesTest;
-
   std::atomic<CpuRunLevel> runLevel = CpuRunLevel::Program;
   std::atomic<CpuState> state = CpuState::Idle;
 

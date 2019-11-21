@@ -32,7 +32,7 @@ public:
 
 private:
   friend class AssemblerTest;
-  friend class OpCodesTest;
+  friend class InstructionsTest;
 
   AddressRange addressRange;
   ProcessingMode mode = ProcessingMode::EmitCode;

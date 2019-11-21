@@ -4,11 +4,11 @@
 #include "cpu.h"
 #include <QObject>
 
-class OpCodesTest : public QObject{
+class InstructionsTest : public QObject {
   Q_OBJECT
 
 public:
-  explicit OpCodesTest(QObject* parent = nullptr);
+  explicit InstructionsTest(QObject* parent = nullptr);
 
 private:
   Assembler assembler;
