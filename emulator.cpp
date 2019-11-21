@@ -75,6 +75,14 @@ void Emulator::startExecution(bool continuous) {
   emit stateChanged(state(cpu.cycles - c0, cpu.duration - d0));
 }
 
+void Emulator::startStepExecution() {
+  startExecution(false);
+}
+
+void Emulator::startContinuousExecution() {
+  startExecution(true);
+}
+
 void Emulator::changeProgramCounter(uint16_t pc) {
   if (!cpu.running() && cpu.regs.pc != pc) {
     cpu.regs.pc = pc;

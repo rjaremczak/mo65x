@@ -22,7 +22,8 @@ signals:
   void operationCompleted(const QString& message, bool success);
 
 public slots:
-  void startExecution(bool continuous);
+  void startStepExecution();
+  void startContinuousExecution();
   void changeProgramCounter(uint16_t);
   void changeStackPointer(uint16_t);
   void changeAccumulator(uint8_t);
@@ -44,4 +45,6 @@ public slots:
 private:
   Memory memory;
   Cpu cpu;
+
+  void startExecution(bool continuous);
 };

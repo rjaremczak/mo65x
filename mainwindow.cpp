@@ -27,8 +27,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(this, &MainWindow::polledState, memoryWidget, &MemoryWidget::updatePolledData);
   connect(this, &MainWindow::polledState, disassemblerWidget, &DisassemblerWidget::updatePolledData);
 
-  connect(cpuWidget, &CpuWidget::startStepExecution, [&] { emulator->startExecution(false); });
-  connect(cpuWidget, &CpuWidget::startContinuousExecution, [&] { emulator->startExecution(true); });
+  connect(cpuWidget, &CpuWidget::startStepExecution, emulator, &Emulator::startStepExecution);
+  connect(cpuWidget, &CpuWidget::startContinuousExecution, emulator, &Emulator::startContinuousExecution);
   connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
   connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &Emulator::changeStackPointer);
   connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &Emulator::changeAccumulator);
