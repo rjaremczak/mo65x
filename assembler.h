@@ -22,10 +22,11 @@ public:
 
   const auto& symbols() const { return symbolTable; }
 
+  Assembler(Memory&);
   void init(uint16_t addr = DefaultOrigin);
   void clearSymbols();
   void changeMode(ProcessingMode mode);
-  AssemblerResult processLine(Memory&, const QString&);
+  AssemblerResult processLine(const QString&);
   std::optional<int> symbol(const QString&) const;
   AddressRange affectedAddressRange() const;
   size_t bytesWritten() const;
@@ -34,6 +35,7 @@ private:
   friend class AssemblerTest;
   friend class InstructionsTest;
 
+  Memory& memory;
   AddressRange addressRange;
   ProcessingMode mode = ProcessingMode::EmitCode;
   size_t written = 0;
@@ -42,12 +44,12 @@ private:
   Symbols symbolTable;
 
   AssemblerResult addSymbol(const QString&, uint16_t);
-  AssemblerResult processControlCommand(Memory& memory, const AssemblerLine&);
-  AssemblerResult processInstruction(Memory& memory, const AssemblerLine&);
+  AssemblerResult processControlCommand(const AssemblerLine&);
+  AssemblerResult processInstruction(const AssemblerLine&);
   AssemblerResult cmdSetOrigin(const AssemblerLine&);
-  AssemblerResult cmdEmitByte(Memory& memory, const AssemblerLine&);
-  AssemblerResult cmdEmitWord(Memory& memory, const AssemblerLine&);
-  AssemblerResult assemble(Memory& data, InstructionType type, OperandsFormat mode, int operand = 0);
-  void addByte(Memory&, uint8_t);
+  AssemblerResult cmdEmitByte(const AssemblerLine&);
+  AssemblerResult cmdEmitWord(const AssemblerLine&);
+  AssemblerResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
+  void addByte(uint8_t);
   void updateAddressRange(uint16_t);
 };

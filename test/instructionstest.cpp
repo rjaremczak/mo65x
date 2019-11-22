@@ -35,7 +35,7 @@
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
-  QCOMPARE(assembler.processLine(memory, instr), AssemblerResult::Ok);                                                           \
+  QCOMPARE(assembler.processLine(instr), AssemblerResult::Ok);                                                                   \
   cpu.execute(false);                                                                                                            \
   QCOMPARE(cpu.state, CpuState::Idle);                                                                                           \
   QCOMPARE(cpu.cycles, numCycles)
@@ -52,7 +52,7 @@
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
 
-InstructionsTest::InstructionsTest(QObject* parent) : QObject(parent), cpu(memory) {
+InstructionsTest::InstructionsTest(QObject* parent) : QObject(parent), assembler(memory), cpu(memory) {
 }
 
 void InstructionsTest::initTestCase() {

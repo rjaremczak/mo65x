@@ -1,7 +1,7 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr) QCOMPARE(assembler.processLine(memory, instr), AssemblerResult::Ok)
+#define TEST_INST(instr) QCOMPARE(assembler.processLine(instr), AssemblerResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
@@ -15,7 +15,7 @@
   TEST_INST_2(instr, opCode, lo);                                                                                                \
   if (hi >= 0) QCOMPARE(hi, memory[assembler.lastInstructionAddress + 2])
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent) {
+AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(memory) {
 }
 
 void AssemblerTest::init() {

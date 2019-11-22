@@ -10,7 +10,8 @@
 #include <QTextBlock>
 #include <QTextStream>
 
-AssemblerWidget::AssemblerWidget(QWidget* parent, Memory& memory) : QWidget(parent), ui(new Ui::AssemblerWidget), memory(memory) {
+AssemblerWidget::AssemblerWidget(QWidget* parent, Memory& memory)
+    : QWidget(parent), ui(new Ui::AssemblerWidget), assembler(memory) {
   ui->setupUi(this);
   connect(ui->newFile, &QAbstractButton::clicked, this, &AssemblerWidget::newFile);
   connect(ui->loadFile, &QAbstractButton::clicked, this, &AssemblerWidget::loadEditorFile);
@@ -66,14 +67,14 @@ void AssemblerWidget::saveEditorFileAs() {
     saveFile(fname);
 }
 
-bool AssemblerWidget::process(Memory& memory) {
+bool AssemblerWidget::process() {
   QString src = ui->sourceCode->toPlainText();
   QTextStream is(&src, QIODevice::ReadOnly);
   int lineNum = 0;
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    if (auto result = assembler.processLine(memory, line); result != AssemblerResult::Ok) {
+    if (auto result = assembler.processLine(line); result != AssemblerResult::Ok) {
       emit operationCompleted(tr("%1 at line %2").arg(assemblerResultStr(result)).arg(lineNum + 1), true);
       auto block = ui->sourceCode->document()->findBlockByLineNumber(lineNum);
       auto cursor = ui->sourceCode->textCursor();
@@ -97,10 +98,10 @@ void AssemblerWidget::assembleSourceCode() {
   assembler.init();
   assembler.clearSymbols();
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
-  if (process(memory)) {
+  if (process()) {
     assembler.init();
     assembler.changeMode(Assembler::ProcessingMode::EmitCode);
-    if (process(memory)) {
+    if (process()) {
       emit codeWritten(assembler.affectedAddressRange());
       emit programCounterChanged(assembler.affectedAddressRange().first);
       emit operationCompleted(tr("%1 B written in range $%2-$%3, symbols: %4")

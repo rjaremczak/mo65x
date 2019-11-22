@@ -30,9 +30,7 @@ private:
   QString fileName;
   Assembler assembler;
 
-  Memory& memory; // considered not clean, to be refactored some time...
-
-  bool process(Memory&);
+  bool process();
 
 private slots:
   void newFile();
