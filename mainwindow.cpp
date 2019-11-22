@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QMessageBox>
 
-static const QString ProjectName = "mo65plus";
+static const QString ProjectName = "mo65x";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);

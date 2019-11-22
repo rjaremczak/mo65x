@@ -430,5 +430,5 @@ void Cpu::triggerIrq() {
 }
 
 CpuInfo Cpu::info() const {
-  return {runLevel, state, cycles, duration};
+  return {runLevel, state, {cycles, duration}};
 }
