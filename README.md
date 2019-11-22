@@ -10,7 +10,7 @@ Usual drill is the following:
 * clone or download this repository to the local storage.
 * open the mo65x.pro file with QtCreator IDE which is a part of Qt SDK.
 * configure primary run/build configuration as suggested by the IDE.
-* being in IDE go to "Project Mode" (the wrench icon) and select newly created Build configuration. Then click "Clone..." to make a copy of it, name it "Test".
+* being in IDE go to "Project Mode" (the wrench icon) and select newly created Build configuration. Then click "Clone..." to make a copy of it, name it "Test". Update "Build Directory" so its path differs from the one from the "Debug" configuration, you can simply replace "Debug" with "Test" within the path.
 * In the "Test" configuration expand "Build Steps" section and in the "Additional arguments" field enter: CONFIG+=test
 
 Now using regular configuration you should be able to build/run/debug the project. When in the "Test" configuration go to Tools -> Tests -> Run All Tests to run all tests provided with the project.
