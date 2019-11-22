@@ -36,8 +36,9 @@ static const QString OriginCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
 static const QString ByteCmd("(\\.(?:BYTE))\\s+");
 static const QString WordCmd("(\\.(?:WORD))\\s+");
 
-const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + Comment, ControlCommand::DefineOrigin},
+const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + Comment, ControlCommand::SetOrigin},
                                                {LabelDef + ByteCmd + OpByte + "+", ControlCommand::EmitBytes},
+                                               {LabelDef + WordCmd + OpWord + "+", ControlCommand::EmitWords},
                                                {LabelDef + OpType + Comment, NoOperands},
                                                {LabelDef + OpType + "#" + OpByte + Comment, Immediate},
                                                {LabelDef + OpType + OpByte + Comment, ZeroPage},
@@ -62,7 +63,7 @@ static const Instruction* findInstruction(InstructionType type, OperandsFormat m
   return it != InstructionTable.end() ? it : nullptr;
 }
 
-static AssemblerLine parseAssemblyLine(const QString& str) {
+static AssemblerLine parseLine(const QString& str) {
   for (auto& entry : LinePatternsTable) {
     if (auto match = entry.regex.match(str); match.hasMatch()) {
       return AssemblerLine(match, entry.operandsFormat, entry.command);
@@ -93,7 +94,7 @@ AssemblerResult Assembler::processLine(const QString& str) {
     return AssemblerResult::Ok;
   }
 
-  const auto line = parseAssemblyLine(str);
+  const auto line = parseLine(str);
   if (!line.valid) return AssemblerResult::SyntaxError;
   if (!line.label.isEmpty()) {
     if (auto res = addSymbol(line.label, locationCounter); res != AssemblerResult::Ok) return res;
@@ -128,8 +129,9 @@ size_t Assembler::bytesWritten() const {
 
 AssemblerResult Assembler::processControlCommand(const AssemblerLine& line) {
   switch (line.command) {
-  case ControlCommand::DefineOrigin: return cmdSetOrigin(line);
-  case ControlCommand::EmitBytes: return cmdEmitByte(line);
+  case ControlCommand::SetOrigin: return cmdSetOrigin(line);
+  case ControlCommand::EmitBytes: return cmdEmitBytes(line);
+  case ControlCommand::EmitWords: return cmdEmitWords(line);
   default: return AssemblerResult::CommandProcessingError;
   }
 }
@@ -163,7 +165,7 @@ AssemblerResult Assembler::cmdSetOrigin(const AssemblerLine& line) {
   }
 }
 
-AssemblerResult Assembler::cmdEmitByte(const AssemblerLine& line) {
+AssemblerResult Assembler::cmdEmitBytes(const AssemblerLine& line) {
   for (auto num = 0; num < line.operands.size(); num++) {
     if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
     addByte(static_cast<uint8_t>(line.operandAsNumber(num)));
@@ -171,7 +173,7 @@ AssemblerResult Assembler::cmdEmitByte(const AssemblerLine& line) {
   return AssemblerResult::Ok;
 }
 
-AssemblerResult Assembler::cmdEmitWord(const AssemblerLine& line) {
+AssemblerResult Assembler::cmdEmitWords(const AssemblerLine& line) {
   for (auto num = 0; num < line.operands.size(); num++) {
     if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
     const auto word = static_cast<uint16_t>(line.operandAsNumber(num));

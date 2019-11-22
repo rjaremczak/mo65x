@@ -28,10 +28,6 @@ void MemoryWidget::updateMemory(AddressRange range) {
   if (addressRange.overlapsWith(range)) updateView();
 }
 
-void MemoryWidget::updatePolledData(EmulatorState, AddressRange range) {
-  updateMemory(range);
-}
-
 void MemoryWidget::resizeEvent(QResizeEvent* event) {
   if (event->size() != event->oldSize()) { updateView(); }
 }

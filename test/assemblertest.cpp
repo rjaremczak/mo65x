@@ -147,6 +147,11 @@ void AssemblerTest::testEmitByte() {
   TEST_INST(".BYTE $20");
 }
 
+void AssemblerTest::testEmitWord() {
+  TEST_INST(".word $20ff ; test comment");
+  TEST_INST(".word $3000 $15ad 10230");
+}
+
 void AssemblerTest::testLowerCaseInstruction() {
   TEST_INST(" lda #$f0  ;comment");
 }

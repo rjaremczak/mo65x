@@ -23,7 +23,6 @@ signals:
   void goToStartClicked(Address);
 
 public slots:
-  void updatePolledData(EmulatorState, AddressRange);
   void updateState(EmulatorState);
   void updateMemory(AddressRange);
 

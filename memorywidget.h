@@ -26,7 +26,6 @@ signals:
 
 public slots:
   void updateMemory(AddressRange);
-  void updatePolledData(EmulatorState, AddressRange);
 
 protected:
   void resizeEvent(QResizeEvent*) override;

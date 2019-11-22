@@ -49,5 +49,6 @@ private slots:
   void testSymbolPass();
   void testAssemblyPass();
   void testEmitByte();
+  void testEmitWord();
   void testLowerCaseInstruction();
 };

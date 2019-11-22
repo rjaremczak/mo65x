@@ -21,21 +21,18 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   setCentralWidget(viewWidget);
 
   pollTimer = new QTimer(this);
-  pollTimer->start(1000);
+  pollTimer->start(200);
   connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
-  connect(this, &MainWindow::statePolled, cpuWidget, &CpuWidget::updatePolledData);
-  connect(this, &MainWindow::statePolled, memoryWidget, &MemoryWidget::updatePolledData);
-  connect(this, &MainWindow::statePolled, disassemblerWidget, &DisassemblerWidget::updatePolledData);
 
-  connect(cpuWidget, &CpuWidget::singleStepRequested, emulator, &Emulator::executeSingleStep, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::continuousExecutionRequested, emulator, &Emulator::startContinuousExecution);
   connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
   connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &Emulator::changeStackPointer);
   connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &Emulator::changeAccumulator);
   connect(cpuWidget, &CpuWidget::registerXChanged, emulator, &Emulator::changeRegisterX);
   connect(cpuWidget, &CpuWidget::registerYChanged, emulator, &Emulator::changeRegisterY);
-  connect(cpuWidget, &CpuWidget::clearStatisticsRequested, emulator, &Emulator::clearStatistics);
 
+  connect(cpuWidget, &CpuWidget::singleStepRequested, emulator, &Emulator::executeSingleStep, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::clearStatisticsRequested, emulator, &Emulator::clearStatistics, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::stopExecutionRequested, emulator, &Emulator::stopExecution, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::resetRequested, emulator, &Emulator::triggerReset, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::nmiRequested, emulator, &Emulator::triggerNmi, Qt::DirectConnection);
@@ -60,11 +57,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(disassemblerWidget, &DisassemblerWidget::goToStartClicked, emulator, &Emulator::changeProgramCounter);
 
   if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
-
-  emit statePolled(emulator->state());
+  propagateState(emulator->state());
 }
 
 MainWindow::~MainWindow() {
+  emulator->stopExecution();
   emulatorThread.quit();
   emulatorThread.wait();
   delete ui;
@@ -87,6 +84,11 @@ void MainWindow::showMessage(const QString& message, bool success) {
   ui->statusbar->showMessage(message);
 }
 
+void MainWindow::prepareToQuit() {
+  qDebug("quitting...");
+  emulator->stopExecution();
+}
+
 void MainWindow::initConfigStorage() {
   auto appDir = QDir(QDir::homePath() + "/." + ProjectName);
   if (!appDir.exists()) appDir.mkpath(".");
@@ -100,8 +102,21 @@ void MainWindow::startEmulator() {
   emulator->moveToThread(&emulatorThread);
   connect(&emulatorThread, &QThread::finished, emulator, &Emulator::deleteLater);
   emulatorThread.start();
+  emulatorThread.setObjectName("emulator");
+}
+
+void MainWindow::propagateState(EmulatorState es) {
+  const QSignalBlocker cpuBlocker(this->cpuWidget);
+  cpuWidget->updateState(es);
+
+  const QSignalBlocker memoryBlocker(this->memoryWidget);
+  memoryWidget->updateMemory(AddressRange::Max);
+
+  const QSignalBlocker disassemblerBlocker(this->disassemblerWidget);
+  disassemblerWidget->updateState(es);
+  disassemblerWidget->updateMemory(AddressRange::Max);
 }
 
 void MainWindow::polling() {
-  if (const auto es = emulator->state(); es.running()) { emit statePolled(es); }
+  if (const auto es = emulator->state(); es.running()) propagateState(es);
 }

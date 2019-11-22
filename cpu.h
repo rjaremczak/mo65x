@@ -21,8 +21,6 @@ public:
   friend constexpr Handler instructionHandler(InstructionType);
 
   Registers regs;
-  long cycles;
-  Duration duration;
 
   Cpu(Memory&);
   bool running() const { return state == CpuState::Running; }
@@ -37,8 +35,10 @@ public:
   CpuInfo info() const;
 
 private:
-  std::atomic<CpuRunLevel> runLevel = CpuRunLevel::Normal;
-  std::atomic<CpuState> state = CpuState::Idle;
+  CpuRunLevel runLevel = CpuRunLevel::Normal;
+  CpuState state = CpuState::Idle;
+  long cycles;
+  Duration duration;
 
   Memory& memory;
   OperandPtr operandPtr;

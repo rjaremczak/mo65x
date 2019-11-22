@@ -29,16 +29,17 @@ int main(int argc, char* argv[]) {
   qRegisterMetaType<AddressRange>();
   qRegisterMetaType<FileOperationCallBack>();
 
-  QApplication a(argc, argv);
+  QApplication app(argc, argv);
   QApplication::setStyle(QStyleFactory::create("Fusion"));
 
   QFile qss(":/main.qss");
   qss.open(QFile::ReadOnly);
-  a.setStyleSheet(qss.readAll());
+  app.setStyleSheet(qss.readAll());
 
-  MainWindow w;
+  MainWindow mainWindow;
   QRect scr = QGuiApplication::primaryScreen()->geometry();
-  w.move((scr.width() - w.width()) / 2, (scr.height() - w.height()) / 2);
-  w.show();
-  return a.exec();
+  mainWindow.move((scr.width() - mainWindow.width()) / 2, (scr.height() - mainWindow.height()) / 2);
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, &mainWindow, &MainWindow::prepareToQuit);
+  mainWindow.show();
+  return app.exec();
 }

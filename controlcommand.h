@@ -1,3 +1,3 @@
 #pragma once
 
-enum class ControlCommand { None, DefineOrigin, EmitBytes };
+enum class ControlCommand { None, SetOrigin, EmitBytes, EmitWords };

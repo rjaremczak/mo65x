@@ -18,11 +18,6 @@ DisassemblerWidget::~DisassemblerWidget() {
   delete ui;
 }
 
-void DisassemblerWidget::updatePolledData(EmulatorState state, AddressRange range) {
-  updateState(state);
-  updateMemory(range);
-}
-
 void DisassemblerWidget::updateState(EmulatorState state) {
   view->changeSelected(state.regs.pc);
 }

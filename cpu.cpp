@@ -367,7 +367,6 @@ void Cpu::execHalt() {
 
 void Cpu::execute(bool continuous) {
   state = CpuState::Running;
-  runLevel = continuous ? CpuRunLevel::Normal : CpuRunLevel::SingleStep;
   while (state == CpuState::Running) {
     const auto t0 = PreciseClock::now();
     pageBoundaryCrossed = false;
@@ -387,14 +386,12 @@ void Cpu::execute(bool continuous) {
 
     switch (runLevel) {
     case CpuRunLevel::Normal: break;
-    case CpuRunLevel::SingleStep: goto ExitLoop;
-    case CpuRunLevel::Reset: reset(); break;
-    case CpuRunLevel::Nmi: nmi(); break;
-    case CpuRunLevel::Irq: irq(); break;
+    case CpuRunLevel::PendingReset: reset(); break;
+    case CpuRunLevel::PendingNmi: nmi(); break;
+    case CpuRunLevel::PendingIrq: irq(); break;
     }
+    if (!continuous) break;
   }
-
-ExitLoop:
   switch (state) {
   case CpuState::Running: state = CpuState::Idle; break;
   case CpuState::Stopping: state = CpuState::Stopped; break;
@@ -404,18 +401,18 @@ ExitLoop:
 }
 
 void Cpu::triggerReset() {
-  if (runLevel < CpuRunLevel::Reset) {
+  if (runLevel < CpuRunLevel::PendingReset) {
     if (running()) {
-      runLevel = CpuRunLevel::Reset;
+      runLevel = CpuRunLevel::PendingReset;
     } else
       reset();
   }
 }
 
 void Cpu::triggerNmi() {
-  if (runLevel < CpuRunLevel::Nmi) {
+  if (runLevel < CpuRunLevel::PendingNmi) {
     if (running()) {
-      runLevel = CpuRunLevel::Nmi;
+      runLevel = CpuRunLevel::PendingNmi;
     } else {
       nmi();
     }
@@ -423,9 +420,9 @@ void Cpu::triggerNmi() {
 }
 
 void Cpu::triggerIrq() {
-  if (runLevel < CpuRunLevel::Irq && !regs.p.interrupt) {
-    if (!running()) {
-      runLevel = CpuRunLevel::Irq;
+  if (runLevel < CpuRunLevel::PendingIrq && !regs.p.interrupt) {
+    if (running()) {
+      runLevel = CpuRunLevel::PendingIrq;
     } else {
       irq();
     }
@@ -433,5 +430,5 @@ void Cpu::triggerIrq() {
 }
 
 CpuInfo Cpu::info() const {
-  return {runLevel, state};
+  return {runLevel, state, cycles, duration};
 }

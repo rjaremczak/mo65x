@@ -45,7 +45,7 @@ void Emulator::clearStatistics() {
 
 const EmulatorState Emulator::state(ExecutionStatistics lastRun) {
   const auto info = cpu.info();
-  return {info.executionState, info.runLevel, cpu.regs, {cpu.cycles, cpu.duration}, lastRun};
+  return {info.state, info.runLevel, cpu.regs, info.executionStatistics, lastRun};
 }
 
 void Emulator::triggerIrq() {
@@ -70,12 +70,11 @@ void Emulator::stopExecution() {
 }
 
 ExecutionStatistics Emulator::execute(bool continuous) {
-  const Duration d0 = cpu.duration;
-  const long c0 = cpu.cycles;
+  QSignalBlocker(this);
+  const auto exs0 = cpu.info().executionStatistics;
   cpu.execute(continuous);
-  const Duration d1 = cpu.duration;
-  const long c1 = cpu.cycles;
-  return {c1 - c0, d1 - d0};
+  const auto exs1 = cpu.info().executionStatistics;
+  return exs1 - exs0;
 }
 
 void Emulator::executeSingleStep() {

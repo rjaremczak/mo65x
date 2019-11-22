@@ -15,5 +15,5 @@ struct EmulatorState {
   ExecutionStatistics avgExecutionStatistics;
   ExecutionStatistics lastExecutionStatistics;
 
-  bool running() const { return runLevel != CpuRunLevel::SingleStep && state == CpuState::Running; }
+  bool running() const { return state == CpuState::Running; }
 };

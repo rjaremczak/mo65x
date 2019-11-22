@@ -47,8 +47,8 @@ private:
   AssemblerResult processControlCommand(const AssemblerLine&);
   AssemblerResult processInstruction(const AssemblerLine&);
   AssemblerResult cmdSetOrigin(const AssemblerLine&);
-  AssemblerResult cmdEmitByte(const AssemblerLine&);
-  AssemblerResult cmdEmitWord(const AssemblerLine&);
+  AssemblerResult cmdEmitBytes(const AssemblerLine&);
+  AssemblerResult cmdEmitWords(const AssemblerLine&);
   AssemblerResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
   void addByte(uint8_t);
   void updateAddressRange(uint16_t);

@@ -1,32 +1,37 @@
-	.org $810
-
-	lda #%10010101
+	.org $0800
+	ldx #$ff
+	txs
+	lda #$00
 	sta $00
-	lda #%11100110
 	sta $01
-	inc $01
 
-  LDX #$00
-  LDY #$00
+	ldx #$00
+	ldy #$00
 firstloop:
-  TXA
-  STA $0200,Y
-  PHA
-  INX
-  INY
-  CPY #$ff
-  BNE firstloop ;loop one
+	txa
+	sta $0200,y
+	pha
+	inx
+	iny
+	cpy #$5
+	bne firstloop ;loop one
 secondloop:
-  PLA
-  STA $0200,Y
-  	ldy #$fe
-	cpy #$ff
+	pla
+	sta $0200,y
+	;iny ;uncomment to create dead-lock
+	cpy #$10
   	bne secondloop ; loop two
 	kil
 
-	.org $1000
-	
-	lda #$ff
-	ldx #$ff
-	ldy #$a0
-	kil
+	.org $2000 ; NMI handler
+	inc $00
+	rti
+
+	.org $3000 ; IRQ handler
+	inc $01
+	rti
+
+	.org $fffa ; vectors
+	.word $2000 ; NMI vector
+	.word $0800 ; RESET vector
+	.word $3000 ; IRQ vector

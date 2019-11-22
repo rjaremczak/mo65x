@@ -28,7 +28,7 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory) : QDockWidget(parent
   connect(ui->clearStatistics, &QAbstractButton::clicked, this, &CpuWidget::clearStatisticsRequested);
   connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::singleStepRequested);
   connect(ui->skipInstruction, &QAbstractButton::clicked, this, &CpuWidget::skipInstruction);
-  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::continuousExecutionRequested);
+  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startContinuousExecution);
   connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
   setMonospaceFont(disassemblerView);
@@ -75,19 +75,7 @@ void CpuWidget::updateState(EmulatorState es) {
 
   ui->regPC->setValue(regs.pc);
   disassemblerView->changeStart(regs.pc);
-
-  const auto processing = es.state == CpuState::Running || es.state == CpuState::Halting || es.state == CpuState::Stopping;
-
-  ui->cpuFrame->setDisabled(processing);
-  ui->skipInstruction->setDisabled(processing);
-  ui->startExecution->setDisabled(processing);
-  ui->stopExecution->setDisabled(!processing);
-  ui->executeSingleStep->setDisabled(processing || es.state == CpuState::Halted);
-}
-
-void CpuWidget::updatePolledData(EmulatorState state, AddressRange range) {
-  updateState(state);
-  updateMemory(range);
+  updateUI(es.state);
 }
 
 void CpuWidget::changeProgramCounter(uint16_t addr) {
@@ -102,7 +90,26 @@ void CpuWidget::updateSpecialCpuAddresses() {
   ui->ioPortConfig->setValue(memory[CpuAddress::IoPortConfig]);
 }
 
+void CpuWidget::updateUI(CpuState state) {
+  const auto processing = state == CpuState::Running || state == CpuState::Halting || state == CpuState::Stopping;
+  ui->cpuFrame->setDisabled(processing);
+  ui->skipInstruction->setDisabled(processing);
+  ui->startExecution->setDisabled(processing);
+  ui->stopExecution->setDisabled(!processing);
+  ui->executeSingleStep->setDisabled(processing || state == CpuState::Halted);
+  ui->nmiVector->setDisabled(processing);
+  ui->resetVector->setDisabled(processing);
+  ui->irqVector->setDisabled(processing);
+  ui->ioPortData->setDisabled(processing);
+  ui->ioPortConfig->setDisabled(processing);
+}
+
 void CpuWidget::skipInstruction() {
   disassemblerView->nextInstruction();
   emit programCounterChanged(disassemblerView->first());
+}
+
+void CpuWidget::startContinuousExecution() {
+  updateUI(CpuState::Running);
+  emit continuousExecutionRequested();
 }

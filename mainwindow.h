@@ -28,12 +28,10 @@ public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
 
-signals:
-  void statePolled(EmulatorState, AddressRange = AddressRange::Max);
-
 public slots:
   void changeAsmFileName(const QString&);
   void showMessage(const QString& message, bool success = true);
+  void prepareToQuit();
 
 private:
   CentralWidget* viewWidget;
@@ -49,6 +47,7 @@ private:
 
   void initConfigStorage();
   void startEmulator();
+  void propagateState(EmulatorState);
 
 private slots:
   void polling();

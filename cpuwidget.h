@@ -35,7 +35,6 @@ signals:
 public slots:
   void updateMemory(AddressRange);
   void updateState(EmulatorState);
-  void updatePolledData(EmulatorState, AddressRange);
   void changeProgramCounter(uint16_t);
 
 private:
@@ -46,7 +45,9 @@ private:
 
   int rowsInView() const;
   void updateSpecialCpuAddresses();
+  void updateUI(CpuState);
 
 private slots:
   void skipInstruction();
+  void startContinuousExecution();
 };
