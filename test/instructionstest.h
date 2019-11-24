@@ -45,6 +45,7 @@ private slots:
   void testWordPushPull();
 
   void testADC();
+  void testADC_decimal();
   void testSBC();
   void testAND();
   void testEOR();

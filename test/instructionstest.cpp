@@ -247,6 +247,10 @@ void InstructionsTest::testADC() {
     memory[0x2000] = op;
   };
 
+  setup(true, 0x7f, 0x00);
+  TEST_INST("ADC $2000", 4);
+  TEST_ANZC(0x80, 1, 0, 0);
+
   setup(true, 0xf0, 0x0f);
   TEST_INST("ADC $2000", 4);
   TEST_ANZCV(0x00, 0, 1, 1, 0);
@@ -266,6 +270,23 @@ void InstructionsTest::testADC() {
   setup(false, uint8_t(-20), uint8_t(-100));
   TEST_INST("ADC $2000", 4);
   TEST_ANZCV(-120, 1, 0, 1, 0);
+}
+
+void InstructionsTest::testADC_decimal() {
+  auto setup = [&](uint8_t a, bool c) {
+    cpu.regs.p = 0;
+    cpu.regs.p.decimal = true;
+    cpu.regs.p.carry = c;
+    cpu.regs.a = a;
+  };
+
+  setup(0x00, false);
+  TEST_INST("ADC #$00", 2);
+  TEST_ANZC(0x00, 0, 1, 0);
+
+  setup(0x79, true);
+  TEST_INST("ADC #$00", 2);
+  TEST_ANZC(0x80, 1, 0, 0);
 }
 
 void InstructionsTest::testSBC() {

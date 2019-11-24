@@ -75,22 +75,11 @@ private:
 
   void setEffectiveOperandPtrToAddress() { effectiveOperandPtr.lo = &memory[effectiveAddress]; }
 
-  void applyExtraCycleOnPageBoundaryCrossing() {
-    if (pageBoundaryCrossed) ++cycles;
-  }
-
   void execBranch() {
     cycles++;
     calculateEffectiveAddress(regs.pc, static_cast<int8_t>(*operandPtr.lo));
     regs.pc = effectiveAddress;
-    applyExtraCycleOnPageBoundaryCrossing();
-  }
-
-  void execAddWithCarry(uint8_t op2) {
-    const uint16_t result = regs.a + op2 + uint8_t(regs.p.carry);
-    regs.p.computeNZC(result);
-    regs.p.computeV(regs.a, op2, result);
-    regs.a = uint8_t(result);
+    if (pageBoundaryCrossed) cycles++;
   }
 
   void execCompare(uint8_t op1) { regs.p.computeNZC(op1 + (*effectiveOperandPtr.lo ^ 0xff) + uint8_t(1)); }
