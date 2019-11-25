@@ -8,7 +8,7 @@ struct Registers {
   uint8_t a;
   uint8_t x;
   uint8_t y;
-  uint16_t pc;
+  Address pc;
   StackPointer sp;
   ProcessorStatus p;
 };

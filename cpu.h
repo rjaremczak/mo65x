@@ -127,7 +127,7 @@ private:
   void execORA();
   void execEOR();
 
-  void execCompare();
+  void execCMP();
   void execCPX();
   void execCPY();
   void execBIT();

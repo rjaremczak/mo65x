@@ -193,7 +193,7 @@ void Cpu::execEOR() {
   if (pageBoundaryCrossed) cycles++;
 }
 
-void Cpu::execCompare() {
+void Cpu::execCMP() {
   execCompare(regs.a);
   if (pageBoundaryCrossed) cycles++;
 }
