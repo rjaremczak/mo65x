@@ -86,7 +86,7 @@ private:
 
   void nmi();
   void irq();
-  void execHalt();
+  void execKIL();
 
   void prepImpliedMode();
   void prepAccumulatorMode();

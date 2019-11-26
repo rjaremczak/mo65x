@@ -388,7 +388,7 @@ void Cpu::stopExecution() {
   if (state == CpuState::Running) state = CpuState::Stopping;
 }
 
-void Cpu::execHalt() {
+void Cpu::execKIL() {
   regs.pc--;
   state = CpuState::Halted;
 }
