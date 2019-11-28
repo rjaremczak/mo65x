@@ -15,6 +15,20 @@ Usual drill is the following:
 
 Now using regular configuration you should be able to build/run/debug the project. When in the "Test" configuration go to Tools -> Tests -> Run All Tests to run all tests provided with the project.
 
+## Assembler
+Integrated assembler supports subset of common control structures of pupular 65xx assemblers. For now it has following limitiations:
+* labels can only be used as argument in branch instruction
+* there is no way to define symbol directly (eg. no .EQ nor "=" statement)
+* control codes require leading dot (eg. .ORG)
+
+more features will be added gradually.
+
+## Visual view
+There is no video-ram functionality at the moment. This is the first item on the wish-list, though.
+
+## Test files
+Test files will can be found in /asm directory within the project tree. 
+
 ## License
 All design and code so far is written entirely by Robert Jaremczak (robert@mindpart.com) and is licensed as GPL.
 
