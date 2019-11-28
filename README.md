@@ -1,5 +1,17 @@
 # mo65x
-stands for My Own 65 eXpandable emulator. The project has educational motivation and is a genuine project based on technical specifications of 6502/6510 family microprocessors.
+stands for My Own 65 eXpandable emulator. The project has educational motivation and is a genuine project based on technical specifications of 6502/6510 family microprocessors. Here is the screenshot of assembler mode view:
+
+![Alt text](images/rysunek-1.png?raw=true "Assembler mode view")
+
+and memory dump view:
+
+![Alt text](images/rysunek-2.png?raw=true "Memory dump view")
+
+and disassembler mode view:
+
+![Alt text](images/rysunek-3.png?raw=true "Disassembler mode view")
+
+video-ram mode on the way...
 
 ## Installation
 As project uses Qt 5.x.x library it should be fully portable wherever that library and valid c++17 compilers run. So far it's been tested on Ubuntu 19.x and macOS Catalina 10.15.x. Windows tests are planned soon ...
