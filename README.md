@@ -44,4 +44,4 @@ Test files will can be found in /asm directory within the project tree.
 ## License
 All design and code so far is written entirely by Robert Jaremczak (robert@mindpart.com) and is licensed as GPL.
 
-GPL in short means this: feel free to use as long as you deliver sources of your own work along with this content. Don't forget to mention me, as an author of this code :-)
+GPL in short means this: feel free to use as long as sources of your own work remain public. Don't forget to mention me, as an author of this code :-)
