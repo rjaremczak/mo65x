@@ -38,6 +38,9 @@ more features will be added gradually.
 ## Visual view
 There is no video-ram functionality at the moment. This is the first item on the wish-list, though.
 
+## Speed
+For now emulator runs as fast as it can. Taking care of proper timing is being developped, to be delivered soon.
+
 ## Test files
 Test files will can be found in /asm directory within the project tree. 
 
