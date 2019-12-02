@@ -1,19 +1,19 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr) QCOMPARE(assembler.processLine(instr), AssemblerResult::Ok)
+#define TEST_INST(instr) QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
-  QCOMPARE(memory[assembler.lastInstructionAddress], opCode)
+  QCOMPARE(memory[assembler.lastLocationCounter], opCode)
 
 #define TEST_INST_2(instr, opCode, lo)                                                                                           \
   TEST_INST_1(instr, opCode);                                                                                                    \
-  if (lo >= 0) QCOMPARE(lo, memory[assembler.lastInstructionAddress + 1])
+  if (lo >= 0) QCOMPARE(lo, memory[assembler.lastLocationCounter + 1])
 
 #define TEST_INST_3(instr, opCode, lo, hi)                                                                                       \
   TEST_INST_2(instr, opCode, lo);                                                                                                \
-  if (hi >= 0) QCOMPARE(hi, memory[assembler.lastInstructionAddress + 2])
+  if (hi >= 0) QCOMPARE(hi, memory[assembler.lastLocationCounter + 2])
 
 AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(memory) {
 }
@@ -144,12 +144,13 @@ void AssemblerTest::testAssemblyPass() {
 }
 
 void AssemblerTest::testEmitByte() {
-  TEST_INST(".BYTE $20");
+  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
+  TEST_INST_1(".BYTE $20", 0x20);
 }
 
 void AssemblerTest::testEmitWord() {
-  TEST_INST(".word $20ff ; test comment");
-  TEST_INST(".word $3000 $15ad 10230");
+  TEST_INST_2(".word $20ff ; test comment", 0xff, 0x20);
+  TEST_INST_2(".word $3000 $15ad 10230", 0x00, 0x30);
 }
 
 void AssemblerTest::testLowerCaseInstruction() {

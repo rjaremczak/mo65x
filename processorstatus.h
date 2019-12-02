@@ -29,8 +29,7 @@ struct ProcessorStatus {
   }
 
   void computeNZC(uint16_t result) {
-    computeN(result);
-    computeZ(result);
+    computeNZ(result);
     computeC(result);
   }
 

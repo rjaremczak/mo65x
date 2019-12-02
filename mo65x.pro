@@ -17,8 +17,8 @@ SOURCES += \
     addressrange.cpp \
     assembler.cpp \
     assemblerline.cpp \
-    assemblerresult.cpp \
     assemblerwidget.cpp \
+    assemblyresult.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
     config.cpp \
@@ -46,10 +46,11 @@ HEADERS += \
     addressrange.h \
     assembler.h \
     assemblerline.h \
-    assemblerresult.h \
     assemblerwidget.h \
+    assemblyresult.h \
     centralwidget.h \
     commondefs.h \
+    commonformatters.h \
     config.h \
     controlcommand.h \
     cpudefs.h \
@@ -66,7 +67,6 @@ HEADERS += \
     emulatorstate.h \
     executionstatistics.h \
     filedatastorage.h \
-    formatters.h \
     instruction.h \
     instructiontable.h \
     instructiontype.h \

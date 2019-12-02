@@ -2,7 +2,7 @@
 
 #include "addressrange.h"
 #include "assemblerline.h"
-#include "assemblerresult.h"
+#include "assemblyresult.h"
 #include "commondefs.h"
 #include "instruction.h"
 #include "memory.h"
@@ -26,7 +26,7 @@ public:
   void init(uint16_t addr = DefaultOrigin);
   void clearSymbols();
   void changeMode(ProcessingMode mode);
-  AssemblerResult processLine(const QString&);
+  AssemblyResult processLine(const QString&);
   std::optional<int> symbol(const QString&) const;
   AddressRange affectedAddressRange() const;
   size_t bytesWritten() const;
@@ -40,16 +40,16 @@ private:
   ProcessingMode mode = ProcessingMode::EmitCode;
   size_t written = 0;
   uint16_t locationCounter = DefaultOrigin;
-  uint16_t lastInstructionAddress = DefaultOrigin;
+  uint16_t lastLocationCounter = DefaultOrigin;
   Symbols symbolTable;
 
-  AssemblerResult addSymbol(const QString&, uint16_t);
-  AssemblerResult processControlCommand(const AssemblerLine&);
-  AssemblerResult processInstruction(const AssemblerLine&);
-  AssemblerResult cmdSetOrigin(const AssemblerLine&);
-  AssemblerResult cmdEmitBytes(const AssemblerLine&);
-  AssemblerResult cmdEmitWords(const AssemblerLine&);
-  AssemblerResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
+  AssemblyResult defineSymbol(const QString&, uint16_t);
+  AssemblyResult processControlCommand(const AssemblerLine&);
+  AssemblyResult processInstruction(const AssemblerLine&);
+  AssemblyResult cmdSetOrigin(const AssemblerLine&);
+  AssemblyResult cmdEmitBytes(const AssemblerLine&);
+  AssemblyResult cmdEmitWords(const AssemblerLine&);
+  AssemblyResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
   void addByte(uint8_t);
   void updateAddressRange(uint16_t);
 };

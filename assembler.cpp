@@ -88,30 +88,30 @@ void Assembler::changeMode(Assembler::ProcessingMode mode) {
   this->mode = mode;
 }
 
-AssemblerResult Assembler::processLine(const QString& str) {
+AssemblyResult Assembler::processLine(const QString& str) {
+  lastLocationCounter = locationCounter;
+
   if (const auto re = EmptyLine.match(str); re.hasMatch()) {
-    if (const auto& label = re.captured(1); !label.isNull()) return addSymbol(label, locationCounter);
-    return AssemblerResult::Ok;
+    if (const auto& label = re.captured(1); !label.isNull()) return defineSymbol(label, locationCounter);
+    return AssemblyResult::Ok;
   }
 
   const auto line = parseLine(str);
-  if (!line.valid) return AssemblerResult::SyntaxError;
+  if (!line.valid) return AssemblyResult::SyntaxError;
   if (!line.label.isEmpty()) {
-    if (auto res = addSymbol(line.label, locationCounter); res != AssemblerResult::Ok) return res;
+    if (auto res = defineSymbol(line.label, locationCounter); res != AssemblyResult::Ok) return res;
   }
-  if (line.isControlCommand()) return processControlCommand(line);
-  return processInstruction(line);
+  return line.isControlCommand() ? processControlCommand(line) : processInstruction(line);
 }
 
-AssemblerResult Assembler::assemble(InstructionType type, OperandsFormat mode, int operand) {
-  lastInstructionAddress = locationCounter;
+AssemblyResult Assembler::assemble(InstructionType type, OperandsFormat mode, int operand) {
   if (const auto insIt = findInstruction(type, mode)) {
     addByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), insIt)));
     if (insIt->size > 1) addByte(static_cast<uint8_t>(operand));
     if (insIt->size > 2) addByte(static_cast<uint8_t>(operand >> 8));
-    return AssemblerResult::Ok;
+    return AssemblyResult::Ok;
   }
-  return AssemblerResult::SyntaxError;
+  return AssemblyResult::SyntaxError;
 }
 
 std::optional<int> Assembler::symbol(const QString& name) const {
@@ -127,18 +127,18 @@ size_t Assembler::bytesWritten() const {
   return written;
 }
 
-AssemblerResult Assembler::processControlCommand(const AssemblerLine& line) {
+AssemblyResult Assembler::processControlCommand(const AssemblerLine& line) {
   switch (line.command) {
   case ControlCommand::SetOrigin: return cmdSetOrigin(line);
   case ControlCommand::EmitBytes: return cmdEmitBytes(line);
   case ControlCommand::EmitWords: return cmdEmitWords(line);
-  default: return AssemblerResult::CommandProcessingError;
+  default: return AssemblyResult::CommandProcessingError;
   }
 }
 
-AssemblerResult Assembler::processInstruction(const AssemblerLine& line) {
+AssemblyResult Assembler::processInstruction(const AssemblerLine& line) {
   if (line.operandsFormat == NoOperands) return assemble(line.instructionType, NoOperands);
-  if (line.operands.isEmpty()) return AssemblerResult::MissingOperand;
+  if (line.operands.isEmpty()) return AssemblyResult::MissingOperand;
 
   int num;
   if (line.isOperandNumeric()) {
@@ -150,45 +150,45 @@ AssemblerResult Assembler::processInstruction(const AssemblerLine& line) {
       num = *opt;
     }
   } else {
-    return AssemblerResult::SymbolNotDefined;
+    return AssemblyResult::SymbolNotDefined;
   }
 
   return assemble(line.instructionType, line.operandsFormat, num);
 }
 
-AssemblerResult Assembler::cmdSetOrigin(const AssemblerLine& line) {
+AssemblyResult Assembler::cmdSetOrigin(const AssemblerLine& line) {
   if (line.isOperandNumeric()) {
     locationCounter = static_cast<uint16_t>(line.operandAsNumber());
-    return AssemblerResult::Ok;
+    return AssemblyResult::Ok;
   } else {
-    return AssemblerResult::NumericOperandRequired;
+    return AssemblyResult::NumericOperandRequired;
   }
 }
 
-AssemblerResult Assembler::cmdEmitBytes(const AssemblerLine& line) {
+AssemblyResult Assembler::cmdEmitBytes(const AssemblerLine& line) {
   for (auto num = 0; num < line.operands.size(); num++) {
-    if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
+    if (!line.isOperandNumeric(num)) return AssemblyResult::NumericOperandRequired;
     addByte(static_cast<uint8_t>(line.operandAsNumber(num)));
   }
-  return AssemblerResult::Ok;
+  return AssemblyResult::Ok;
 }
 
-AssemblerResult Assembler::cmdEmitWords(const AssemblerLine& line) {
+AssemblyResult Assembler::cmdEmitWords(const AssemblerLine& line) {
   for (auto num = 0; num < line.operands.size(); num++) {
-    if (!line.isOperandNumeric(num)) return AssemblerResult::NumericOperandRequired;
+    if (!line.isOperandNumeric(num)) return AssemblyResult::NumericOperandRequired;
     const auto word = static_cast<uint16_t>(line.operandAsNumber(num));
     addByte(static_cast<uint8_t>(word));
     addByte(word >> 8);
   }
-  return AssemblerResult::Ok;
+  return AssemblyResult::Ok;
 }
 
-AssemblerResult Assembler::addSymbol(const QString& name, uint16_t value) {
+AssemblyResult Assembler::defineSymbol(const QString& name, uint16_t value) {
   if (mode == ProcessingMode::ScanForSymbols) {
-    if (symbolTable.find(name) != symbolTable.end()) return AssemblerResult::SymbolAlreadyDefined;
+    if (symbolTable.find(name) != symbolTable.end()) return AssemblyResult::SymbolAlreadyDefined;
     symbolTable[name] = value;
   }
-  return AssemblerResult::Ok;
+  return AssemblyResult::Ok;
 }
 
 void Assembler::addByte(uint8_t b) {

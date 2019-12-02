@@ -1,6 +1,6 @@
 #pragma once
 
-enum class AssemblerResult {
+enum class AssemblyResult {
   Ok,
   SymbolAlreadyDefined,
   SymbolNotDefined,
@@ -10,4 +10,4 @@ enum class AssemblerResult {
   CommandProcessingError
 };
 
-const char* assemblerResultStr(AssemblerResult);
+const char* formatAssemblyResult(AssemblyResult);

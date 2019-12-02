@@ -1,6 +1,6 @@
 #include "assemblerwidget.h"
 #include "assembler.h"
-#include "formatters.h"
+#include "commonformatters.h"
 #include "ui_assemblerwidget.h"
 #include "uitools.h"
 #include <QFileDialog>
@@ -74,8 +74,8 @@ bool AssemblerWidget::process() {
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    if (auto result = assembler.processLine(line); result != AssemblerResult::Ok) {
-      emit operationCompleted(tr("%1 at line %2").arg(assemblerResultStr(result)).arg(lineNum + 1), true);
+    if (auto result = assembler.processLine(line); result != AssemblyResult::Ok) {
+      emit operationCompleted(tr("%1 at line %2").arg(formatAssemblyResult(result)).arg(lineNum + 1), true);
       auto block = ui->sourceCode->document()->findBlockByLineNumber(lineNum);
       auto cursor = ui->sourceCode->textCursor();
       cursor.setPosition(block.position() + block.length() - 1, QTextCursor::MoveAnchor);

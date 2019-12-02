@@ -1,5 +1,5 @@
 #include "cpuwidget.h"
-#include "formatters.h"
+#include "commonformatters.h"
 #include "ui_cpuwidget.h"
 #include "uitools.h"
 #include <QFontDatabase>
@@ -49,7 +49,7 @@ void CpuWidget::updateMemory(AddressRange range) {
 void CpuWidget::updateState(EmulatorState es) {
   const auto& regs = es.regs;
 
-  setWindowTitle(tr("%1 @ %2").arg(formatCpuState(es.state)).arg(formatRunLevel(es.runLevel)));
+  setWindowTitle(tr("%1 @ %2").arg(formatCpuState(es.state), formatRunLevel(es.runLevel)));
 
   ui->regA->setValue(regs.a);
   ui->regX->setValue(regs.x);

@@ -1,5 +1,5 @@
 #include "disassemblerview.h"
-#include "formatters.h"
+#include "commonformatters.h"
 #include "ui_disassemblerview.h"
 #include "uitools.h"
 #include <QResizeEvent>
