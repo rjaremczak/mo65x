@@ -17,7 +17,7 @@ video-ram mode on the way...
 As project uses Qt 5.x.x library it should be fully portable wherever that library and valid c++17 compilers run. So far it's been tested on Ubuntu 19.x and macOS Catalina 10.15.x. Windows tests are planned soon ...
 
 Usual drill is the following:
-* be sure to have decent GCC (or MSVC/MinGW) compiler that Qt SDK can work with. On Windows MinGW is a part of distribution but Windows set-up hasn't been tested yet. Code is written using C++17 language level, be sure your version supports this.
+* be sure to have decent GCC (or MinGW) compiler that Qt SDK can work with. On Windows MinGW is a part of distribution but Windows set-up hasn't been tested yet. Code is written using C++17 language level, be sure your version supports this.
 * download latest Open Source Qt SDK from https://qt.io .
 * clone or download this repository to the local storage.
 * open the mo65x.pro file with QtCreator IDE which is a part of Qt SDK.
@@ -41,7 +41,7 @@ There is no video-ram functionality at the moment. This is the first item on the
 ## Speed
 For now emulator runs as fast as it can. Taking care of proper timing is being developed, to be delivered soon.
 
-## Test files
+## Example files
 Test files will can be found in /asm directory within the project tree. 
 
 ## License

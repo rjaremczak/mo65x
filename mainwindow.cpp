@@ -5,6 +5,7 @@
 #include <QMessageBox>
 
 static const QString ProjectName = "mo65x";
+static const QString ProjectVersion = "0.91";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -72,7 +73,7 @@ void MainWindow::changeAsmFileName(const QString& fileName) {
   configStorage->write(config);
 
   QFileInfo fileInfo(fileName);
-  setWindowTitle(ProjectName + ": " + fileInfo.fileName());
+  setWindowTitle(ProjectName + " " + ProjectVersion + " © mindpart.com : " + fileInfo.fileName());
 }
 
 void MainWindow::showMessage(const QString& message, bool success) {

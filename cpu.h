@@ -48,11 +48,11 @@ private:
 
   void push(uint8_t b) {
     memory[regs.sp.address()] = b;
-    regs.sp.decrement();
+    regs.sp.offset--;
   }
 
   uint8_t pull() {
-    regs.sp.increment();
+    regs.sp.offset++;
     return memory[regs.sp.address()];
   }
 

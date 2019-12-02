@@ -70,8 +70,8 @@ void CpuWidget::updateState(EmulatorState es) {
   str.append(flagStr(regs.p.carry, "C"));
   ui->flags->setText(str);
 
-  ui->lastStatistics->setText(formatExecutionStatistics(es.lastExecutionStatistics));
-  ui->avgStatistics->setText(formatExecutionStatistics(es.avgExecutionStatistics));
+  ui->lastExecStats->setText(formatExecutionStatistics(es.lastExecutionStatistics));
+  ui->avgExecStats->setText(formatExecutionStatistics(es.avgExecutionStatistics));
 
   ui->regPC->setValue(regs.pc);
   disassemblerView->changeStart(regs.pc);
