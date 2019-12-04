@@ -28,7 +28,7 @@ public:
   void resetExecutionState();
   void resetStatistics();
   void stopExecution();
-  void execute(bool continuous);
+  void execute(bool continuous, Duration period = Duration(1000));
   void triggerReset();
   void triggerNmi();
   void triggerIrq();

@@ -12,15 +12,13 @@ class CpuWidget;
 
 class CpuWidget : public QDockWidget {
   Q_OBJECT
-  Q_ENUM(CpuState)
 
 public:
   explicit CpuWidget(QWidget* parent, const Memory&);
   ~CpuWidget() override;
 
 signals:
-  void singleStepRequested();
-  void continuousExecutionRequested();
+  void requestExecution(bool continuous, Frequency clock);
   void stopExecutionRequested();
   void clearStatisticsRequested();
   void resetRequested();
@@ -46,8 +44,8 @@ private:
   int rowsInView() const;
   void updateSpecialCpuAddresses();
   void updateUI(CpuState);
+  void emitExecutionRequest(bool continuous);
 
 private slots:
   void skipInstruction();
-  void startContinuousExecution();
 };

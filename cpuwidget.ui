@@ -692,12 +692,12 @@
           <string notr="true">color:gray</string>
          </property>
          <property name="text">
-          <string>Clock Speed (max)</string>
+          <string>Clock Frequency</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QDoubleSpinBox" name="requestedClock">
+        <widget class="QDoubleSpinBox" name="clockFrequency">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -714,7 +714,7 @@
           <double>0.100000000000000</double>
          </property>
          <property name="maximum">
-          <double>8.000000000000000</double>
+          <double>32.000000000000000</double>
          </property>
          <property name="singleStep">
           <double>0.100000000000000</double>
@@ -779,7 +779,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QToolButton" name="executeSingleStep">
+        <widget class="QToolButton" name="stepExecution">
          <property name="toolTip">
           <string>Execute One Instruction</string>
          </property>
@@ -815,7 +815,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QToolButton" name="startExecution">
+        <widget class="QToolButton" name="continuousExecution">
          <property name="toolTip">
           <string>Start Execution</string>
          </property>

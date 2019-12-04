@@ -8,10 +8,10 @@ Emulator::Emulator(QObject* parent) : QObject(parent), cpu(memory) {
   clearStatistics();
 }
 
-void Emulator::loadMemory(uint16_t start, const Data& data) {
+void Emulator::loadMemory(Address start, const Data& data) {
   auto size = static_cast<uint16_t>(std::min(static_cast<size_t>(data.size()), memory.size() - start));
   std::copy_n(data.begin(), size, memory.begin() + start);
-  emit memoryContentChanged({start, static_cast<uint16_t>(start + size - 1)});
+  emit memoryContentChanged({start, static_cast<Address>(start + size - 1)});
 }
 
 void Emulator::loadMemoryFromFile(uint16_t start, const QString& fname) {
@@ -40,7 +40,7 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
 void Emulator::clearStatistics() {
   cpu.resetStatistics();
   cpu.resetExecutionState();
-  emit stateChanged(state());
+  if (auto st = state(); !st.running()) emit stateChanged(state());
 }
 
 const EmulatorState Emulator::state(ExecutionStatistics lastRun) {
@@ -69,25 +69,16 @@ void Emulator::stopExecution() {
   emit stateChanged(state());
 }
 
-ExecutionStatistics Emulator::execute(bool continuous) {
-  QSignalBlocker(this);
+void Emulator::execute(bool continuous, Frequency clock) {
+  QSignalBlocker sb(this);
   const auto exs0 = cpu.info().executionStatistics;
-  cpu.execute(continuous);
+  cpu.execute(continuous, std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0 / clock)));
   const auto exs1 = cpu.info().executionStatistics;
-  return exs1 - exs0;
+  sb.unblock();
+  emit stateChanged(state(exs1 - exs0));
 }
 
-void Emulator::executeSingleStep() {
-  const auto ex = execute(false);
-  emit stateChanged(state(ex));
-}
-
-void Emulator::startContinuousExecution() {
-  const auto ex = execute(true);
-  emit stateChanged(state(ex));
-}
-
-void Emulator::changeProgramCounter(uint16_t pc) {
+void Emulator::changeProgramCounter(Address pc) {
   if (!cpu.running() && cpu.regs.pc != pc) {
     cpu.regs.pc = pc;
     cpu.resetExecutionState();
@@ -95,7 +86,7 @@ void Emulator::changeProgramCounter(uint16_t pc) {
   }
 }
 
-void Emulator::changeStackPointer(uint16_t sp) {
+void Emulator::changeStackPointer(Address sp) {
   const auto offset = static_cast<uint8_t>(sp);
   if (cpu.regs.sp.offset != offset) {
     cpu.regs.sp.offset = offset;
@@ -124,7 +115,7 @@ void Emulator::changeRegisterY(uint8_t y) {
   }
 }
 
-void Emulator::changeMemory(uint16_t addr, uint8_t b) {
+void Emulator::changeMemory(Address addr, uint8_t b) {
   memory[addr] = b;
   emit memoryContentChanged(addr);
 }

@@ -52,6 +52,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="goToSelection">
+       <property name="toolTip">
+        <string>Go to PC address</string>
+       </property>
        <property name="text">
         <string>☉</string>
        </property>
@@ -72,6 +75,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="goToStart">
+       <property name="toolTip">
+        <string>Set PC to start address</string>
+       </property>
        <property name="text">
         <string>→</string>
        </property>

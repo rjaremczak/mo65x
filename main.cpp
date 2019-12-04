@@ -15,6 +15,7 @@ Q_DECLARE_METATYPE(Data)
 Q_DECLARE_METATYPE(Address)
 Q_DECLARE_METATYPE(AddressRange)
 Q_DECLARE_METATYPE(FileOperationCallBack)
+Q_DECLARE_METATYPE(Frequency)
 
 int main(int argc, char* argv[]) {
 
@@ -22,6 +23,7 @@ int main(int argc, char* argv[]) {
   qRegisterMetaType<uint8_t>("uint8_t");
   qRegisterMetaType<uint16_t>("uint16_t");
   qRegisterMetaType<Address>("Address");
+  qRegisterMetaType<Frequency>("Frequency");
 
   // register own custom types
   qRegisterMetaType<EmulatorState>();

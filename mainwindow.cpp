@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 static const QString ProjectName = "mo65x";
-static const QString ProjectVersion = "0.91";
+static const QString ProjectVersion = "0.92";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -25,14 +25,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   pollTimer->start(200);
   connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
 
-  connect(cpuWidget, &CpuWidget::continuousExecutionRequested, emulator, &Emulator::startContinuousExecution);
+  connect(cpuWidget, &CpuWidget::requestExecution, emulator, &Emulator::execute);
   connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
   connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &Emulator::changeStackPointer);
   connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &Emulator::changeAccumulator);
   connect(cpuWidget, &CpuWidget::registerXChanged, emulator, &Emulator::changeRegisterX);
   connect(cpuWidget, &CpuWidget::registerYChanged, emulator, &Emulator::changeRegisterY);
 
-  connect(cpuWidget, &CpuWidget::singleStepRequested, emulator, &Emulator::executeSingleStep, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::clearStatisticsRequested, emulator, &Emulator::clearStatistics, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::stopExecutionRequested, emulator, &Emulator::stopExecution, Qt::DirectConnection);
   connect(cpuWidget, &CpuWidget::resetRequested, emulator, &Emulator::triggerReset, Qt::DirectConnection);

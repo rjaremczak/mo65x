@@ -26,9 +26,9 @@ CpuWidget::CpuWidget(QWidget* parent, const Memory& memory) : QDockWidget(parent
   connect(ui->regX, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerXChanged);
   connect(ui->regY, QOverload<int>::of(&QSpinBox::valueChanged), this, &CpuWidget::registerYChanged);
   connect(ui->clearStatistics, &QAbstractButton::clicked, this, &CpuWidget::clearStatisticsRequested);
-  connect(ui->executeSingleStep, &QAbstractButton::clicked, this, &CpuWidget::singleStepRequested);
   connect(ui->skipInstruction, &QAbstractButton::clicked, this, &CpuWidget::skipInstruction);
-  connect(ui->startExecution, &QAbstractButton::clicked, this, &CpuWidget::startContinuousExecution);
+  connect(ui->continuousExecution, &QAbstractButton::clicked, [&] { emitExecutionRequest(true); });
+  connect(ui->stepExecution, &QAbstractButton::clicked, this, [&] { emitExecutionRequest(false); });
   connect(ui->stopExecution, &QAbstractButton::clicked, this, &CpuWidget::stopExecutionRequested);
 
   setMonospaceFont(disassemblerView);
@@ -94,14 +94,15 @@ void CpuWidget::updateUI(CpuState state) {
   const auto processing = state == CpuState::Running || state == CpuState::Halting || state == CpuState::Stopping;
   ui->cpuFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
-  ui->startExecution->setDisabled(processing);
+  ui->continuousExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);
-  ui->executeSingleStep->setDisabled(processing || state == CpuState::Halted);
+  ui->stepExecution->setDisabled(processing || state == CpuState::Halted);
   ui->nmiVector->setDisabled(processing);
   ui->resetVector->setDisabled(processing);
   ui->irqVector->setDisabled(processing);
   ui->ioPortData->setDisabled(processing);
   ui->ioPortConfig->setDisabled(processing);
+  ui->clockFrequency->setDisabled(processing);
 }
 
 void CpuWidget::skipInstruction() {
@@ -109,7 +110,7 @@ void CpuWidget::skipInstruction() {
   emit programCounterChanged(disassemblerView->first());
 }
 
-void CpuWidget::startContinuousExecution() {
+void CpuWidget::emitExecutionRequest(bool continuous) {
   updateUI(CpuState::Running);
-  emit continuousExecutionRequested();
+  emit requestExecution(continuous, static_cast<Frequency>(ui->clockFrequency->value() * 1e6));
 }

@@ -393,7 +393,7 @@ void Cpu::execKIL() {
   state = CpuState::Halted;
 }
 
-void Cpu::execute(bool continuous) {
+void Cpu::execute(bool continuous, Duration period) {
   state = CpuState::Running;
   while (state == CpuState::Running) {
     const auto t0 = PreciseClock::now();
@@ -405,11 +405,14 @@ void Cpu::execute(bool continuous) {
     const auto ins = entry.instruction;
 
     regs.pc += ins->size;
-    cycles += ins->cycles;
 
     (this->*entry.prepareOperands)();
     (this->*entry.executeInstruction)();
 
+    const auto dc = ins->cycles;
+    const auto t1 = t0 + period * dc;
+    while (PreciseClock::now() < t1) {}
+    cycles += dc;
     duration += std::chrono::duration_cast<Duration>(PreciseClock::now() - t0);
 
     switch (runLevel) {
