@@ -17,6 +17,7 @@ SOURCES += \
     addressrange.cpp \
     assembler.cpp \
     assemblerline.cpp \
+    assemblerlineparser.cpp \
     assemblerwidget.cpp \
     assemblyresult.cpp \
     bytespinbox.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     addressrange.h \
     assembler.h \
     assemblerline.h \
+    assemblerlineparser.h \
     assemblerwidget.h \
     assemblyresult.h \
     centralwidget.h \
