@@ -82,6 +82,7 @@ HEADERS += \
     registers.h \
     runlevel.h \
     stackpointer.h \
+    symboltable.h \
     uitools.h \
     wordspinbox.h \
     test/assemblertest.h \

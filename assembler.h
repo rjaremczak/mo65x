@@ -6,6 +6,7 @@
 #include "commondefs.h"
 #include "instruction.h"
 #include "memory.h"
+#include "symboltable.h"
 #include <QString>
 #include <iterator>
 #include <map>
@@ -15,7 +16,6 @@
 class Assembler
 {
 public:
-  using Symbols = std::map<QString, uint16_t>;
   enum class ProcessingMode { ScanForSymbols, EmitCode };
 
   static constexpr uint16_t DefaultOrigin = 0;
@@ -41,7 +41,7 @@ private:
   size_t written = 0;
   uint16_t locationCounter = DefaultOrigin;
   uint16_t lastLocationCounter = DefaultOrigin;
-  Symbols symbolTable;
+  SymbolTable symbolTable;
 
   AssemblyResult defineSymbol(const QString&, uint16_t);
   AssemblyResult processControlCommand(const AssemblerLine&);

@@ -1,52 +1,22 @@
 #pragma once
 
+#include "assemblyresult.h"
+#include "commondefs.h"
 #include "controlcommand.h"
 #include "instruction.h"
 #include "operandsformat.h"
-#include <QRegularExpressionMatch>
+#include "symboltable.h"
 #include <QString>
+#include <vector>
 
-class AssemblerLineParser
-{
-public:
-  enum Format {
-    Invalid,
-    Empty,
-    CmdOrg,
-    CmdByte,
-    CmdWord,
-    InsNoOperands,
-    InsImmediate,
-    InsAbsolute,
-    InsAbsoluteIndexedX,
-    InsAbsoluteIndexedY,
-    InsIndirect,
-    InsIndexedIndirectX,
-    InsIndirectIndexedY,
-    InsBranch
-  };
+struct AssemblerLineModel {
+  QString label;
+  std::vector<int> operands;
+  ControlCommand controlCommand = ControlCommand::None;
+  InstructionType instructionType = InstructionType::KIL;
+  OperandsFormat addressingMode = OperandsFormat::Implied;
 
-  static constexpr auto LabelGroup = 1;
-  static constexpr auto OperationGroup = 2;
-  static constexpr auto FirstOperandGroup = 3;
+  uint8_t instructionSize() const;
 
-  const bool valid = false;
-  const QString label;
-  const QString mnemonic;
-  const QString operand;
-  const OperandsFormat operandsFormat = OperandsFormat::Implied;
-  const InstructionType instructionType = InstructionType::KIL;
-  const ControlCommand command = ControlCommand::None;
-
-  static AssemblerLineParser parse(const QString& line);
-  bool isOperandNumber() const;
-  int operandAsNumber();
-  QString operandAsSymbol();
-
-private:
-  AssemblerLineParser() = default;
-  AssemblerLineParser(QRegularExpressionMatch match, Format format);
-
-  const QRegularExpressionMatch match;
-  const Format format = Invalid;
+  AssemblerLineModel create(const QString& line, const SymbolTable& symbols, Address pc);
 };
