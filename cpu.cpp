@@ -103,7 +103,7 @@ static bool decimalCorrectionAndCarry(uint16_t& result) {
 
 void Cpu::execADC() {
   const uint8_t op2 = *effectiveOperandPtr.lo;
-  uint16_t result = regs.a + op2 + uint8_t(regs.p.carry);
+  uint16_t result = regs.a + op2 + static_cast<uint8_t>(regs.p.carry);
   if (regs.p.decimal) {
     regs.p.carry = decimalCorrectionAndCarry(result);
     regs.p.computeNZ(result);
@@ -111,13 +111,13 @@ void Cpu::execADC() {
     regs.p.computeNZC(result);
   }
   regs.p.computeV(regs.a, op2, result);
-  regs.a = uint8_t(result);
+  regs.a = static_cast<uint8_t>(result);
   if (pageBoundaryCrossed) cycles++;
 }
 
 void Cpu::execSBC() {
   const uint8_t op2 = *effectiveOperandPtr.lo ^ 0xff;
-  uint16_t result = regs.a + op2 + uint8_t(regs.p.carry);
+  uint16_t result = regs.a + op2 + static_cast<uint8_t>(regs.p.carry);
   if (regs.p.decimal) {
     result -= 0x66;
     regs.p.carry = decimalCorrectionAndCarry(result);
@@ -126,7 +126,7 @@ void Cpu::execSBC() {
     regs.p.computeNZC(result);
   }
   regs.p.computeV(regs.a, op2, result);
-  regs.a = uint8_t(result);
+  regs.a = static_cast<uint8_t>(result);
   if (pageBoundaryCrossed) cycles++;
 }
 
