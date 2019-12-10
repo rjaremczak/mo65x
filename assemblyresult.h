@@ -7,7 +7,9 @@ enum class AssemblyResult {
   MissingOperand,
   NumericOperandRequired,
   SyntaxError,
-  CommandProcessingError
+  CommandProcessingError,
+  BranchTooFar,
+  ValueOutOfRange
 };
 
 const char* formatAssemblyResult(AssemblyResult);

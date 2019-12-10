@@ -27,7 +27,6 @@ public:
   void clearSymbols();
   void changeMode(ProcessingMode mode);
   AssemblyResult processLine(const QString&);
-  std::optional<int> symbol(const QString&) const;
   AddressRange affectedAddressRange() const;
   size_t bytesWritten() const;
 

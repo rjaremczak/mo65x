@@ -4,9 +4,8 @@
 static constexpr QChar HexPrefix('$');
 static constexpr QChar BinPrefix('%');
 
-static InstructionType resolveInstructionType(const QString& operation) {
-  const auto it =
-      std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return operation == kv.second; });
+static InstructionType resolveInstructionType(const QString& str) {
+  const auto it = std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return str == kv.second; });
   return it != MnemonicTable.end() ? it->first : InstructionType::KIL;
 }
 

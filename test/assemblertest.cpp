@@ -120,15 +120,15 @@ void AssemblerTest::testComment() {
 void AssemblerTest::testEmptyLineLabel() {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST("Label_001:");
-  QCOMPARE(assembler.symbol("Label_001"), assembler.locationCounter);
-  QCOMPARE(assembler.symbol("dummy"), std::nullopt);
+  QCOMPARE(assembler.symbolTable.get("Label_001"), assembler.locationCounter);
+  QCOMPARE(assembler.symbolTable.get("dummy"), std::nullopt);
 }
 
 void AssemblerTest::testSymbolPass() {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   assembler.locationCounter = 1000;
   TEST_INST("TestLabel_01:  SEI   ; disable interrupts ");
-  QCOMPARE(assembler.symbol("TestLabel_01"), 1000);
+  QCOMPARE(assembler.symbolTable.get("TestLabel_01"), 1000);
   QCOMPARE(assembler.written, 0U);
   QCOMPARE(assembler.locationCounter, 1001U);
 }
@@ -138,7 +138,7 @@ void AssemblerTest::testAssemblyPass() {
   assembler.locationCounter = 2002;
   TEST_INST("CLI");
   TEST_INST("TestLabel_11:  LDA #$20   ; this is a one weird comment  ");
-  QCOMPARE(assembler.symbol("TestLabel_11"), std::nullopt);
+  QCOMPARE(assembler.symbolTable.get("TestLabel_11"), std::nullopt);
   QCOMPARE(assembler.written, 3U);
   QCOMPARE(assembler.locationCounter, 2005);
 }

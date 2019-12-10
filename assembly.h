@@ -9,14 +9,15 @@
 #include <QString>
 #include <vector>
 
-struct AssemblerLineModel {
+struct Assembly {
   QString label;
   std::vector<int> operands;
   ControlCommand controlCommand = ControlCommand::None;
-  InstructionType instructionType = InstructionType::KIL;
+  InstructionType instructionType = InstructionType::None;
   OperandsFormat addressingMode = OperandsFormat::Implied;
 
   uint8_t instructionSize() const;
+  int operand() const { return operands[0]; }
 
-  AssemblerLineModel create(const QString& line, const SymbolTable& symbols, Address pc);
+  Assembly create(const QString& line, const SymbolTable& symbols, Address pc);
 };

@@ -17,8 +17,8 @@ SOURCES += \
     addressrange.cpp \
     assembler.cpp \
     assemblerline.cpp \
-    assemblerlineparser.cpp \
     assemblerwidget.cpp \
+    assembly.cpp \
     assemblyresult.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
@@ -38,6 +38,7 @@ SOURCES += \
     memorywidget.cpp \
     mnemonics.cpp \
     runlevel.cpp \
+    symboltable.cpp \
     wordspinbox.cpp \
     test/assemblertest.cpp \
     test/instructionstest.cpp \
@@ -47,8 +48,8 @@ HEADERS += \
     addressrange.h \
     assembler.h \
     assemblerline.h \
-    assemblerlineparser.h \
     assemblerwidget.h \
+    assembly.h \
     assemblyresult.h \
     centralwidget.h \
     commondefs.h \

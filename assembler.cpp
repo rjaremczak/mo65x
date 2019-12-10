@@ -114,11 +114,6 @@ AssemblyResult Assembler::assemble(InstructionType type, OperandsFormat mode, in
   return AssemblyResult::SyntaxError;
 }
 
-std::optional<int> Assembler::symbol(const QString& name) const {
-  if (const auto it = symbolTable.find(name); it != symbolTable.end()) return it->second;
-  return std::nullopt;
-}
-
 AddressRange Assembler::affectedAddressRange() const {
   return addressRange;
 }
@@ -143,7 +138,7 @@ AssemblyResult Assembler::processInstruction(const AssemblerLine& line) {
   int num;
   if (line.isOperandNumeric()) {
     num = line.operandAsNumber();
-  } else if (auto opt = symbol(line.operands[0])) {
+  } else if (auto opt = symbolTable.get(line.operands[0])) {
     if (line.operandsFormat == Branch) {
       num = *opt - locationCounter - line.instructionSize();
     } else {
@@ -185,8 +180,7 @@ AssemblyResult Assembler::cmdEmitWords(const AssemblerLine& line) {
 
 AssemblyResult Assembler::defineSymbol(const QString& name, uint16_t value) {
   if (mode == ProcessingMode::ScanForSymbols) {
-    if (symbolTable.find(name) != symbolTable.end()) return AssemblyResult::SymbolAlreadyDefined;
-    symbolTable[name] = value;
+    return symbolTable.put(name, value) ? AssemblyResult::Ok : AssemblyResult::SymbolAlreadyDefined;
   }
   return AssemblyResult::Ok;
 }
