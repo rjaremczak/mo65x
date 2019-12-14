@@ -52,9 +52,9 @@ struct LinePattern {
 };
 
 static const LinePattern ValidLinePatterns[]{{"", LineFormat::Empty},
-                                             {OrgCmd, LineFormat::CmdOrg},
-                                             {ByteCmd, LineFormat::CmdByte},
-                                             {WordCmd, LineFormat::CmdByte},
+                                             {OrgCmd + Operand, LineFormat::CmdOrg},
+                                             {ByteCmd + "(?:[\\s\\,]" + Operand + ")+", LineFormat::CmdByte},
+                                             {WordCmd, LineFormat::CmdWord},
                                              {Mnemonic, LineFormat::InsNoOperands},
                                              {Mnemonic + "#" + Operand, LineFormat::InsImmediate},
                                              {Mnemonic + Operand, LineFormat::InsAbsolute},

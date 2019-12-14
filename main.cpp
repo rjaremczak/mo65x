@@ -40,6 +40,8 @@ int main(int argc, char* argv[]) {
 
   MainWindow mainWindow;
   QRect scr = QGuiApplication::primaryScreen()->geometry();
+  mainWindow.setMinimumWidth(static_cast<int>(scr.width() * 0.9));
+  mainWindow.setMinimumHeight(static_cast<int>(scr.height() * 0.9));
   mainWindow.move((scr.width() - mainWindow.width()) / 2, (scr.height() - mainWindow.height()) / 2);
   QObject::connect(&app, &QCoreApplication::aboutToQuit, &mainWindow, &MainWindow::prepareToQuit);
   mainWindow.show();
