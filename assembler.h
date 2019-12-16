@@ -46,6 +46,18 @@ private:
   SymbolTable symbolTable;
 
   void handleEmpty(const QString&);
+  void handleOrigin(const QString&);
+  void handleByte(const QString&);
+  void handleWord(const QString&);
+  void handleNoOperands(const QString&);
+  void handleImmediate(const QString&);
+  void handleAbsolute(const QString&);
+  void handleAbsoluteIndexedX(const QString&);
+  void handleAbsoluteIndexedY(const QString&);
+  void handleIndirect(const QString&);
+  void handleIndexedIndirectX(const QString&);
+  void handleIndirectIndexedY(const QString&);
+  void handleBranch(const QString&);
 
   AssemblyResult defineSymbol(const QString&, uint16_t);
   AssemblyResult processControlCommand(const AssemblerLine&);

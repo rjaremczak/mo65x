@@ -36,6 +36,14 @@ static const QString OriginCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
 static const QString ByteCmd("(\\.(?:BYTE))\\s+");
 static const QString WordCmd("(\\.(?:WORD))\\s+");
 
+static const QString HexNum("\\$[\\d|a-h]{1,4}");
+static const QString DecNum("\\d{1,5}");
+static const QString BinNum("\\%[01]{1,16}");
+static const QString Mnemonic("([a-z]{3})\\s*");
+static const QString Operand("((?:" + HexNum + ")|(?:" + DecNum + ")|(?:" + BinNum + ")|(?:" + Symbol + "))\\s*");
+static const QString OrgCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
+static const QString BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
+
 const AssemblerLinePattern LinePatternsTable[]{{Label + OriginCmd + OpWord + Comment, ControlCommand::SetOrigin},
                                                {Label + ByteCmd + OpByte + "+", ControlCommand::EmitBytes},
                                                {Label + WordCmd + OpWord + "+", ControlCommand::EmitWords},
@@ -58,24 +66,20 @@ static QRegularExpression regex(const QString pattern) {
   return QRegularExpression(Label + pattern + "\\s*" + Comment, QRegularExpression::CaseInsensitiveOption);
 }
 
-/*
 const std::pair<QRegularExpression, Assembler::PatternHandler> Assembler::patternHandlers[]{
     {regex(""), &Assembler::handleEmpty},
-    {OrgCmd + Operand, LineFormat::CmdOrg},
-    {ByteCmd + "(?:[\\s\\,]" + Operand + ")+", LineFormat::CmdByte},
-    {WordCmd, LineFormat::CmdWord},
-    {Mnemonic, LineFormat::InsNoOperands},
-    {Mnemonic + "#" + Operand, LineFormat::InsImmediate},
-    {Mnemonic + Operand, LineFormat::InsAbsolute},
-    {Mnemonic + Operand + ",x", LineFormat::InsAbsoluteIndexedX},
-    {Mnemonic + Operand + ",y", LineFormat::InsAbsoluteIndexedY},
-    {Mnemonic + "\\(" + Operand + "\\)", LineFormat::InsIndirect},
-    {Mnemonic + "\\(" + Operand + ",x\\)", LineFormat::InsIndexedIndirectX},
-    {Mnemonic + "\\(" + Operand + "\\),y", LineFormat::InsIndirectIndexedY},
-    {Mnemonic + BranchTarget, LineFormat::InsBranch}};
-}
-;
-*/
+    {regex(OrgCmd + Operand), &Assembler::handleOrigin},
+    {regex(ByteCmd + "(?:[\\s\\,]" + Operand + ")+"), &Assembler::handleByte},
+    {regex(WordCmd), &Assembler::handleWord},
+    {regex(Mnemonic), &Assembler::handleNoOperands},
+    {regex(Mnemonic + "#" + Operand), &Assembler::handleImmediate},
+    {regex(Mnemonic + Operand), &Assembler::handleAbsolute},
+    {regex(Mnemonic + Operand + ",x"), &Assembler::handleAbsoluteIndexedX},
+    {regex(Mnemonic + Operand + ",y"), &Assembler::handleAbsoluteIndexedY},
+    {regex(Mnemonic + "\\(" + Operand + "\\)"), &Assembler::handleIndirect},
+    {regex(Mnemonic + "\\(" + Operand + ",x\\)"), &Assembler::handleIndexedIndirectX},
+    {regex(Mnemonic + "\\(" + Operand + "\\),y"), &Assembler::handleIndirectIndexedY},
+    {regex(Mnemonic + BranchTarget), &Assembler::handleBranch}};
 
 static const Instruction* findInstruction(InstructionType type, OperandsFormat mode) {
   const auto mode0 = mode == NoOperands ? Implied : mode;
@@ -143,6 +147,45 @@ AddressRange Assembler::affectedAddressRange() const {
 
 size_t Assembler::bytesWritten() const {
   return written;
+}
+
+void Assembler::handleEmpty(const QString&) {
+}
+
+void Assembler::handleOrigin(const QString&) {
+}
+
+void Assembler::handleByte(const QString&) {
+}
+
+void Assembler::handleWord(const QString&) {
+}
+
+void Assembler::handleNoOperands(const QString&) {
+}
+
+void Assembler::handleImmediate(const QString&) {
+}
+
+void Assembler::handleAbsolute(const QString&) {
+}
+
+void Assembler::handleAbsoluteIndexedX(const QString&) {
+}
+
+void Assembler::handleAbsoluteIndexedY(const QString&) {
+}
+
+void Assembler::handleIndirect(const QString&) {
+}
+
+void Assembler::handleIndexedIndirectX(const QString&) {
+}
+
+void Assembler::handleIndirectIndexedY(const QString&) {
+}
+
+void Assembler::handleBranch(const QString&) {
 }
 
 AssemblyResult Assembler::processControlCommand(const AssemblerLine& line) {
