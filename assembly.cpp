@@ -104,17 +104,28 @@ static int resolveOperandValue(const QString& str, const SymbolTable& symbols) {
 
 static InstructionType resolveInstructionType(const QString& str) {
   const auto it = std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return str == kv.second; });
-  return it != MnemonicTable.end() ? it->first : InstructionType::KIL;
+  if (it == MnemonicTable.end()) throw AssemblyResult::InvalidMnemonic;
+  return it->first;
 }
 
-static OperandsFormat resolveNoOperandsMode(InstructionType instype) {
+static const Instruction* resolveInstruction(const QString& str, OperandsFormat mode0, OperandsFormat mode1) {
+  const auto type = resolveInstructionType(str);
   const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(), [=](const Instruction& ins) {
-    return ins.type == instype && (ins.mode == Implied || ins.mode == Accumulator);
+    return ins.type == type && (ins.mode == mode0 || ins.mode == mode1);
   });
-  return it->mode;
+  if (it == InstructionTable.end()) throw AssemblyResult::InvalidInstructionFormat;
+  return it;
 }
 
-Assembly Assembly::create(const QString& line, const SymbolTable& symbols, Address lc) {
+static const Instruction* resolveInstruction(const QString& str, OperandsFormat mode) {
+  return resolveInstruction(str, mode, mode);
+}
+
+uint8_t Assembly::opCode() const {
+  return static_cast<uint8_t>(std::distance(InstructionTable.begin(), const_cast<const Instruction* const>(instruction)));
+}
+
+Assembly Assembly::process(const QString& line, const SymbolTable& symbols, Address lc) {
   Assembly assembly;
   for (auto& linePattern : ValidLinePatterns) {
     if (auto match = linePattern.regex.match(line); match.hasMatch()) {
@@ -125,65 +136,68 @@ Assembly Assembly::create(const QString& line, const SymbolTable& symbols, Addre
       case LineFormat::Invalid: throw AssemblyResult::SyntaxError;
       case LineFormat::Empty: break;
       case LineFormat::InsNoOperands: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = resolveNoOperandsMode(assembly.instructionType);
+        assembly.command = Command::Instruction;
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::Implied, OperandsFormat::Accumulator);
         break;
       }
       case LineFormat::InsBranch: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = Branch;
+        assembly.command = Command::Instruction;
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::Branch);
         assembly.operands.push_back(computeBranchDisplacement(opstr, symbols, lc));
         break;
       }
       case LineFormat::InsAbsolute: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = isByte(assembly.operand()) ? ZeroPage : Absolute;
+        assembly.command = Command::Instruction;
+        assembly.instruction =
+            resolveInstruction(instr, isByte(assembly.operands[0]) ? OperandsFormat::ZeroPage : OperandsFormat::Absolute);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::InsIndirect: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = Indirect;
+        assembly.command = Command::Instruction;
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::Indirect);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::InsImmediate: {
-        assembly.instructionType = resolveInstructionType(instr);
+        assembly.command = Command::Instruction;
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::Immediate);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
-        assembly.addressingMode = Immediate;
         break;
       }
       case LineFormat::InsAbsoluteIndexedX: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = isByte(assembly.operand()) ? ZeroPageX : AbsoluteX;
+        assembly.command = Command::Instruction;
+        assembly.instruction =
+            resolveInstruction(instr, isByte(assembly.operands[0]) ? OperandsFormat::ZeroPageX : OperandsFormat::AbsoluteX);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::InsAbsoluteIndexedY: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = isByte(assembly.operand()) ? ZeroPageY : AbsoluteY;
+        assembly.command = Command::Instruction;
+        assembly.instruction =
+            resolveInstruction(instr, isByte(assembly.operands[0]) ? OperandsFormat::ZeroPageY : OperandsFormat::AbsoluteY);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::InsIndexedIndirectX: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = IndexedIndirectX;
+        assembly.command = Command::Instruction;
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::IndexedIndirectX);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::InsIndirectIndexedY: {
-        assembly.instructionType = resolveInstructionType(instr);
-        assembly.addressingMode = IndexedIndirectX;
+        assembly.command = Command::Instruction;
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::IndirectIndexedY);
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::CmdOrg: {
-        assembly.controlCommand = ControlCommand::SetOrigin;
+        assembly.command = Command::Origin;
         assembly.operands.push_back(resolveOperandValue(opstr, symbols));
         break;
       }
       case LineFormat::CmdByte: {
-        assembly.controlCommand = ControlCommand::EmitBytes;
+        assembly.command = Command::Byte;
         for (int i = FirstOperandGroup; i <= match.lastCapturedIndex(); i++) {
           const auto v = resolveOperandValue(match.captured(i), symbols);
           if (!isByte(v)) throw AssemblyResult::ValueOutOfRange;
@@ -192,7 +206,7 @@ Assembly Assembly::create(const QString& line, const SymbolTable& symbols, Addre
         break;
       }
       case LineFormat::CmdWord: {
-        assembly.controlCommand = ControlCommand::EmitWords;
+        assembly.command = Command::Word;
         for (int i = FirstOperandGroup; i <= match.lastCapturedIndex(); i++) {
           const auto v = resolveOperandValue(match.captured(i), symbols);
           if (!isWord(v)) throw AssemblyResult::ValueOutOfRange;

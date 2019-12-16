@@ -9,7 +9,9 @@ enum class AssemblyResult {
   SyntaxError,
   CommandProcessingError,
   BranchTooFar,
-  ValueOutOfRange
+  ValueOutOfRange,
+  InvalidMnemonic,
+  InvalidInstructionFormat
 };
 
 const char* formatAssemblyResult(AssemblyResult);

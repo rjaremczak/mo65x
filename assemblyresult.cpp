@@ -11,6 +11,8 @@ const char* formatAssemblyResult(AssemblyResult ar) {
   case AssemblyResult::CommandProcessingError: return "command processing error";
   case AssemblyResult::BranchTooFar: return "branch too far";
   case AssemblyResult::ValueOutOfRange: return "value out of range";
+  case AssemblyResult::InvalidMnemonic: return "invalid mnemonic";
+  case AssemblyResult::InvalidInstructionFormat: return "invalid instruction format";
   }
   return nullptr;
 }

@@ -34,6 +34,9 @@ private:
   friend class AssemblerTest;
   friend class InstructionsTest;
 
+  using PatternHandler = void (Assembler::*)(const QString&);
+  static const std::pair<QRegularExpression, PatternHandler> patternHandlers[];
+
   Memory& memory;
   AddressRange addressRange;
   ProcessingMode mode = ProcessingMode::EmitCode;
@@ -41,6 +44,8 @@ private:
   uint16_t locationCounter = DefaultOrigin;
   uint16_t lastLocationCounter = DefaultOrigin;
   SymbolTable symbolTable;
+
+  void handleEmpty(const QString&);
 
   AssemblyResult defineSymbol(const QString&, uint16_t);
   AssemblyResult processControlCommand(const AssemblerLine&);

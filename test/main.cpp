@@ -10,5 +10,6 @@ int main(int argc, char** argv) {
   InstructionsTest opCodesTest;
   FlagsTest flagsTest;
 
-  return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv) | QTest::qExec(&flagsTest, argc, argv);
+  return QTest::qExec(&opCodesTest, argc, argv) || QTest::qExec(&assemblerTest, argc, argv) ||
+         QTest::qExec(&flagsTest, argc, argv);
 }

@@ -17,42 +17,65 @@ struct AssemblerLinePattern {
       : regex(pattern, QRegularExpression::CaseInsensitiveOption), operandsFormat(Implied), command(command) {}
 };
 
-static const QString Label("[a-z]\\w+");
+static const QString Symbol("[a-z]\\w+");
 static const QString HexByte("\\$[\\d|a-h]{1,2}");
 static const QString HexWord("\\$[\\d|a-h]{1,4}");
 static const QString BinByte("\\%[01]{8}");
 static const QString BinWord("\\%[01]{16}");
 static const QString DecByte("\\d{1,3}");
 static const QString DecWord("\\d{1,5}");
-static const QString LabelDef("^(?:(" + Label + "):)?\\s*");
+static const QString Label("^(?:(" + Symbol + "):)?\\s*");
 static const QString OpType("([a-z]{3})\\s*");
 static const QString IndX(",x\\s*");
 static const QString IndY(",y\\s*");
 static const QString Comment("(?:;.*)?$");
 static const QString OpByte("((?:" + HexByte + ")|(?:" + BinByte + ")|(?:" + DecByte + "))\\s*");
 static const QString OpWord("((?:" + HexWord + ")|(?:" + BinWord + ")|(?:" + DecWord + "))\\s*");
-static const QString OpOffset("((?:[+|-]?\\d{1,3})|(?:" + Label + "))\\s*");
+static const QString OpOffset("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
 static const QString OriginCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
 static const QString ByteCmd("(\\.(?:BYTE))\\s+");
 static const QString WordCmd("(\\.(?:WORD))\\s+");
 
-const AssemblerLinePattern LinePatternsTable[]{{LabelDef + OriginCmd + OpWord + Comment, ControlCommand::SetOrigin},
-                                               {LabelDef + ByteCmd + OpByte + "+", ControlCommand::EmitBytes},
-                                               {LabelDef + WordCmd + OpWord + "+", ControlCommand::EmitWords},
-                                               {LabelDef + OpType + Comment, NoOperands},
-                                               {LabelDef + OpType + "#" + OpByte + Comment, Immediate},
-                                               {LabelDef + OpType + OpByte + Comment, ZeroPage},
-                                               {LabelDef + OpType + OpByte + IndX + Comment, ZeroPageX},
-                                               {LabelDef + OpType + OpByte + IndY + Comment, ZeroPageY},
-                                               {LabelDef + OpType + OpWord + Comment, Absolute},
-                                               {LabelDef + OpType + OpWord + IndX + Comment, AbsoluteX},
-                                               {LabelDef + OpType + OpWord + IndY + Comment, AbsoluteY},
-                                               {LabelDef + OpType + "\\(" + OpWord + "\\)" + Comment, Indirect},
-                                               {LabelDef + OpType + "\\(" + OpByte + IndX + "\\)" + Comment, IndexedIndirectX},
-                                               {LabelDef + OpType + "\\(" + OpByte + "\\)" + IndY + Comment, IndirectIndexedY},
-                                               {LabelDef + OpType + OpOffset + Comment, Branch}};
+const AssemblerLinePattern LinePatternsTable[]{{Label + OriginCmd + OpWord + Comment, ControlCommand::SetOrigin},
+                                               {Label + ByteCmd + OpByte + "+", ControlCommand::EmitBytes},
+                                               {Label + WordCmd + OpWord + "+", ControlCommand::EmitWords},
+                                               {Label + OpType + Comment, NoOperands},
+                                               {Label + OpType + "#" + OpByte + Comment, Immediate},
+                                               {Label + OpType + OpByte + Comment, ZeroPage},
+                                               {Label + OpType + OpByte + IndX + Comment, ZeroPageX},
+                                               {Label + OpType + OpByte + IndY + Comment, ZeroPageY},
+                                               {Label + OpType + OpWord + Comment, Absolute},
+                                               {Label + OpType + OpWord + IndX + Comment, AbsoluteX},
+                                               {Label + OpType + OpWord + IndY + Comment, AbsoluteY},
+                                               {Label + OpType + "\\(" + OpWord + "\\)" + Comment, Indirect},
+                                               {Label + OpType + "\\(" + OpByte + IndX + "\\)" + Comment, IndexedIndirectX},
+                                               {Label + OpType + "\\(" + OpByte + "\\)" + IndY + Comment, IndirectIndexedY},
+                                               {Label + OpType + OpOffset + Comment, Branch}};
 
-static const QRegularExpression EmptyLine(LabelDef + Comment, QRegularExpression::CaseInsensitiveOption);
+static const QRegularExpression EmptyLine(Label + Comment, QRegularExpression::CaseInsensitiveOption);
+
+static QRegularExpression regex(const QString pattern) {
+  return QRegularExpression(Label + pattern + "\\s*" + Comment, QRegularExpression::CaseInsensitiveOption);
+}
+
+/*
+const std::pair<QRegularExpression, Assembler::PatternHandler> Assembler::patternHandlers[]{
+    {regex(""), &Assembler::handleEmpty},
+    {OrgCmd + Operand, LineFormat::CmdOrg},
+    {ByteCmd + "(?:[\\s\\,]" + Operand + ")+", LineFormat::CmdByte},
+    {WordCmd, LineFormat::CmdWord},
+    {Mnemonic, LineFormat::InsNoOperands},
+    {Mnemonic + "#" + Operand, LineFormat::InsImmediate},
+    {Mnemonic + Operand, LineFormat::InsAbsolute},
+    {Mnemonic + Operand + ",x", LineFormat::InsAbsoluteIndexedX},
+    {Mnemonic + Operand + ",y", LineFormat::InsAbsoluteIndexedY},
+    {Mnemonic + "\\(" + Operand + "\\)", LineFormat::InsIndirect},
+    {Mnemonic + "\\(" + Operand + ",x\\)", LineFormat::InsIndexedIndirectX},
+    {Mnemonic + "\\(" + Operand + "\\),y", LineFormat::InsIndirectIndexedY},
+    {Mnemonic + BranchTarget, LineFormat::InsBranch}};
+}
+;
+*/
 
 static const Instruction* findInstruction(InstructionType type, OperandsFormat mode) {
   const auto mode0 = mode == NoOperands ? Implied : mode;
