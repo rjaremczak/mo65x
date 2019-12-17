@@ -7,6 +7,7 @@
 #include "instruction.h"
 #include "memory.h"
 #include "symboltable.h"
+#include <QRegularExpression>
 #include <QString>
 #include <iterator>
 #include <map>
@@ -27,6 +28,7 @@ public:
   void clearSymbols();
   void changeMode(ProcessingMode mode);
   AssemblyResult processLine(const QString&);
+  void processLine2(const QString&);
   AddressRange affectedAddressRange() const;
   size_t bytesWritten() const;
 
@@ -34,8 +36,11 @@ private:
   friend class AssemblerTest;
   friend class InstructionsTest;
 
-  using PatternHandler = void (Assembler::*)(const QString&);
-  static const std::pair<QRegularExpression, PatternHandler> patternHandlers[];
+  struct PatternEntry {
+    QRegularExpression regex;
+    void (Assembler::*handler)(const QRegularExpressionMatch&);
+  };
+  static const PatternEntry Patterns[];
 
   Memory& memory;
   AddressRange addressRange;
@@ -45,21 +50,26 @@ private:
   uint16_t lastLocationCounter = DefaultOrigin;
   SymbolTable symbolTable;
 
-  void handleEmpty(const QString&);
-  void handleOrigin(const QString&);
-  void handleByte(const QString&);
-  void handleWord(const QString&);
-  void handleNoOperands(const QString&);
-  void handleImmediate(const QString&);
-  void handleAbsolute(const QString&);
-  void handleAbsoluteIndexedX(const QString&);
-  void handleAbsoluteIndexedY(const QString&);
-  void handleIndirect(const QString&);
-  void handleIndexedIndirectX(const QString&);
-  void handleIndirectIndexedY(const QString&);
-  void handleBranch(const QString&);
+  int operandValue(const QString&);
+  int8_t operandAsBranchDisplacement(const QString&);
+
+  void handleEmpty(const QRegularExpressionMatch&);
+  void handleOrigin(const QRegularExpressionMatch&);
+  void handleByte(const QRegularExpressionMatch&);
+  void handleWord(const QRegularExpressionMatch&);
+  void handleImpliedOrAccumulator(const QRegularExpressionMatch&);
+  void handleImmediate(const QRegularExpressionMatch&);
+  void handleAbsolute(const QRegularExpressionMatch&);
+  void handleAbsoluteIndexedX(const QRegularExpressionMatch&);
+  void handleAbsoluteIndexedY(const QRegularExpressionMatch&);
+  void handleIndirect(const QRegularExpressionMatch&);
+  void handleIndexedIndirectX(const QRegularExpressionMatch&);
+  void handleIndirectIndexedY(const QRegularExpressionMatch&);
+  void handleBranch(const QRegularExpressionMatch&);
+  void assemble(const QRegularExpressionMatch&, OperandsFormat mode, int operand = 0);
 
   AssemblyResult defineSymbol(const QString&, uint16_t);
+  void defineSymbol2(const QString&, uint16_t);
   AssemblyResult processControlCommand(const AssemblerLine&);
   AssemblyResult processInstruction(const AssemblerLine&);
   AssemblyResult cmdSetOrigin(const AssemblerLine&);

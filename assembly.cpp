@@ -90,7 +90,7 @@ static int computeBranchDisplacement(const QString& str, const SymbolTable& symb
   if (isNumber(str)) return parseNumber(str);
   if (const auto& opt = symbols.get(str)) {
     const auto d = *opt - lc - 2;
-    if (d < -128 || d > 127) throw AssemblyResult::BranchTooFar;
+    // if (d < -128 || d > 127) throw AssemblyResult::BranchTooFar;
     return d;
   }
   throw AssemblyResult::SymbolNotDefined;

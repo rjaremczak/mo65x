@@ -8,7 +8,6 @@ enum class AssemblyResult {
   NumericOperandRequired,
   SyntaxError,
   CommandProcessingError,
-  BranchTooFar,
   ValueOutOfRange,
   InvalidMnemonic,
   InvalidInstructionFormat
