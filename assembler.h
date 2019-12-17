@@ -50,13 +50,13 @@ private:
   uint16_t lastLocationCounter = DefaultOrigin;
   SymbolTable symbolTable;
 
-  int operandValue(const QString&);
+  int operandAsInt(const QString&);
   int8_t operandAsBranchDisplacement(const QString&);
 
-  void handleEmpty(const QRegularExpressionMatch&);
-  void handleOrigin(const QRegularExpressionMatch&);
-  void handleByte(const QRegularExpressionMatch&);
-  void handleWord(const QRegularExpressionMatch&);
+  void handleNoOperation(const QRegularExpressionMatch&);
+  void handleSetLocationCounter(const QRegularExpressionMatch&);
+  void handleEmitBytes(const QRegularExpressionMatch&);
+  void handleEmitWords(const QRegularExpressionMatch&);
   void handleImpliedOrAccumulator(const QRegularExpressionMatch&);
   void handleImmediate(const QRegularExpressionMatch&);
   void handleAbsolute(const QRegularExpressionMatch&);
@@ -76,6 +76,6 @@ private:
   AssemblyResult cmdEmitBytes(const AssemblerLine&);
   AssemblyResult cmdEmitWords(const AssemblerLine&);
   AssemblyResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
-  void addByte(uint8_t);
+  void emitByte(uint8_t);
   void updateAddressRange(uint16_t);
 };
