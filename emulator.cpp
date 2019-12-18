@@ -76,6 +76,7 @@ void Emulator::execute(bool continuous, Frequency clock) {
   const auto exs1 = cpu.info().executionStatistics;
   sb.unblock();
   emit stateChanged(state(exs1 - exs0));
+  emit memoryContentChanged(AddressRange::Max);
 }
 
 void Emulator::changeProgramCounter(Address pc) {

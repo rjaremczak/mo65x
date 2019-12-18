@@ -48,7 +48,7 @@ private slots:
   void testEmptyLineLabel();
   void testSymbolPass();
   void testAssemblyPass();
-  void testEmitByte();
-  void testEmitWord();
+  void testEmitBytes();
+  void testEmitWords();
   void testLowerCaseInstruction();
 };

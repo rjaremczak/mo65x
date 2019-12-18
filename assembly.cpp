@@ -137,7 +137,7 @@ Assembly Assembly::process(const QString& line, const SymbolTable& symbols, Addr
       case LineFormat::Empty: break;
       case LineFormat::InsNoOperands: {
         assembly.command = Command::Instruction;
-        assembly.instruction = resolveInstruction(instr, OperandsFormat::Implied, OperandsFormat::Accumulator);
+        assembly.instruction = resolveInstruction(instr, OperandsFormat::ImpliedOrAccumulator);
         break;
       }
       case LineFormat::InsBranch: {

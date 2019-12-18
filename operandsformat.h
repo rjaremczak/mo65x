@@ -4,8 +4,7 @@ enum OperandsFormat {
 
   // no operands
 
-  Implied,
-  Accumulator,
+  ImpliedOrAccumulator,
 
   // 8-bit operand
 
@@ -23,8 +22,4 @@ enum OperandsFormat {
   Absolute,
   AbsoluteX,
   AbsoluteY,
-
-  // no operands, implied or accumulator
-
-  NoOperands
 };

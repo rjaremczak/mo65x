@@ -88,8 +88,7 @@ private:
   void irq();
   void execKIL();
 
-  void prepImpliedMode();
-  void prepAccumulatorMode();
+  void prepImpliedOrAccumulatorMode();
   void prepRelativeMode();
   void prepImmediateMode();
   void prepZeroPageMode();

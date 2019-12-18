@@ -5,11 +5,7 @@
 Cpu::Cpu(Memory& memory) : memory(memory) {
 }
 
-void Cpu::prepImpliedMode() {
-  // nothing to do
-}
-
-void Cpu::prepAccumulatorMode() {
+void Cpu::prepImpliedOrAccumulatorMode() {
   effectiveOperandPtr.lo = &regs.a;
 }
 

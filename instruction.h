@@ -8,9 +8,7 @@ struct Instruction {
   static constexpr auto NumberOfOpCodes = 256;
   static constexpr uint8_t sizeForAddressingMode(OperandsFormat mode) {
     switch (mode) {
-    case Implied:
-    case Accumulator:
-    case NoOperands: return 1;
+    case ImpliedOrAccumulator: return 1;
 
     case Branch:
     case Immediate:
@@ -29,7 +27,7 @@ struct Instruction {
   }
 
   InstructionType type = KIL;
-  OperandsFormat mode = Implied;
+  OperandsFormat mode = ImpliedOrAccumulator;
   uint8_t size = 1;
   uint8_t cycles = 0;
 

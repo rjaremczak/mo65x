@@ -14,7 +14,7 @@ struct AssemblerLine {
   const QString label;
   const QString operation;
   const QVector<QString> operands;
-  const OperandsFormat operandsFormat = OperandsFormat::Implied;
+  const OperandsFormat operandsFormat = OperandsFormat::ImpliedOrAccumulator;
   const InstructionType instructionType = InstructionType::KIL;
   const ControlCommand command = ControlCommand::None;
 

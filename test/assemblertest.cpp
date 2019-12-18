@@ -1,7 +1,7 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr) QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok)
+#define TEST_INST(instr) QVERIFY(assembler.processLine2(instr) == AssemblyResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
@@ -134,7 +134,6 @@ void AssemblerTest::testSymbolPass() {
 }
 
 void AssemblerTest::testAssemblyPass() {
-  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   assembler.locationCounter = 2002;
   TEST_INST("CLI");
   TEST_INST("TestLabel_11:  LDA #$20   ; this is a one weird comment  ");
@@ -143,16 +142,17 @@ void AssemblerTest::testAssemblyPass() {
   QCOMPARE(assembler.locationCounter, 2005);
 }
 
-void AssemblerTest::testEmitByte() {
-  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
-  TEST_INST_1(".BYTE $20", 0x20);
+void AssemblerTest::testEmitBytes() {
+  TEST_INST(".BYTE 20");
+  TEST_INST(".BYTE $20 45 $4a");
+  TEST_INST(".BYTE $20, $3f,$4a ,$23 , 123");
 }
 
-void AssemblerTest::testEmitWord() {
-  TEST_INST_2(".word $20ff ; test comment", 0xff, 0x20);
-  TEST_INST_2(".word $3000 $15ad 10230", 0x00, 0x30);
+void AssemblerTest::testEmitWords() {
+  TEST_INST(".word $20ff $23af $fab0 ; test comment");
+  TEST_INST(".word $3000 $15ad 10230");
 }
 
 void AssemblerTest::testLowerCaseInstruction() {
-  TEST_INST(" lda #$f0  ;comment");
+  TEST_INST("cli");
 }

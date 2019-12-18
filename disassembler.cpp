@@ -48,9 +48,7 @@ QString Disassembler::disassemble() const {
   str.append(MnemonicTable.at(instruction.type)).append(" ");
 
   switch (instruction.mode) {
-  case NoOperands:
-  case Implied:
-  case Accumulator: break;
+  case ImpliedOrAccumulator: break;
   case Immediate: str.append("#").append(formatOperand8()); break;
   case Absolute: str.append(formatOperand16()); break;
   case AbsoluteX: str.append(formatOperand16()).append(",X"); break;

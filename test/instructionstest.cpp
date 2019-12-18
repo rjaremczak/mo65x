@@ -97,7 +97,7 @@ void InstructionsTest::testImpliedMode() {
 }
 
 void InstructionsTest::testAccumulatorMode() {
-  cpu.prepAccumulatorMode();
+  cpu.prepImpliedOrAccumulatorMode();
   QCOMPARE(cpu.effectiveOperandPtr.lo, &cpu.regs.a);
 }
 

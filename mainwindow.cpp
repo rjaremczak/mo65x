@@ -39,11 +39,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(cpuWidget, &CpuWidget::irqRequested, emulator, &Emulator::triggerIrq, Qt::DirectConnection);
 
   connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::updateState);
+  connect(emulator, &Emulator::stateChanged, disassemblerWidget, &DisassemblerWidget::updateState);
   connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemory);
   connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemory);
-  connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
   connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateMemory);
-  connect(emulator, &Emulator::stateChanged, disassemblerWidget, &DisassemblerWidget::updateState);
+  connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
 
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);

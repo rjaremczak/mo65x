@@ -11,8 +11,7 @@ struct DecodeEntry {
 
 constexpr Cpu::Handler operandsHandler(OperandsFormat mode) {
   switch (mode) {
-  case Implied: return &Cpu::prepImpliedMode;
-  case Accumulator: return &Cpu::prepAccumulatorMode;
+  case ImpliedOrAccumulator: return &Cpu::prepImpliedOrAccumulatorMode;
   case Branch: return &Cpu::prepRelativeMode;
   case Immediate: return &Cpu::prepImmediateMode;
   case ZeroPage: return &Cpu::prepZeroPageMode;
@@ -24,7 +23,6 @@ constexpr Cpu::Handler operandsHandler(OperandsFormat mode) {
   case Absolute: return &Cpu::prepAbsoluteMode;
   case AbsoluteX: return &Cpu::prepAbsoluteXMode;
   case AbsoluteY: return &Cpu::prepAbsoluteYMode;
-  case NoOperands: return nullptr;
   }
 }
 
