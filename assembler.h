@@ -1,7 +1,6 @@
 #pragma once
 
 #include "addressrange.h"
-#include "assemblerline.h"
 #include "assemblyresult.h"
 #include "commondefs.h"
 #include "instruction.h"
@@ -27,7 +26,6 @@ public:
   void init(uint16_t addr = DefaultOrigin);
   void clearSymbols();
   void changeMode(ProcessingMode mode);
-  AssemblyResult processLine(const QString&);
   AssemblyResult processLine2(const QString&);
   AddressRange affectedAddressRange() const;
   size_t bytesWritten() const;
@@ -74,14 +72,8 @@ private:
   void handleBranch();
   void assemble(OperandsFormat mode, int operand = 0);
 
-  AssemblyResult defineSymbol(const QString&, uint16_t);
   void defineSymbol2(const QString&, uint16_t);
-  AssemblyResult processControlCommand(const AssemblerLine&);
-  AssemblyResult processInstruction(const AssemblerLine&);
-  AssemblyResult cmdSetOrigin(const AssemblerLine&);
-  AssemblyResult cmdEmitBytes(const AssemblerLine&);
-  AssemblyResult cmdEmitWords(const AssemblerLine&);
-  AssemblyResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
+  // AssemblyResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
   void emitByte(uint8_t);
   void updateAddressRange(uint16_t);
 };

@@ -18,7 +18,7 @@ public:
   ~CpuWidget() override;
 
 signals:
-  void requestExecution(bool continuous, Frequency clock);
+  void executionRequested(bool continuous, Frequency clock);
   void stopExecutionRequested();
   void clearStatisticsRequested();
   void resetRequested();

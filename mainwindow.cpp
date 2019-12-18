@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   pollTimer->start(200);
   connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
 
-  connect(cpuWidget, &CpuWidget::requestExecution, emulator, &Emulator::execute);
+  connect(cpuWidget, &CpuWidget::executionRequested, emulator, &Emulator::execute);
   connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &Emulator::changeProgramCounter);
   connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &Emulator::changeStackPointer);
   connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &Emulator::changeAccumulator);

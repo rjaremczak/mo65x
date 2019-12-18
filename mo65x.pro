@@ -16,9 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     addressrange.cpp \
     assembler.cpp \
-    assemblerline.cpp \
     assemblerwidget.cpp \
-    assembly.cpp \
     assemblyresult.cpp \
     bytespinbox.cpp \
     centralwidget.cpp \
@@ -47,9 +45,7 @@ SOURCES += \
 HEADERS += \
     addressrange.h \
     assembler.h \
-    assemblerline.h \
     assemblerwidget.h \
-    assembly.h \
     assemblyresult.h \
     centralwidget.h \
     commondefs.h \

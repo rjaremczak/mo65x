@@ -112,5 +112,5 @@ void CpuWidget::skipInstruction() {
 
 void CpuWidget::emitExecutionRequest(bool continuous) {
   updateUI(CpuState::Running);
-  emit requestExecution(continuous, static_cast<Frequency>(ui->clockFrequency->value() * 1e6));
+  emit executionRequested(continuous, static_cast<Frequency>(ui->clockFrequency->value() * 1e6));
 }
