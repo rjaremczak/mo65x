@@ -53,18 +53,23 @@ static InstructionType resolveInstructionType(const QString& str) {
   return it->first;
 }
 
-static const Instruction* resolveInstruction(const QString& str, OperandsFormat mode, bool zp) {
-  const auto type = resolveInstructionType(str.toUpper());
-  if (zp && type != InstructionType::JMP) {
+static OperandsFormat adjustAddressingMode(InstructionType type, OperandsFormat mode, bool zp) {
+  if (zp && type != InstructionType::JMP && type != InstructionType::JSR) {
     switch (mode) {
-    case OperandsFormat::Absolute: mode = OperandsFormat::ZeroPage; break;
-    case OperandsFormat::AbsoluteX: mode = OperandsFormat::ZeroPageX; break;
-    case OperandsFormat::AbsoluteY: mode = OperandsFormat::ZeroPageY; break;
+    case OperandsFormat::Absolute: return OperandsFormat::ZeroPage;
+    case OperandsFormat::AbsoluteX: return OperandsFormat::ZeroPageX;
+    case OperandsFormat::AbsoluteY: return OperandsFormat::ZeroPageY;
     default: break;
     }
   }
+  return mode;
+}
+
+static const Instruction* resolveInstruction(const QString& str, OperandsFormat mode, bool zp) {
+  const auto type = resolveInstructionType(str.toUpper());
+  const auto adjustedMode = adjustAddressingMode(type, mode, zp);
   const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(),
-                               [=](const Instruction& ins) { return ins.type == type && ins.mode == mode; });
+                               [=](const Instruction& ins) { return ins.type == type && ins.mode == adjustedMode; });
   if (it == InstructionTable.end()) { throw AssemblyResult::InvalidInstructionFormat; }
   return it;
 }
