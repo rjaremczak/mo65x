@@ -15,6 +15,7 @@ public:
   ~AssemblerWidget();
 
 signals:
+  void newFileCreated();
   void fileLoaded(const QString&);
   void fileSaved(const QString&);
   void codeWritten(AddressRange);
@@ -30,7 +31,7 @@ private:
   QString fileName;
   Assembler assembler;
 
-  bool process();
+  std::optional<QString> process();
 
 private slots:
   void newFile();

@@ -128,9 +128,10 @@ void AssemblerTest::testSymbolPass() {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   assembler.locationCounter = 1000;
   TEST_INST("TestLabel_01:  SEI   ; disable interrupts ");
+  TEST_INST("c:lda dziabaDucha");
   QCOMPARE(assembler.symbolTable.get("TestLabel_01"), 1000);
-  QCOMPARE(assembler.written, 0U);
-  QCOMPARE(assembler.locationCounter, 1001U);
+  QCOMPARE(assembler.written, 0);
+  QCOMPARE(assembler.locationCounter, 1003);
 }
 
 void AssemblerTest::testAssemblyPass() {
@@ -144,15 +145,42 @@ void AssemblerTest::testAssemblyPass() {
 
 void AssemblerTest::testEmitBytes() {
   TEST_INST(".BYTE 20");
+  QCOMPARE(assembler.bytesWritten(), 1);
+  QCOMPARE(memory[assembler.lastLocationCounter], 20);
   TEST_INST(".BYTE $20 45 $4a");
+  QCOMPARE(assembler.bytesWritten(), 4);
+  QCOMPARE(memory[assembler.lastLocationCounter], 0x20);
+  QCOMPARE(memory[assembler.lastLocationCounter + 1], 45);
+  QCOMPARE(memory[assembler.lastLocationCounter + 2], 0x4a);
   TEST_INST(".BYTE $20, $3f,$4a ,$23 , 123");
+  QCOMPARE(assembler.bytesWritten(), 9);
+  QCOMPARE(memory[assembler.lastLocationCounter], 0x20);
+  QCOMPARE(memory[assembler.lastLocationCounter + 1], 0x3f);
+  QCOMPARE(memory[assembler.lastLocationCounter + 2], 0x4a);
+  QCOMPARE(memory[assembler.lastLocationCounter + 3], 0x23);
+  QCOMPARE(memory[assembler.lastLocationCounter + 4], 123);
 }
 
 void AssemblerTest::testEmitWords() {
   TEST_INST(".word $20ff $23af $fab0 ; test comment");
+  QCOMPARE(assembler.bytesWritten(), 6);
+  QCOMPARE(memory.word(assembler.lastLocationCounter), 0x20ff);
+  QCOMPARE(memory.word(assembler.lastLocationCounter + 2), 0x23af);
+  QCOMPARE(memory.word(assembler.lastLocationCounter + 4), 0xfab0);
   TEST_INST(".word $3000 $15ad 10230");
+  QCOMPARE(assembler.bytesWritten(), 12);
+  QCOMPARE(memory.word(assembler.lastLocationCounter), 0x3000);
+  QCOMPARE(memory.word(assembler.lastLocationCounter + 2), 0x15ad);
+  QCOMPARE(memory.word(assembler.lastLocationCounter + 4), 10230);
 }
 
 void AssemblerTest::testLowerCaseInstruction() {
   TEST_INST("cli");
+}
+
+void AssemblerTest::testDcb() {
+  TEST_INST("dcb 0,0,0,0,0,0,0,0,0,$b,$b,$c,$f,$f,$f,$f");
+  QCOMPARE(assembler.bytesWritten(), 16);
+  QCOMPARE(memory[assembler.lastLocationCounter], 0);
+  QCOMPARE(memory[assembler.lastLocationCounter + 15], 0xf);
 }

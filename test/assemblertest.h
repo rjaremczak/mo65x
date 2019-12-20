@@ -51,4 +51,5 @@ private slots:
   void testEmitBytes();
   void testEmitWords();
   void testLowerCaseInstruction();
+  void testDcb();
 };

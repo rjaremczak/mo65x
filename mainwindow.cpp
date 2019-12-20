@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateMemory);
   connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
 
+  connect(assemblerWidget, &AssemblerWidget::newFileCreated, [&] { changeAsmFileName(""); });
   connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
   connect(assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showMessage);

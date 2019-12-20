@@ -10,11 +10,11 @@ static constexpr auto FirstOperandGroup = 3;
 static constexpr QChar HexPrefix('$');
 static constexpr QChar BinPrefix('%');
 
-static const QString Symbol("[a-z]\\w+");
+static const QString Symbol("[a-z]\\w*");
 static const QString Label("^(?:(" + Symbol + "):)?\\s*");
 static const QString Comment("(?:;.*)?$");
 static const QString OrgCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
-static const QString ByteCmd("(\\.BYTE)\\s+");
+static const QString ByteCmd("(\\.BYTE|DCB)\\s+");
 static const QString WordCmd("(\\.WORD)\\s+");
 static const QString HexNum("\\$[\\d|a-h]{1,4}");
 static const QString DecNum("\\d{1,5}");
@@ -22,7 +22,8 @@ static const QString BinNum("\\%[01]{1,16}");
 static const QString Mnemonic("([a-z]{3})\\s*");
 static const QString NumOrSymbol("(?:" + HexNum + ")|(?:" + DecNum + ")|(?:" + BinNum + ")|(?:" + Symbol + ")");
 static const QString Operand("(" + NumOrSymbol + ")\\s*");
-static const QString OperandList("((?:" + NumOrSymbol + ")(?:\\s*[ |,]\\s*(?:" + NumOrSymbol + "))*)\\s*");
+static const QString OperandSeparator("\\s*,?\\s*");
+static const QString OperandList("((?:(?:" + NumOrSymbol + ")" + OperandSeparator + ")+)\\s*");
 static const QString BranchMnemonic("(BCC|BCS|BNE|BEQ|BMI|BPL|BVC|BVS)\\s*");
 static const QString BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
 
@@ -43,6 +44,8 @@ const Assembler::PatternEntry Assembler::Patterns[]{{"", &Assembler::handleNoOpe
                                                     {Mnemonic + "\\(" + Operand + "\\)", &Assembler::handleIndirect},
                                                     {Mnemonic + "\\(" + Operand + ",x\\)", &Assembler::handleIndexedIndirectX},
                                                     {Mnemonic + "\\(" + Operand + "\\),y", &Assembler::handleIndirectIndexedY}};
+
+static const QRegularExpression OperandItemRegEx(Operand + OperandSeparator, QRegularExpression::CaseInsensitiveOption);
 
 static InstructionType resolveInstructionType(const QString& str) {
   const auto it = std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return str == kv.second; });
@@ -144,15 +147,34 @@ void Assembler::handleSetLocationCounter() {
   locationCounter = safeCast<uint16_t>(resolveAsInt(operand()));
 }
 
+static std::vector<QString> splitOperandList(const QString& str) {
+  std::vector<QString> items;
+  int offset = 0;
+  QRegularExpressionMatch m;
+  while ((m = OperandItemRegEx.match(str, offset)).hasMatch()) {
+    offset = m.capturedEnd();
+    items.push_back(m.captured(1));
+  }
+  return items;
+}
+
 void Assembler::handleEmitBytes() {
-  for (auto i = FirstOperandGroup; i <= match.lastCapturedIndex(); i++) {
-    emitByte(safeCast<uint8_t>(resolveAsInt(match.captured(i))));
+  int offset = 0;
+  auto str = operand();
+  QRegularExpressionMatch opMatch;
+  while ((opMatch = OperandItemRegEx.match(str, offset)).hasMatch()) {
+    offset = opMatch.capturedEnd();
+    emitByte(safeCast<uint8_t>(resolveAsInt(opMatch.captured(1))));
   }
 }
 
 void Assembler::handleEmitWords() {
-  for (auto i = FirstOperandGroup; i <= match.lastCapturedIndex(); i++) {
-    auto value = safeCast<uint16_t>(resolveAsInt(match.captured(i)));
+  int offset = 0;
+  auto str = operand();
+  QRegularExpressionMatch opMatch;
+  while ((opMatch = OperandItemRegEx.match(str, offset)).hasMatch()) {
+    offset = opMatch.capturedEnd();
+    auto value = safeCast<uint16_t>(resolveAsInt(opMatch.captured(1)));
     emitByte(static_cast<uint8_t>(value));
     emitByte(value >> 8);
   }
