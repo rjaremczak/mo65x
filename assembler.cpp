@@ -93,13 +93,13 @@ void Assembler::changeMode(Assembler::ProcessingMode mode) {
   this->mode = mode;
 }
 
-AssemblyResult Assembler::processLine2(const QString& str) {
+AssemblyResult Assembler::processLine(const QString& str) {
   lastLocationCounter = locationCounter;
   for (const auto& entry : Patterns) {
     match = entry.regex.match(str);
     if (match.hasMatch()) {
       try {
-        if (auto label = match.captured(LabelGroup); !label.isEmpty()) defineSymbol2(label, locationCounter);
+        if (auto label = match.captured(LabelGroup); !label.isEmpty()) defineSymbol(label, locationCounter);
         (this->*entry.handler)();
         return AssemblyResult::Ok;
       } catch (AssemblyResult result) { return result; }
@@ -207,7 +207,7 @@ void Assembler::assemble(OperandsFormat mode, int operand) {
   if (instruction->size > 2) emitByte(static_cast<uint8_t>(operand >> 8));
 }
 
-void Assembler::defineSymbol2(const QString& name, uint16_t value) {
+void Assembler::defineSymbol(const QString& name, uint16_t value) {
   if (mode == ProcessingMode::ScanForSymbols) {
     if (!symbolTable.put(name, value)) throw AssemblyResult::SymbolAlreadyDefined;
   }

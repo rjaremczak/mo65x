@@ -35,7 +35,7 @@
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   cpu.cycles = 0;                                                                                                                \
-  QCOMPARE(assembler.processLine2(instr), AssemblyResult::Ok);                                                                   \
+  QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok);                                                                    \
   cpu.execute(false);                                                                                                            \
   QCOMPARE(cpu.state, CpuState::Idle);                                                                                           \
   QCOMPARE(cpu.cycles, numCycles)

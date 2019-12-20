@@ -1,7 +1,7 @@
 #include "assemblertest.h"
 #include <QTest>
 
-#define TEST_INST(instr) QVERIFY(assembler.processLine2(instr) == AssemblyResult::Ok)
+#define TEST_INST(instr) QVERIFY(assembler.processLine(instr) == AssemblyResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \

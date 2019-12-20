@@ -26,7 +26,7 @@ public:
   void init(uint16_t addr = DefaultOrigin);
   void clearSymbols();
   void changeMode(ProcessingMode mode);
-  AssemblyResult processLine2(const QString&);
+  AssemblyResult processLine(const QString&);
   AddressRange affectedAddressRange() const;
   size_t bytesWritten() const;
 
@@ -71,9 +71,7 @@ private:
   void handleIndirectIndexedY();
   void handleBranch();
   void assemble(OperandsFormat mode, int operand = 0);
-
-  void defineSymbol2(const QString&, uint16_t);
-  // AssemblyResult assemble(InstructionType type, OperandsFormat mode, int operand = 0);
+  void defineSymbol(const QString&, uint16_t);
   void emitByte(uint8_t);
   void updateAddressRange(uint16_t);
 };
