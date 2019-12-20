@@ -62,6 +62,9 @@ void AssemblerTest::testZeroPageYMode() {
 
 void AssemblerTest::testAbsoluteMode() {
   TEST_INST_3("ROR $3400", 0x6e, 0x00, 0x34);
+  TEST_INST_3("jmp $2000", 0x4c, 0x00, 0x20);
+  assembler.symbolTable.put("c", 0xfab0);
+  TEST_INST_3("jmp c", 0x4c, 0xb0, 0xfa);
 }
 
 void AssemblerTest::testAbsoluteXMode() {
@@ -139,7 +142,7 @@ void AssemblerTest::testAssemblyPass() {
   TEST_INST("CLI");
   TEST_INST("TestLabel_11:  LDA #$20   ; this is a one weird comment  ");
   QCOMPARE(assembler.symbolTable.get("TestLabel_11"), std::nullopt);
-  QCOMPARE(assembler.written, 3U);
+  QCOMPARE(assembler.written, 3);
   QCOMPARE(assembler.locationCounter, 2005);
 }
 

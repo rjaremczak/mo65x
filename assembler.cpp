@@ -53,11 +53,19 @@ static InstructionType resolveInstructionType(const QString& str) {
   return it->first;
 }
 
-static const Instruction* resolveInstruction(const QString& str, OperandsFormat mode) {
+static const Instruction* resolveInstruction(const QString& str, OperandsFormat mode, bool zp) {
   const auto type = resolveInstructionType(str.toUpper());
+  if (zp && type != InstructionType::JMP) {
+    switch (mode) {
+    case OperandsFormat::Absolute: mode = OperandsFormat::ZeroPage; break;
+    case OperandsFormat::AbsoluteX: mode = OperandsFormat::ZeroPageX; break;
+    case OperandsFormat::AbsoluteY: mode = OperandsFormat::ZeroPageY; break;
+    default: break;
+    }
+  }
   const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(),
                                [=](const Instruction& ins) { return ins.type == type && ins.mode == mode; });
-  if (it == InstructionTable.end()) throw AssemblyResult::InvalidInstructionFormat;
+  if (it == InstructionTable.end()) { throw AssemblyResult::InvalidInstructionFormat; }
   return it;
 }
 
@@ -78,6 +86,17 @@ static int parseNumber(const QString& str) {
   if (front == HexPrefix) return op.right(op.length() - 1).toInt(nullptr, 16);
   if (front == BinPrefix) return op.right(op.length() - 1).toInt(nullptr, 2);
   return op.toInt(nullptr, 10);
+}
+
+static std::vector<QString> split(const QString& str) {
+  std::vector<QString> items;
+  int offset = 0;
+  QRegularExpressionMatch m;
+  while ((m = OperandItemRegEx.match(str, offset)).hasMatch()) {
+    offset = m.capturedEnd();
+    items.push_back(m.captured(1));
+  }
+  return items;
 }
 
 Assembler::Assembler(Memory& memory) : memory(memory) {
@@ -115,7 +134,7 @@ AddressRange Assembler::affectedAddressRange() const {
   return addressRange;
 }
 
-size_t Assembler::bytesWritten() const {
+int Assembler::bytesWritten() const {
   return written;
 }
 
@@ -130,14 +149,16 @@ QString Assembler::operand() const {
 int Assembler::resolveAsInt(const QString& str) const {
   if (isNumber(str)) return parseNumber(str);
   if (const auto& opt = symbolTable.get(str)) return *opt;
-  throw AssemblyResult::SymbolNotDefined;
+  if (mode == ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
+  return 0;
 }
 
 int8_t Assembler::operandAsBranchDisplacement() const {
   const auto& op = operand();
   if (isNumber(op)) return safeCast<int8_t>(resolveAsInt(op));
   if (const auto& opt = symbolTable.get(operand())) return safeCast<int8_t>(*opt - locationCounter - 2);
-  throw AssemblyResult::SymbolNotDefined;
+  if (mode == ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
+  return 0;
 }
 
 void Assembler::handleNoOperation() {
@@ -147,37 +168,12 @@ void Assembler::handleSetLocationCounter() {
   locationCounter = safeCast<uint16_t>(resolveAsInt(operand()));
 }
 
-static std::vector<QString> splitOperandList(const QString& str) {
-  std::vector<QString> items;
-  int offset = 0;
-  QRegularExpressionMatch m;
-  while ((m = OperandItemRegEx.match(str, offset)).hasMatch()) {
-    offset = m.capturedEnd();
-    items.push_back(m.captured(1));
-  }
-  return items;
-}
-
 void Assembler::handleEmitBytes() {
-  int offset = 0;
-  auto str = operand();
-  QRegularExpressionMatch opMatch;
-  while ((opMatch = OperandItemRegEx.match(str, offset)).hasMatch()) {
-    offset = opMatch.capturedEnd();
-    emitByte(safeCast<uint8_t>(resolveAsInt(opMatch.captured(1))));
-  }
+  for (const auto& op : split(operand())) emitByte(safeCast<uint8_t>(resolveAsInt(op)));
 }
 
 void Assembler::handleEmitWords() {
-  int offset = 0;
-  auto str = operand();
-  QRegularExpressionMatch opMatch;
-  while ((opMatch = OperandItemRegEx.match(str, offset)).hasMatch()) {
-    offset = opMatch.capturedEnd();
-    auto value = safeCast<uint16_t>(resolveAsInt(opMatch.captured(1)));
-    emitByte(static_cast<uint8_t>(value));
-    emitByte(value >> 8);
-  }
+  for (const auto& op : split(operand())) emitWord(safeCast<uint16_t>(resolveAsInt(op)));
 }
 
 void Assembler::handleImpliedOrAccumulator() {
@@ -189,33 +185,27 @@ void Assembler::handleImmediate() {
 }
 
 void Assembler::handleAbsolute() {
-  auto addr = safeCast<Address>(resolveAsInt(operand()));
-  assemble(addr < 256 ? OperandsFormat::ZeroPage : OperandsFormat::Absolute, addr);
+  assemble(OperandsFormat::Absolute, safeCast<Address>(resolveAsInt(operand())));
 }
 
 void Assembler::handleAbsoluteIndexedX() {
-  auto addr = safeCast<Address>(resolveAsInt(operand()));
-  assemble(addr < 256 ? OperandsFormat::ZeroPageX : OperandsFormat::AbsoluteX, addr);
+  assemble(OperandsFormat::AbsoluteX, safeCast<Address>(resolveAsInt(operand())));
 }
 
 void Assembler::handleAbsoluteIndexedY() {
-  auto addr = safeCast<Address>(resolveAsInt(operand()));
-  assemble(addr < 256 ? OperandsFormat::ZeroPageY : OperandsFormat::AbsoluteY, addr);
+  assemble(OperandsFormat::AbsoluteY, safeCast<Address>(resolveAsInt(operand())));
 }
 
 void Assembler::handleIndirect() {
-  auto addr = safeCast<Address>(resolveAsInt(operand()));
-  assemble(OperandsFormat::Indirect, addr);
+  assemble(OperandsFormat::Indirect, safeCast<Address>(resolveAsInt(operand())));
 }
 
 void Assembler::handleIndexedIndirectX() {
-  auto addr = safeCast<uint8_t>(resolveAsInt(operand()));
-  assemble(OperandsFormat::IndexedIndirectX, addr);
+  assemble(OperandsFormat::IndexedIndirectX, safeCast<uint8_t>(resolveAsInt(operand())));
 }
 
 void Assembler::handleIndirectIndexedY() {
-  auto addr = safeCast<uint8_t>(resolveAsInt(operand()));
-  assemble(OperandsFormat::IndirectIndexedY, addr);
+  assemble(OperandsFormat::IndirectIndexedY, safeCast<uint8_t>(resolveAsInt(operand())));
 }
 
 void Assembler::handleBranch() {
@@ -223,10 +213,12 @@ void Assembler::handleBranch() {
 }
 
 void Assembler::assemble(OperandsFormat mode, int operand) {
-  const auto instruction = resolveInstruction(operation(), mode);
+  const auto instruction = resolveInstruction(operation(), mode, operand >= 0 && operand <= 255);
   emitByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), instruction)));
-  if (instruction->size > 1) emitByte(static_cast<uint8_t>(operand));
-  if (instruction->size > 2) emitByte(static_cast<uint8_t>(operand >> 8));
+  if (instruction->size == 2)
+    emitByte(static_cast<uint8_t>(operand));
+  else if (instruction->size == 3)
+    emitWord(static_cast<uint16_t>(operand));
 }
 
 void Assembler::defineSymbol(const QString& name, uint16_t value) {
@@ -242,6 +234,11 @@ void Assembler::emitByte(uint8_t b) {
     written++;
   }
   locationCounter++;
+}
+
+void Assembler::emitWord(uint16_t word) {
+  emitByte(static_cast<uint8_t>(word));
+  emitByte(word >> 8);
 }
 
 void Assembler::updateAddressRange(uint16_t addr) {

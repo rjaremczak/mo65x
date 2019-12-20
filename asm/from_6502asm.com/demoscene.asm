@@ -1,4 +1,3 @@
-
 start:
   ldx #0
 c:lda bottombar,x

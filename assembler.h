@@ -28,7 +28,7 @@ public:
   void changeMode(ProcessingMode mode);
   AssemblyResult processLine(const QString&);
   AddressRange affectedAddressRange() const;
-  size_t bytesWritten() const;
+  int bytesWritten() const;
 
 private:
   friend class AssemblerTest;
@@ -46,7 +46,7 @@ private:
   Memory& memory;
   AddressRange addressRange;
   ProcessingMode mode = ProcessingMode::EmitCode;
-  size_t written = 0;
+  int written = 0;
   QRegularExpressionMatch match;
   uint16_t locationCounter = DefaultOrigin;
   uint16_t lastLocationCounter = DefaultOrigin;
@@ -73,5 +73,6 @@ private:
   void assemble(OperandsFormat mode, int operand = 0);
   void defineSymbol(const QString&, uint16_t);
   void emitByte(uint8_t);
+  void emitWord(uint16_t);
   void updateAddressRange(uint16_t);
 };

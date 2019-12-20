@@ -700,8 +700,9 @@ void InstructionsTest::testBVS_notTaken() {
 }
 
 void InstructionsTest::testJMP_absolute() {
-  TEST_INST("JMP $3fa0", 3);
-  QCOMPARE(cpu.regs.pc, 0x3fa0);
+  assembler.symbolTable.put("c", 0x4af0);
+  TEST_INST("  jmp c", 3);
+  QCOMPARE(cpu.regs.pc, 0x4af0);
 }
 
 void InstructionsTest::testJMP_indirect() {
