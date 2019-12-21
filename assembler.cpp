@@ -7,6 +7,8 @@
 static constexpr auto LabelGroup = 1;
 static constexpr auto OperationGroup = 2;
 static constexpr auto FirstOperandGroup = 3;
+static constexpr QChar LoBytePrefix('<');
+static constexpr QChar HiBytePrefix('>');
 static constexpr QChar HexPrefix('$');
 static constexpr QChar BinPrefix('%');
 
@@ -21,9 +23,10 @@ static const QString DecNum("\\d{1,5}");
 static const QString BinNum("\\%[01]{1,16}");
 static const QString Mnemonic("([a-z]{3})\\s*");
 static const QString NumOrSymbol("(?:" + HexNum + ")|(?:" + DecNum + ")|(?:" + BinNum + ")|(?:" + Symbol + ")");
-static const QString Operand("(" + NumOrSymbol + ")\\s*");
+static const QString LoHiPrefix("[<|>]?");
+static const QString Operand("(" + LoHiPrefix + NumOrSymbol + ")\\s*");
 static const QString OperandSeparator("\\s*,?\\s*");
-static const QString OperandList("((?:(?:" + NumOrSymbol + ")" + OperandSeparator + ")+)\\s*");
+static const QString OperandList("((?:(?:" + LoHiPrefix + NumOrSymbol + ")" + OperandSeparator + ")+)\\s*");
 static const QString BranchMnemonic("(BCC|BCS|BNE|BEQ|BMI|BPL|BVC|BVS)\\s*");
 static const QString BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
 
@@ -151,9 +154,27 @@ QString Assembler::operand() const {
   return match.captured(FirstOperandGroup);
 }
 
-int Assembler::resolveAsInt(const QString& str) const {
-  if (isNumber(str)) return parseNumber(str);
-  if (const auto& opt = symbolTable.get(str)) return *opt;
+static QString removeLoHiPrefix(QChar& prefix, const QString& str) {
+  const auto f = str.front();
+  if (f == LoBytePrefix || f == HiBytePrefix) {
+    prefix = f;
+    return str.right(str.length() - 1);
+  }
+  prefix = QChar::Null;
+  return str;
+}
+
+static int applyLoHiPrefix(QChar prefix, int num) {
+  if (prefix.isNull()) return num;
+  if (prefix == HiBytePrefix) return num >> 8;
+  return num & 0xff;
+}
+
+int Assembler::resolveAsInt(const QString& ostr) const {
+  QChar prefix;
+  const QString str = removeLoHiPrefix(prefix, ostr);
+  if (isNumber(str)) return applyLoHiPrefix(prefix, parseNumber(str));
+  if (const auto& opt = symbolTable.get(str)) return applyLoHiPrefix(prefix, *opt);
   if (mode == ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
   return 0;
 }
