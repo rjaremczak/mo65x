@@ -52,4 +52,7 @@ private slots:
   void testEmitWords();
   void testLowerCaseInstruction();
   void testDcb();
+  void testLoBytePrefix();
+  void testHiBytePrefix();
+  void testLoHiBytePrefix();
 };

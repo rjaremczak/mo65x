@@ -187,3 +187,26 @@ void AssemblerTest::testDcb() {
   QCOMPARE(memory[assembler.lastLocationCounter], 0);
   QCOMPARE(memory[assembler.lastLocationCounter + 15], 0xf);
 }
+
+void AssemblerTest::testLoBytePrefix() {
+  TEST_INST_2("LDA #<$1afc", 0xa9, 0xfc);
+  assembler.symbolTable.put("label", 0x2afe);
+  TEST_INST_2("LDA #<label", 0xa9, 0xfe);
+  TEST_INST("dcb <label, 2");
+  QCOMPARE(memory[assembler.lastLocationCounter], 0xfe);
+  QCOMPARE(memory[assembler.lastLocationCounter + 1], 2);
+}
+
+void AssemblerTest::testHiBytePrefix() {
+  TEST_INST_2("LDA #>$1afc", 0xa9, 0x1a);
+  assembler.symbolTable.put("label", 0x3afe);
+  TEST_INST_2("LDA #>label", 0xa9, 0x3a);
+  TEST_INST_2("dcb >label, 2", 0x3a, 2);
+}
+
+void AssemblerTest::testLoHiBytePrefix() {
+  assembler.symbolTable.put("a", 0xfa20);
+  assembler.symbolTable.put("b", 0x10a0);
+  TEST_INST_2("dcb >a, <b", 0xfa, 0xa0);
+  TEST_INST_2("dcb <a, >b", 0x20, 0x10);
+}

@@ -23,10 +23,10 @@ static const QString DecNum("\\d{1,5}");
 static const QString BinNum("\\%[01]{1,16}");
 static const QString Mnemonic("([a-z]{3})\\s*");
 static const QString NumOrSymbol("(?:" + HexNum + ")|(?:" + DecNum + ")|(?:" + BinNum + ")|(?:" + Symbol + ")");
-static const QString LoHiPrefix("[<|>]?");
-static const QString Operand("(" + LoHiPrefix + NumOrSymbol + ")\\s*");
+static const QString LoHiPrefix("[" + QString(LoBytePrefix) + "|" + QString(HiBytePrefix) + "]?");
+static const QString Operand("(" + LoHiPrefix + "(?:" + NumOrSymbol + "))\\s*");
 static const QString OperandSeparator("\\s*,?\\s*");
-static const QString OperandList("((?:(?:" + LoHiPrefix + NumOrSymbol + ")" + OperandSeparator + ")+)\\s*");
+static const QString OperandList("((?:(?:" + LoHiPrefix + "(?:" + NumOrSymbol + "))" + OperandSeparator + ")+)\\s*");
 static const QString BranchMnemonic("(BCC|BCS|BNE|BEQ|BMI|BPL|BVC|BVS)\\s*");
 static const QString BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
 
