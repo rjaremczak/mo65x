@@ -38,7 +38,7 @@ private:
   Ui::DisassemblerView* ui;
 
   Disassembler disassembler;
-  AddressRange addressRange;
+  AddressRange addressRange = AddressRange::Invalid;
   Address selectedAddress;
   HighlightMode highlightMode;
 

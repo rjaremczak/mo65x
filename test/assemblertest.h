@@ -55,4 +55,5 @@ private slots:
   void testLoBytePrefix();
   void testHiBytePrefix();
   void testLoHiBytePrefix();
+  void testSymbolDef();
 };

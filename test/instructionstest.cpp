@@ -42,7 +42,7 @@
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
   const auto base = assembler.locationCounter;                                                                                   \
-  QCOMPARE(cpu.regs.pc, base + *cpu.operandPtr.lo);                                                                              \
+  QCOMPARE(cpu.regs.pc, base + static_cast<int8_t>(*cpu.operandPtr.lo));                                                         \
   QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
@@ -63,7 +63,6 @@ void InstructionsTest::initTestCase() {
 
 void InstructionsTest::init() {
   assembler.init(AsmOrigin);
-  assembler.clearSymbols();
   assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   cpu.reset();
   cpu.regs.pc = AsmOrigin;
@@ -653,7 +652,12 @@ void InstructionsTest::testBNE_notTaken() {
 
 void InstructionsTest::testBMI_taken() {
   cpu.regs.p.negative = true;
-  TEST_INST("BMI +32", 3);
+
+  // increase PC and LC to avoid page crossing
+
+  cpu.regs.pc += 10;
+  assembler.locationCounter += 10;
+  TEST_INST("BMI -3", 3);
   TEST_BRANCH_TAKEN();
 }
 

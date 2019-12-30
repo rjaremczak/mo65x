@@ -80,6 +80,7 @@ static const Instruction* resolveInstruction(const QString& str, OperandsFormat 
 template <typename T>
 T safeCast(int n) {
   if (n >= std::numeric_limits<T>::min() && n <= std::numeric_limits<T>::max()) return static_cast<T>(n);
+  qDebug("value %d out of range", n);
   throw AssemblyResult::ValueOutOfRange;
 }
 
@@ -108,14 +109,19 @@ static std::vector<QString> split(const QString& str) {
 }
 
 Assembler::Assembler(Memory& memory) : memory(memory) {
+  init();
 }
 
-void Assembler::init(uint16_t addr) {
+void Assembler::initPreserveSymbols(Address addr) {
+  addressRange = AddressRange::Invalid;
+  mode = ProcessingMode::EmitCode;
   locationCounter = addr;
+  lastLocationCounter = addr;
   written = 0;
 }
 
-void Assembler::clearSymbols() {
+void Assembler::init(Address addr) {
+  initPreserveSymbols(addr);
   symbolTable.clear();
 }
 
@@ -170,36 +176,34 @@ static int applyLoHiPrefix(QChar prefix, int num) {
   return num & 0xff;
 }
 
-int Assembler::resolveAsInt(const QString& ostr) const {
+OperandValue Assembler::resolveOperandValue(const QString& ostr) const {
   QChar prefix;
   const QString str = removeLoHiPrefix(prefix, ostr);
-  if (isNumber(str)) return applyLoHiPrefix(prefix, parseNumber(str));
-  if (const auto& opt = symbolTable.get(str)) return applyLoHiPrefix(prefix, *opt);
-  if (mode == ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
-  return 0;
+  if (isNumber(str)) return {OperandValue::Literal, applyLoHiPrefix(prefix, parseNumber(str))};
+  if (const auto& opt = symbolTable.get(str)) return {OperandValue::Identifier, applyLoHiPrefix(prefix, *opt)};
+  if (mode == Assembler::ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
+  return {OperandValue::UndefinedIdentifier};
 }
 
 int8_t Assembler::operandAsBranchDisplacement() const {
-  const auto& op = operand();
-  if (isNumber(op)) return safeCast<int8_t>(resolveAsInt(op));
-  if (const auto& opt = symbolTable.get(operand())) return safeCast<int8_t>(*opt - locationCounter - 2);
-  if (mode == ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
-  return 0;
+  const auto op = resolveOperandValue(operand());
+  if (mode == Assembler::ProcessingMode::ScanForSymbols) return 0;
+  return safeCast<int8_t>(op.isLiteral() ? op.value : op.value - locationCounter - 2);
 }
 
 void Assembler::handleNoOperation() {
 }
 
 void Assembler::handleSetLocationCounter() {
-  locationCounter = safeCast<uint16_t>(resolveAsInt(operand()));
+  locationCounter = safeCast<uint16_t>(resolveOperandValue(operand()).value);
 }
 
 void Assembler::handleEmitBytes() {
-  for (const auto& op : split(operand())) emitByte(safeCast<uint8_t>(resolveAsInt(op)));
+  for (const auto& op : split(operand())) emitByte(safeCast<uint8_t>(resolveOperandValue(op).value));
 }
 
 void Assembler::handleEmitWords() {
-  for (const auto& op : split(operand())) emitWord(safeCast<uint16_t>(resolveAsInt(op)));
+  for (const auto& op : split(operand())) emitWord(safeCast<uint16_t>(resolveOperandValue(op).value));
 }
 
 void Assembler::handleImpliedOrAccumulator() {
@@ -207,44 +211,45 @@ void Assembler::handleImpliedOrAccumulator() {
 }
 
 void Assembler::handleImmediate() {
-  assemble(OperandsFormat::Immediate, safeCast<uint8_t>(resolveAsInt(operand())));
+  assemble(OperandsFormat::Immediate, resolveOperandValue(operand()));
 }
 
 void Assembler::handleAbsolute() {
-  assemble(OperandsFormat::Absolute, safeCast<Address>(resolveAsInt(operand())));
+  assemble(OperandsFormat::Absolute, resolveOperandValue(operand()));
 }
 
 void Assembler::handleAbsoluteIndexedX() {
-  assemble(OperandsFormat::AbsoluteX, safeCast<Address>(resolveAsInt(operand())));
+  assemble(OperandsFormat::AbsoluteX, resolveOperandValue(operand()));
 }
 
 void Assembler::handleAbsoluteIndexedY() {
-  assemble(OperandsFormat::AbsoluteY, safeCast<Address>(resolveAsInt(operand())));
+  assemble(OperandsFormat::AbsoluteY, resolveOperandValue(operand()));
 }
 
 void Assembler::handleIndirect() {
-  assemble(OperandsFormat::Indirect, safeCast<Address>(resolveAsInt(operand())));
+  assemble(OperandsFormat::Indirect, resolveOperandValue(operand()));
 }
 
 void Assembler::handleIndexedIndirectX() {
-  assemble(OperandsFormat::IndexedIndirectX, safeCast<uint8_t>(resolveAsInt(operand())));
+  assemble(OperandsFormat::IndexedIndirectX, resolveOperandValue(operand()));
 }
 
 void Assembler::handleIndirectIndexedY() {
-  assemble(OperandsFormat::IndirectIndexedY, safeCast<uint8_t>(resolveAsInt(operand())));
+  assemble(OperandsFormat::IndirectIndexedY, resolveOperandValue(operand()));
 }
 
 void Assembler::handleBranch() {
-  assemble(OperandsFormat::Branch, operandAsBranchDisplacement());
+  assemble(OperandsFormat::Branch, {OperandValue::Literal, operandAsBranchDisplacement()});
 }
 
-void Assembler::assemble(OperandsFormat mode, int operand) {
-  const auto instruction = resolveInstruction(operation(), mode, operand >= 0 && operand <= 255);
+void Assembler::assemble(OperandsFormat mode, OperandValue operand) {
+  const auto instruction =
+      resolveInstruction(operation(), mode, operand.isLiteral() && operand.value >= 0 && operand.value <= 255);
   emitByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), instruction)));
   if (instruction->size == 2)
-    emitByte(static_cast<uint8_t>(operand));
+    emitByte(static_cast<uint8_t>(operand.value));
   else if (instruction->size == 3)
-    emitWord(static_cast<uint16_t>(operand));
+    emitWord(static_cast<uint16_t>(operand.value));
 }
 
 void Assembler::defineSymbol(const QString& name, uint16_t value) {

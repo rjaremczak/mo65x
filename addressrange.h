@@ -27,4 +27,5 @@ struct AddressRange {
   }
 
   static const AddressRange Max;
+  static const AddressRange Invalid;
 };

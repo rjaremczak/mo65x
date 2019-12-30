@@ -19,7 +19,7 @@ Disassembler::Disassembler(const Memory& memory, uint16_t pc) : memory(memory) {
   setOrigin(pc);
 }
 
-void Disassembler::setOrigin(uint16_t addr) {
+void Disassembler::setOrigin(Address addr) {
   address = addr;
   opcode = memory[addr];
   instruction = InstructionTable[opcode];

@@ -1,3 +1,5 @@
+  .org $0600
+
 start:
   ldx #0
 c:lda bottombar,x

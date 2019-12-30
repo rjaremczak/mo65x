@@ -9,6 +9,7 @@
 #include "emulator.h"
 #include "filedatastorage.h"
 #include "memorywidget.h"
+#include "videowidget.h"
 #include <QMainWindow>
 #include <QThread>
 #include <QTimer>
@@ -39,6 +40,7 @@ private:
   MemoryWidget* memoryWidget;
   DisassemblerWidget* disassemblerWidget;
   CpuWidget* cpuWidget;
+  VideoWidget* videoWidget;
   Emulator* emulator;
   FileDataStorage<Config>* configStorage;
   Config config;

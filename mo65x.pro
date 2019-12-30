@@ -27,6 +27,7 @@ SOURCES += \
     disassembler.cpp \
     disassemblerview.cpp \
     disassemblerwidget.cpp \
+    screenwidget.cpp \
     emulator.cpp \
     executionstatistics.cpp \
     filedatastorage.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
     mnemonics.cpp \
     runlevel.cpp \
     symboltable.cpp \
+    videowidget.cpp \
     wordspinbox.cpp \
     test/assemblertest.cpp \
     test/instructionstest.cpp \
@@ -62,6 +64,8 @@ HEADERS += \
     disassembler.h \
     disassemblerview.h \
     disassemblerwidget.h \
+    operandvalue.h \
+    screenwidget.h \
     emulator.h \
     emulatorstate.h \
     executionstatistics.h \
@@ -81,6 +85,7 @@ HEADERS += \
     stackpointer.h \
     symboltable.h \
     uitools.h \
+    videowidget.h \
     wordspinbox.h \
     test/assemblertest.h \
     test/instructionstest.h \
@@ -93,7 +98,8 @@ FORMS += \
     disassemblerview.ui \
     disassemblerwidget.ui \
     mainwindow.ui \
-    memorywidget.ui
+    memorywidget.ui \
+    videowidget.ui
 
 RESOURCES += resources.qrc
 

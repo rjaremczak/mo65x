@@ -33,7 +33,7 @@ protected:
 private:
   Ui::MemoryWidget* ui;
   const Memory& memory;
-  AddressRange addressRange;
+  AddressRange addressRange = AddressRange::Invalid;
 
   void updateView();
   int rowsInView() const;

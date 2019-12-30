@@ -8,7 +8,7 @@ class Disassembler {
 public:
   Disassembler(const Memory&, uint16_t addr = 0);
 
-  void setOrigin(uint16_t);
+  void setOrigin(Address);
   uint16_t currentAddress() const { return address; }
   void nextInstruction();
 
@@ -18,8 +18,8 @@ public:
 
 private:
   const Memory& memory;
-  uint16_t address;
-  uint16_t opcode;
+  Address address;
+  uint8_t opcode;
   Instruction instruction;
 
   QString formatOperand8() const;

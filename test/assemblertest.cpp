@@ -20,8 +20,8 @@ AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(memor
 
 void AssemblerTest::init() {
   assembler.init(AsmOrigin);
-  assembler.clearSymbols();
-  assembler.changeMode(Assembler::ProcessingMode::EmitCode);
+  QVERIFY(assembler.symbols().empty());
+  QCOMPARE(assembler.mode, Assembler::ProcessingMode::EmitCode);
 }
 
 void AssemblerTest::testByteOperand() {
@@ -134,7 +134,7 @@ void AssemblerTest::testSymbolPass() {
   TEST_INST("c:lda dziabaDucha");
   QCOMPARE(assembler.symbolTable.get("TestLabel_01"), 1000);
   QCOMPARE(assembler.written, 0);
-  QCOMPARE(assembler.locationCounter, 1003);
+  QCOMPARE(assembler.locationCounter, 1004);
 }
 
 void AssemblerTest::testAssemblyPass() {
@@ -209,4 +209,11 @@ void AssemblerTest::testLoHiBytePrefix() {
   assembler.symbolTable.put("b", 0x10a0);
   TEST_INST_2("dcb >a, <b", 0xfa, 0xa0);
   TEST_INST_2("dcb <a, >b", 0x20, 0x10);
+}
+
+void AssemblerTest::testSymbolDef() {
+  assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
+  TEST_INST(".org $1000");
+  TEST_INST("lda init");
+  QCOMPARE(assembler.locationCounter, 0x1003);
 }

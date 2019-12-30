@@ -46,13 +46,14 @@ void AssemblerWidget::saveFile(const QString& fname) {
 }
 
 void AssemblerWidget::loadEditorFile() {
-  QFileDialog::getOpenFileContent("", [&](const QString fileName, const QByteArray& fileContent) {
+  QFileDialog::getOpenFileContent("", [&](const QString fname, const QByteArray& fileContent) {
     QString title = tr("Load File");
-    if (fileName.isEmpty()) {
+    if (fname.isEmpty()) {
       QMessageBox::warning(this, title, tr("loading error"));
     } else {
       ui->sourceCode->setPlainText(fileContent);
-      emit fileLoaded(fileName);
+      fileName = fname;
+      emit fileLoaded(fname);
     }
   });
 }
@@ -96,14 +97,13 @@ void AssemblerWidget::newFile() {
 
 void AssemblerWidget::assembleSourceCode() {
   assembler.init();
-  assembler.clearSymbols();
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   if (auto ph0 = process()) {
     emit operationCompleted(*ph0, false);
     return;
   }
 
-  assembler.init();
+  assembler.initPreserveSymbols();
   assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   if (auto ph1 = process()) {
     emit operationCompleted(*ph1, false);

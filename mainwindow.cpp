@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 static const QString ProjectName = "mo65x";
-static const QString ProjectVersion = "0.92";
+static const QString ProjectVersion = "0.94";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   cpuWidget = new CpuWidget(this, emulator->memoryView());
   this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget);
+
+  videoWidget = new VideoWidget(this, emulator->memoryView());
+  this->addDockWidget(Qt::LeftDockWidgetArea, videoWidget);
 
   assemblerWidget = new AssemblerWidget(this, emulator->memoryRef());
   memoryWidget = new MemoryWidget(this, emulator->memoryView());

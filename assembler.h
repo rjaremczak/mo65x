@@ -5,6 +5,7 @@
 #include "commondefs.h"
 #include "instruction.h"
 #include "memory.h"
+#include "operandvalue.h"
 #include "symboltable.h"
 #include <QRegularExpression>
 #include <QString>
@@ -23,8 +24,8 @@ public:
   const auto& symbols() const { return symbolTable; }
 
   Assembler(Memory&);
-  void init(uint16_t addr = DefaultOrigin);
-  void clearSymbols();
+  void init(Address addr = DefaultOrigin);
+  void initPreserveSymbols(Address = DefaultOrigin);
   void changeMode(ProcessingMode mode);
   AssemblyResult processLine(const QString&);
   AddressRange affectedAddressRange() const;
@@ -45,14 +46,14 @@ private:
 
   Memory& memory;
   AddressRange addressRange;
-  ProcessingMode mode = ProcessingMode::EmitCode;
-  int written = 0;
+  ProcessingMode mode;
+  int written;
   QRegularExpressionMatch match;
-  uint16_t locationCounter = DefaultOrigin;
-  uint16_t lastLocationCounter = DefaultOrigin;
+  uint16_t locationCounter;
+  uint16_t lastLocationCounter;
   SymbolTable symbolTable;
 
-  int resolveAsInt(const QString&) const;
+  OperandValue resolveOperandValue(const QString&) const;
   int8_t operandAsBranchDisplacement() const;
   QString operation() const;
   QString operand() const;
@@ -70,7 +71,7 @@ private:
   void handleIndexedIndirectX();
   void handleIndirectIndexedY();
   void handleBranch();
-  void assemble(OperandsFormat mode, int operand = 0);
+  void assemble(OperandsFormat mode, OperandValue = OperandValue());
   void defineSymbol(const QString&, uint16_t);
   void emitByte(uint8_t);
   void emitWord(uint16_t);
