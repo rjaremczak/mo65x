@@ -7,16 +7,19 @@ class ScreenWidget : public QWidget
 {
   Q_OBJECT
 public:
-  static constexpr QSize FrameResolution{32, 32};
-
   explicit ScreenWidget(QWidget* parent = nullptr);
 
 signals:
+
+public slots:
+  void setFrameBuffer(const uint8_t*, int resx, int resy);
 
 protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
   QVector<QRgb> colorTable;
-  uint8_t frameBuffer[FrameResolution.width() * FrameResolution.height()];
+  int resolutionX;
+  int resolutionY;
+  const uint8_t* frameBuffer = nullptr;
 };

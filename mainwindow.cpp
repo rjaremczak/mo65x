@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   setCentralWidget(viewWidget);
 
   pollTimer = new QTimer(this);
-  pollTimer->start(200);
+  pollTimer->start(40);
   connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
 
   connect(cpuWidget, &CpuWidget::executionRequested, emulator, &Emulator::execute);
@@ -62,6 +62,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
   propagateState(emulator->state());
+
+  videoWidget->setFrameBufferAddress(0x200);
+  videoWidget->refresh();
 }
 
 MainWindow::~MainWindow() {
@@ -123,4 +126,5 @@ void MainWindow::propagateState(EmulatorState es) {
 
 void MainWindow::polling() {
   if (const auto es = emulator->state(); es.running()) propagateState(es);
+  videoWidget->refresh();
 }

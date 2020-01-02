@@ -19,18 +19,26 @@ ScreenWidget::ScreenWidget(QWidget* parent) : QWidget(parent), colorTable(256) {
   colorTable[13] = 0xFFAAFF66;
   colorTable[14] = 0xFF0088FF;
   colorTable[15] = 0xFFBBBBBB;
-
   for (int i = 1; i < 16; i++) std::copy_n(colorTable.begin(), 16, std::next(colorTable.begin(), i * 16));
-  for (auto& v : frameBuffer) v = static_cast<uint8_t>(QRandomGenerator::global()->bounded(255));
+}
+
+void ScreenWidget::setFrameBuffer(const uint8_t* buf, int resx, int resy) {
+  if (frameBuffer != buf) {
+    frameBuffer = buf;
+    resolutionX = resx;
+    resolutionY = resy;
+    update();
+  }
 }
 
 void ScreenWidget::paintEvent(QPaintEvent*) {
+  if (!frameBuffer) return;
+
   QPainter painter(this);
   painter.setPen(Qt::gray);
   painter.setBrush(QBrush(Qt::black));
-  // painter.drawRect(0, 0, 127, 127);
 
-  QImage image(frameBuffer, FrameResolution.width(), FrameResolution.height(), QImage::Format_Indexed8);
+  QImage image(frameBuffer, resolutionX, resolutionY, QImage::Format_Indexed8);
   image.setColorTable(colorTable);
 
   painter.drawImage(rect(), image);

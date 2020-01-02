@@ -58,7 +58,7 @@
          <number>65000</number>
         </property>
         <property name="value">
-         <number>512</number>
+         <number>0</number>
         </property>
         <property name="displayIntegerBase">
          <number>16</number>

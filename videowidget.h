@@ -12,8 +12,15 @@ class VideoWidget : public QDockWidget
   Q_OBJECT
 
 public:
-  explicit VideoWidget(QWidget* parent, const Memory&);
+  static constexpr auto ResolutionX = 32;
+  static constexpr auto ResolutionY = 32;
+
+  explicit VideoWidget(QWidget* parent, const Memory& memory);
   ~VideoWidget();
+
+public slots:
+  void setFrameBufferAddress(Address addr);
+  void refresh();
 
 private:
   Ui::VideoWidget *ui;
