@@ -1,5 +1,6 @@
 #pragma once
 
+#include "addressrange.h"
 #include "memory.h"
 #include <QDockWidget>
 
@@ -20,12 +21,13 @@ public:
 
 public slots:
   void setFrameBufferAddress(Address addr);
-  void refresh();
+  void updateOnChange(AddressRange range);
+  void updateView();
 
 private:
   Ui::VideoWidget *ui;
   const Memory& memory;
-  Address address;
+  AddressRange addressRange;
 
   void fillWithNoise();
 };

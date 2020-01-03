@@ -41,7 +41,7 @@ CpuWidget::~CpuWidget() {
   delete ui;
 }
 
-void CpuWidget::updateMemory(AddressRange range) {
+void CpuWidget::updateOnChange(AddressRange range) {
   disassemblerView->updateMemoryView(range);
   updateSpecialCpuAddresses();
 }

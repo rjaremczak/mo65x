@@ -22,4 +22,6 @@ private:
   int resolutionX;
   int resolutionY;
   const uint8_t* frameBuffer = nullptr;
+
+  void setColorTableToC64Palette();
 };

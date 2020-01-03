@@ -53,10 +53,11 @@ private:
   uint16_t lastLocationCounter;
   SymbolTable symbolTable;
 
-  OperandValue resolveOperandValue(const QString&) const;
-  int8_t operandAsBranchDisplacement() const;
   QString operation() const;
   QString operand() const;
+  OperandValue operandValue(const QString&) const;
+  OperandValue operandValue() const;
+  int8_t operandAsBranchDisplacement() const;
 
   void handleNoOperation();
   void handleSetLocationCounter();

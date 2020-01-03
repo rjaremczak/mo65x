@@ -14,8 +14,13 @@ VideoWidget::~VideoWidget() {
 
 void VideoWidget::setFrameBufferAddress(Address addr) {
   ui->address->setValue(addr);
+  addressRange = AddressRange(addr, ResolutionX * ResolutionY - 1);
 }
 
-void VideoWidget::refresh() {
+void VideoWidget::updateOnChange(AddressRange range) {
+  if (addressRange.overlapsWith(range)) updateView();
+}
+
+void VideoWidget::updateView() {
   ui->screen->update();
 }

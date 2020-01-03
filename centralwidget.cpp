@@ -14,6 +14,10 @@ CentralWidget::CentralWidget(QWidget* parent, QWidget* assembler, QWidget* memor
   ui->assemblerViewButton->click();
 }
 
+bool CentralWidget::isVisible(const QWidget* w) const {
+  return ui->stackedWidget->currentWidget() == w;
+}
+
 CentralWidget::~CentralWidget() {
   delete ui;
 }

@@ -1,5 +1,4 @@
-#ifndef CENTRALWIDGET_H
-#define CENTRALWIDGET_H
+#pragma once
 
 #include <QWidget>
 
@@ -13,6 +12,7 @@ class CentralWidget : public QWidget
 
 public:
   explicit CentralWidget(QWidget* parent, QWidget* assemblerWidget, QWidget* memoryWidget, QWidget* disassemblerWidget);
+  bool isVisible(const QWidget*) const;
   ~CentralWidget();
 
 private:
@@ -21,5 +21,3 @@ private:
   QWidget* const memoryWidget;
   QWidget* const disassemblerWidget;
 };
-
-#endif // CENTRALWIDGET_H

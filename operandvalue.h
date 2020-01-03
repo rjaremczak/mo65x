@@ -8,4 +8,6 @@ struct OperandValue {
 
   bool isLiteral() const { return type == Literal; }
   bool isIdentifier() const { return type == Identifier; }
+
+  operator int() const { return value; }
 };

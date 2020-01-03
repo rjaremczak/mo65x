@@ -43,9 +43,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(emulator, &Emulator::stateChanged, cpuWidget, &CpuWidget::updateState);
   connect(emulator, &Emulator::stateChanged, disassemblerWidget, &DisassemblerWidget::updateState);
-  connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateMemory);
-  connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateMemory);
-  connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateMemory);
+  connect(emulator, &Emulator::memoryContentChanged, cpuWidget, &CpuWidget::updateOnChange);
+  connect(emulator, &Emulator::memoryContentChanged, memoryWidget, &MemoryWidget::updateOnChange);
+  connect(emulator, &Emulator::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateOnChange);
+  connect(emulator, &Emulator::memoryContentChanged, videoWidget, &VideoWidget::updateOnChange);
   connect(emulator, &Emulator::operationCompleted, this, &MainWindow::showMessage);
 
   connect(assemblerWidget, &AssemblerWidget::newFileCreated, [&] { changeAsmFileName(""); });
@@ -61,10 +62,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(disassemblerWidget, &DisassemblerWidget::goToStartClicked, emulator, &Emulator::changeProgramCounter);
 
   if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
-  propagateState(emulator->state());
-
   videoWidget->setFrameBufferAddress(0x200);
-  videoWidget->refresh();
+  propagateState(emulator->state());
 }
 
 MainWindow::~MainWindow() {
@@ -113,18 +112,25 @@ void MainWindow::startEmulator() {
 }
 
 void MainWindow::propagateState(EmulatorState es) {
+
+  if (viewWidget->isVisible(memoryWidget)) {
+    const QSignalBlocker memoryBlocker(this->memoryWidget);
+    memoryWidget->updateOnChange(AddressRange::Max);
+  }
+
+  if (viewWidget->isVisible(disassemblerWidget)) {
+    const QSignalBlocker disassemblerBlocker(this->disassemblerWidget);
+    disassemblerWidget->updateState(es);
+    disassemblerWidget->updateOnChange(AddressRange::Max);
+  }
+
   const QSignalBlocker cpuBlocker(this->cpuWidget);
   cpuWidget->updateState(es);
 
-  const QSignalBlocker memoryBlocker(this->memoryWidget);
-  memoryWidget->updateMemory(AddressRange::Max);
-
-  const QSignalBlocker disassemblerBlocker(this->disassemblerWidget);
-  disassemblerWidget->updateState(es);
-  disassemblerWidget->updateMemory(AddressRange::Max);
+  const QSignalBlocker videoBlocker(this->videoWidget);
+  videoWidget->updateView();
 }
 
 void MainWindow::polling() {
   if (const auto es = emulator->state(); es.running()) propagateState(es);
-  videoWidget->refresh();
 }

@@ -176,7 +176,7 @@ static int applyLoHiPrefix(QChar prefix, int num) {
   return num & 0xff;
 }
 
-OperandValue Assembler::resolveOperandValue(const QString& ostr) const {
+OperandValue Assembler::operandValue(const QString& ostr) const {
   QChar prefix;
   const QString str = removeLoHiPrefix(prefix, ostr);
   if (isNumber(str)) return {OperandValue::Literal, applyLoHiPrefix(prefix, parseNumber(str))};
@@ -185,25 +185,28 @@ OperandValue Assembler::resolveOperandValue(const QString& ostr) const {
   return {OperandValue::UndefinedIdentifier};
 }
 
-int8_t Assembler::operandAsBranchDisplacement() const {
-  const auto op = resolveOperandValue(operand());
-  if (mode == Assembler::ProcessingMode::ScanForSymbols) return 0;
-  return safeCast<int8_t>(op.isLiteral() ? op.value : op.value - locationCounter - 2);
+OperandValue Assembler::operandValue() const {
+  return operandValue(operand());
 }
 
+int8_t Assembler::operandAsBranchDisplacement() const {
+  const auto op = operandValue();
+  if (mode == Assembler::ProcessingMode::ScanForSymbols) return 0;
+  return safeCast<int8_t>(op.isLiteral() ? op : op - locationCounter - 2);
+}
 void Assembler::handleNoOperation() {
 }
 
 void Assembler::handleSetLocationCounter() {
-  locationCounter = safeCast<uint16_t>(resolveOperandValue(operand()).value);
+  locationCounter = safeCast<uint16_t>(operandValue());
 }
 
 void Assembler::handleEmitBytes() {
-  for (const auto& op : split(operand())) emitByte(safeCast<uint8_t>(resolveOperandValue(op).value));
+  for (const auto& op : split(operand())) emitByte(safeCast<uint8_t>(operandValue(op)));
 }
 
 void Assembler::handleEmitWords() {
-  for (const auto& op : split(operand())) emitWord(safeCast<uint16_t>(resolveOperandValue(op).value));
+  for (const auto& op : split(operand())) emitWord(safeCast<uint16_t>(operandValue(op)));
 }
 
 void Assembler::handleImpliedOrAccumulator() {
@@ -211,31 +214,31 @@ void Assembler::handleImpliedOrAccumulator() {
 }
 
 void Assembler::handleImmediate() {
-  assemble(OperandsFormat::Immediate, resolveOperandValue(operand()));
+  assemble(OperandsFormat::Immediate, operandValue());
 }
 
 void Assembler::handleAbsolute() {
-  assemble(OperandsFormat::Absolute, resolveOperandValue(operand()));
+  assemble(OperandsFormat::Absolute, operandValue());
 }
 
 void Assembler::handleAbsoluteIndexedX() {
-  assemble(OperandsFormat::AbsoluteX, resolveOperandValue(operand()));
+  assemble(OperandsFormat::AbsoluteX, operandValue());
 }
 
 void Assembler::handleAbsoluteIndexedY() {
-  assemble(OperandsFormat::AbsoluteY, resolveOperandValue(operand()));
+  assemble(OperandsFormat::AbsoluteY, operandValue());
 }
 
 void Assembler::handleIndirect() {
-  assemble(OperandsFormat::Indirect, resolveOperandValue(operand()));
+  assemble(OperandsFormat::Indirect, operandValue());
 }
 
 void Assembler::handleIndexedIndirectX() {
-  assemble(OperandsFormat::IndexedIndirectX, resolveOperandValue(operand()));
+  assemble(OperandsFormat::IndexedIndirectX, operandValue());
 }
 
 void Assembler::handleIndirectIndexedY() {
-  assemble(OperandsFormat::IndirectIndexedY, resolveOperandValue(operand()));
+  assemble(OperandsFormat::IndirectIndexedY, operandValue());
 }
 
 void Assembler::handleBranch() {
@@ -243,13 +246,12 @@ void Assembler::handleBranch() {
 }
 
 void Assembler::assemble(OperandsFormat mode, OperandValue operand) {
-  const auto instruction =
-      resolveInstruction(operation(), mode, operand.isLiteral() && operand.value >= 0 && operand.value <= 255);
+  const auto instruction = resolveInstruction(operation(), mode, operand.isLiteral() && operand >= 0 && operand <= 255);
   emitByte(static_cast<uint8_t>(std::distance(InstructionTable.begin(), instruction)));
   if (instruction->size == 2)
-    emitByte(static_cast<uint8_t>(operand.value));
+    emitByte(static_cast<uint8_t>(operand));
   else if (instruction->size == 3)
-    emitWord(static_cast<uint16_t>(operand.value));
+    emitWord(static_cast<uint16_t>(operand));
 }
 
 void Assembler::defineSymbol(const QString& name, uint16_t value) {

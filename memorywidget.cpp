@@ -24,7 +24,7 @@ MemoryWidget::~MemoryWidget() {
   delete ui;
 }
 
-void MemoryWidget::updateMemory(AddressRange range) {
+void MemoryWidget::updateOnChange(AddressRange range) {
   if (addressRange.overlapsWith(range)) updateView();
 }
 
