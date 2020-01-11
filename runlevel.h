@@ -1,5 +1,7 @@
 #pragma once
 
-enum class CpuRunLevel { Normal = 0, PendingIrq, PendingNmi, PendingReset };
+#include <cstdint>
+
+enum class CpuRunLevel : uint8_t { Normal = 0, PendingIrq, PendingNmi, PendingReset };
 
 const char* formatRunLevel(CpuRunLevel runLevel);
