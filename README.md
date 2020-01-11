@@ -1,17 +1,9 @@
 # mo65x
-stands for My Own 65 eXpandable emulator. The project has educational motivation and is a genuine project based on technical specifications of 6502/6510 family microprocessors. Here is the screenshot of assembler mode view:
+stands for My Own 65 eXpandable emulator. The project has educational motivation and is a genuine project based on technical specifications of 6502/6510 family microprocessors. See the screenshot of assembler mode running slightly modified program "demoscene.asm" from http://www.6502asm.com
 
-![Alt text](images/rysunek-1.png?raw=true "Assembler mode view")
+![Alt text](http://mindpart.com/wp-content/uploads/2020/01/mo65x-demoscene.png "Assembler mode view")
 
-and memory dump view:
-
-![Alt text](images/rysunek-2.png?raw=true "Memory dump view")
-
-and disassembler mode view:
-
-![Alt text](images/rysunek-3.png?raw=true "Disassembler mode view")
-
-video-ram mode on the way...
+since version 0.94 there is a video-ram mode that is compatible with that from 6502asm.com. It's a simple frame buffer mapping 32 x 32 x 8bit image with indexed color mode. Only bits 0-3 are used and maps to Commodore C64 color palette. Initially frame buffer starts at address 0x200 but can be changed live.
 
 ## Installation
 As project uses Qt 5.x.x library it should be fully portable wherever that library and valid c++17 compilers run. So far it's been tested on Ubuntu 19.x and macOS Catalina 10.15.x. Windows tests are planned soon ...
@@ -29,17 +21,19 @@ Now using regular configuration you should be able to build/run/debug the projec
 
 ## Assembler
 Integrated assembler supports subset of common control structures of pupular 65xx assemblers. For now it has following limitiations:
-* labels can only be used as argument in branch instruction
 * there is no way to define symbol directly (eg. no .EQ nor "=" statement)
 * control codes require leading dot (eg. .ORG)
 
-more features will be added gradually.
+in order to make it compatible with code from 6502asm.com the "<" and ">" operators have been added. When placed in front of literal extracts low (<) or high (>) byte of it respectively. Therefore construct like this:
 
-## Visual view
-There is no video-ram functionality at the moment. This is the first item on the wish-list, though.
+label_001:
+  LDX #<label_001 ; reg. X loaded with LSB of label's address
+  LDY #>label_001 ; reg. Y loaded with MSB of label's address
+  
+is a valid statement now.
 
 ## Speed
-For now emulator runs as fast as it can. Taking care of proper timing is being developed, to be delivered soon.
+Proper speed throttling has been implemented, clock speed can be specified with 0.01 MHz precision. Actual speed may vary a bit because of various delays but is fairly accurate.
 
 ## Example files
 Test files will can be found in /asm directory within the project tree. 
