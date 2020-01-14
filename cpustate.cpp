@@ -7,7 +7,6 @@ const char* formatCpuState(CpuState state) {
   case CpuState::Halted: return "halted";
   case CpuState::Running: return "running";
   case CpuState::Stopping: return "stopping";
-  case CpuState::Halting: return "halting";
   }
   return nullptr;
 }

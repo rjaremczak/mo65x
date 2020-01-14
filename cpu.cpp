@@ -422,7 +422,6 @@ void Cpu::execute(bool continuous, Duration period) {
   switch (state) {
   case CpuState::Running: state = CpuState::Idle; break;
   case CpuState::Stopping: state = CpuState::Stopped; break;
-  case CpuState::Halting: state = CpuState::Halted; break;
   default: break;
   }
 }

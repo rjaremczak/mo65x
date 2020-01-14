@@ -91,7 +91,7 @@ void CpuWidget::updateSpecialCpuAddresses() {
 }
 
 void CpuWidget::updateUI(CpuState state) {
-  const auto processing = state == CpuState::Running || state == CpuState::Halting || state == CpuState::Stopping;
+  const auto processing = state == CpuState::Running || state == CpuState::Stopping;
   ui->cpuFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->continuousExecution->setDisabled(processing);

@@ -1,5 +1,5 @@
-#include "config.h"
 #include "commondefs.h"
+#include "config.h"
 #include "emulatorstate.h"
 #include "filedatastorage.h"
 #include "mainwindow.h"
