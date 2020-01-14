@@ -18,16 +18,11 @@ public:
   auto cbegin() const { return std::cbegin(data); }
   auto cend() const { return std::cend(data); }
 
-  uint16_t word(uint16_t addr) const { return static_cast<Address>(data[addr] | data[addr + 1] << 8); }
+  uint16_t word(Address addr) const { return static_cast<uint16_t>(data[addr] | data[addr + 1] << 8); }
 
-  void setWord(uint16_t addr, Address val) {
+  void setWord(Address addr, uint16_t val) {
     data[addr] = static_cast<uint8_t>(val);
     data[addr + 1] = val >> 8;
-  }
-
-  template <typename Container>
-  void writeData(uint16_t addr, const Container container) {
-    for (const auto& b : container) { data[addr++] = b; }
   }
 
 private:
