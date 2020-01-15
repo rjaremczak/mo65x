@@ -7,6 +7,7 @@
 static constexpr auto LabelGroup = 1;
 static constexpr auto OperationGroup = 2;
 static constexpr auto FirstOperandGroup = 3;
+
 static constexpr QChar LoBytePrefix('<');
 static constexpr QChar HiBytePrefix('>');
 static constexpr QChar HexPrefix('$');
