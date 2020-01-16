@@ -15,7 +15,7 @@ QString Disassembler::formatOperand16() const {
   return "$" + formatHexWord(memory.word(address + 1));
 }
 
-Disassembler::Disassembler(const Memory& memory, uint16_t pc) : memory(memory) {
+Disassembler::Disassembler(const Memory& memory, Address pc) : memory(memory) {
   setOrigin(pc);
 }
 

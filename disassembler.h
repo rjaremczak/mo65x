@@ -6,10 +6,10 @@
 
 class Disassembler {
 public:
-  Disassembler(const Memory&, uint16_t addr = 0);
+  Disassembler(const Memory&, Address addr = 0);
 
   void setOrigin(Address);
-  uint16_t currentAddress() const { return address; }
+  Address currentAddress() const { return address; }
   void nextInstruction();
 
   QString dumpBytes(uint16_t n = 1) const;
