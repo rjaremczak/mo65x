@@ -109,15 +109,10 @@ RESOURCES += resources.qrc
 # !isEmpty(target.path): INSTALLS += target
 
 test {
-  #message(test build)
-
   TARGET = $${TARGET}_tests
 
   SOURCES -= main.cpp
   SOURCES += test/main.cpp
-
-} else {
-  #message(normal build)
 }
 
 message($${TARGET})
