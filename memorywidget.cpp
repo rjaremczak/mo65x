@@ -11,6 +11,7 @@ MemoryWidget::MemoryWidget(QWidget* parent, const Memory& memory) : QWidget(pare
   connect(ui->loadFromFile, &QAbstractButton::clicked, this, &MemoryWidget::loadFromFile);
   connect(ui->saveToFile, &QAbstractButton::clicked, this, &MemoryWidget::saveToFile);
   connect(ui->startAddress, QOverload<int>::of(&QSpinBox::valueChanged), this, &MemoryWidget::changeStartAddress);
+  connect(ui->endAddress, QOverload<int>::of(&QSpinBox::valueChanged), this, &MemoryWidget::changeEndAddress);
   setMonospaceFont(ui->textView);
   setMonospaceFont(ui->startAddress);
   setMonospaceFont(ui->endAddress);
@@ -47,7 +48,7 @@ void MemoryWidget::updateView() {
   html.append("</div>");
   ui->textView->setHtml(html);
   addressRange.last = addr - 1;
-  ui->endAddress->setValue(addressRange.last);
+  changeEndAddress(addressRange.last);
 }
 
 int MemoryWidget::rowsInView() const {
@@ -76,4 +77,9 @@ void MemoryWidget::changeStartAddress(Address addr) {
     addressRange.first = addr;
     updateView();
   }
+  ui->endAddress->setMinimum(addressRange.first);
+}
+
+void MemoryWidget::changeEndAddress(Address addr) {
+  ui->endAddress->setValue(std::max(addressRange.first, addr));
 }

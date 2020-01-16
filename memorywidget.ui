@@ -71,10 +71,10 @@
         <string notr="true">background-color:darkslategray</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="maximum">
         <number>65535</number>
