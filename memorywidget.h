@@ -43,7 +43,6 @@ private slots:
   void loadFromFile();
   void saveToFile();
   void changeStartAddress(Address);
-  void changeEndAddress(Address);
 };
 
 #endif // MEMORYWIDGET_H
