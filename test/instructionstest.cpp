@@ -41,12 +41,12 @@
   QCOMPARE(cpu.cycles, numCycles)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
-  const auto base = assembler.locationCounter;                                                                                   \
+  const auto base = assembler.m_locationCounter;                                                                                 \
   QCOMPARE(cpu.regs.pc, base + static_cast<int8_t>(*cpu.operandPtr.lo));                                                         \
   QCOMPARE(cpu.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
-  QCOMPARE(cpu.regs.pc, assembler.locationCounter);                                                                              \
+  QCOMPARE(cpu.regs.pc, assembler.m_locationCounter);                                                                            \
   QCOMPARE(cpu.cycles, 2U)
 
 static constexpr auto AsmOrigin = 0x800;
@@ -656,7 +656,7 @@ void InstructionsTest::testBMI_taken() {
   // increase PC and LC to avoid page crossing
 
   cpu.regs.pc += 10;
-  assembler.locationCounter += 10;
+  assembler.m_locationCounter += 10;
   TEST_INST("BMI -3", 3);
   TEST_BRANCH_TAKEN();
 }
@@ -704,7 +704,7 @@ void InstructionsTest::testBVS_notTaken() {
 }
 
 void InstructionsTest::testJMP_absolute() {
-  assembler.symbolTable.put("c", 0x4af0);
+  assembler.m_symbols.put("c", 0x4af0);
   TEST_INST("  jmp c", 3);
   QCOMPARE(cpu.regs.pc, 0x4af0);
 }

@@ -12,6 +12,7 @@
 #include <iterator>
 #include <map>
 #include <optional>
+#include <regex>
 #include <vector>
 
 class Assembler
@@ -21,12 +22,12 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
-  const auto& symbols() const { return symbolTable; }
+  const auto& symbols() const { return m_symbols; }
 
   Assembler(Memory&);
   void init(Address addr = DefaultOrigin);
   void initPreserveSymbols(Address = DefaultOrigin);
-  void changeMode(ProcessingMode mode);
+  void changeMode(ProcessingMode m_mode);
   AssemblyResult processLine(const QString&);
   AddressRange affectedAddressRange() const;
   int bytesWritten() const;
@@ -37,24 +38,23 @@ private:
 
   struct PatternEntry {
     using Handler = void (Assembler::*)();
-    const QRegularExpression regex;
+    const std::regex regex;
     const Handler handler;
 
     PatternEntry(const QString& pattern, const Handler handler);
   };
   static const PatternEntry Patterns[];
 
-  Memory& memory;
-  AddressRange addressRange;
-  ProcessingMode mode;
-  int written;
-  QRegularExpressionMatch match;
-  uint16_t locationCounter;
-  uint16_t lastLocationCounter;
-  SymbolTable symbolTable;
+  Memory& m_memory;
+  AddressRange m_addressRange;
+  ProcessingMode m_mode;
+  int m_written;
+  uint16_t m_locationCounter;
+  uint16_t m_lastLocationCounter;
+  SymbolTable m_symbols;
+  QString m_operation;
+  QString m_operand;
 
-  QString operation() const;
-  QString operand() const;
   OperandValue operandValue(const QString&) const;
   OperandValue operandValue() const;
   int8_t operandAsBranchDisplacement() const;
@@ -72,8 +72,8 @@ private:
   void handleIndexedIndirectX();
   void handleIndirectIndexedY();
   void handleBranch();
-  void assemble(OperandsFormat mode, OperandValue = OperandValue());
-  void defineSymbol(const QString&, uint16_t);
+  void assemble(OperandsFormat m_mode, OperandValue = OperandValue());
+  void defineSymbol(QString, uint16_t);
   void emitByte(uint8_t);
   void emitWord(uint16_t);
   void updateAddressRange(uint16_t);
