@@ -1,12 +1,14 @@
 #include "symboltable.h"
 
-bool SymbolTable::put(const QString& name, uint16_t value) {
-  if (find(name) != end()) return false;
-  operator[](name) = value;
+bool SymbolTable::put(const std::string_view& name, uint16_t value) {
+  if (get(name)) return false;
+  operator[](std::string(name)) = value;
   return true;
 }
 
-std::optional<int> SymbolTable::get(const QString& name) const {
-  if (const auto it = find(name); it != end()) return it->second;
+std::optional<int> SymbolTable::get(const std::string_view& name) const {
+  for (const auto& entry : *this) {
+    if (entry.first == name) return entry.second;
+  }
   return std::nullopt;
 }

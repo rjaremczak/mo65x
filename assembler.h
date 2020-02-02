@@ -7,7 +7,6 @@
 #include "memory.h"
 #include "operandvalue.h"
 #include "symboltable.h"
-#include <QRegularExpression>
 #include <QString>
 #include <iterator>
 #include <map>
@@ -49,13 +48,13 @@ private:
   AddressRange m_addressRange;
   ProcessingMode m_mode;
   int m_written;
-  uint16_t m_locationCounter;
-  uint16_t m_lastLocationCounter;
+  Address m_locationCounter;
+  Address m_lastLocationCounter;
   SymbolTable m_symbols;
-  QString m_operation;
-  QString m_operand;
+  std::string m_operation;
+  std::string m_operand;
 
-  OperandValue operandValue(const QString&) const;
+  OperandValue operandValue(const std::string&) const;
   OperandValue operandValue() const;
   int8_t operandAsBranchDisplacement() const;
 
@@ -73,7 +72,7 @@ private:
   void handleIndirectIndexedY();
   void handleBranch();
   void assemble(OperandsFormat m_mode, OperandValue = OperandValue());
-  void defineSymbol(QString, uint16_t);
+  void defineSymbol(const std::string_view, uint16_t);
   void emitByte(uint8_t);
   void emitWord(uint16_t);
   void updateAddressRange(uint16_t);

@@ -1,17 +1,15 @@
 #include "assembler.h"
 #include "instructiontable.h"
 #include "mnemonics.h"
-#include <QRegularExpression>
-#include <algorithm>
 
 static constexpr auto LabelGroup = 1;
 static constexpr auto OperationGroup = 2;
 static constexpr auto FirstOperandGroup = 3;
+static constexpr auto HexPrefix = '$';
+static constexpr auto BinPrefix = '%';
 
 static constexpr QChar LoBytePrefix('<');
 static constexpr QChar HiBytePrefix('>');
-static constexpr QChar HexPrefix('$');
-static constexpr QChar BinPrefix('%');
 
 static const QString Symbol("[a-z]\\w*");
 static const QString Label("^(?:(" + Symbol + "):)?\\s*");
@@ -32,9 +30,7 @@ static const QString BranchMnemonic("(BCC|BCS|BNE|BEQ|BMI|BPL|BVC|BVS)\\s*");
 static const QString BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
 
 Assembler::PatternEntry::PatternEntry(const QString& pattern, const Handler handler)
-    : regex(QString(Label + pattern + Comment).toStdString(), std::regex_constants::icase),
-      // regex(Label + pattern + Comment, QRegularExpression::CaseInsensitiveOption),
-      handler(handler) {
+    : regex(QString(Label + pattern + Comment).toStdString(), std::regex_constants::icase), handler(handler) {
 }
 
 const Assembler::PatternEntry Assembler::Patterns[]{{"", &Assembler::handleNoOperation},
@@ -51,9 +47,9 @@ const Assembler::PatternEntry Assembler::Patterns[]{{"", &Assembler::handleNoOpe
                                                     {Mnemonic + "\\(" + Operand + ",x\\)", &Assembler::handleIndexedIndirectX},
                                                     {Mnemonic + "\\(" + Operand + "\\),y", &Assembler::handleIndirectIndexedY}};
 
-static const QRegularExpression OperandItemRegEx(Operand + OperandSeparator, QRegularExpression::CaseInsensitiveOption);
+static const std::regex OperandItemRegEx((Operand + OperandSeparator).toStdString(), std::regex_constants::icase);
 
-static InstructionType resolveInstructionType(QString str) {
+static InstructionType resolveInstructionType(const std::string_view str) {
   const auto it = std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return str == kv.second; });
   if (it == MnemonicTable.end()) throw AssemblyResult::InvalidMnemonic;
   return it->first;
@@ -71,8 +67,10 @@ static OperandsFormat adjustAddressingMode(InstructionType type, OperandsFormat 
   return mode;
 }
 
-static const Instruction* resolveInstruction(QString str, OperandsFormat mode, bool zp) {
-  const auto type = resolveInstructionType(str.toUpper());
+static const Instruction* resolveInstruction(const std::string_view str, OperandsFormat mode, bool zp) {
+  std::string sup(str);
+  std::transform(sup.begin(), sup.end(), sup.begin(), toupper);
+  const auto type = resolveInstructionType(sup);
   const auto adjustedMode = adjustAddressingMode(type, mode, zp);
   const auto it = std::find_if(InstructionTable.begin(), InstructionTable.end(),
                                [=](const Instruction& ins) { return ins.type == type && ins.mode == adjustedMode; });
@@ -87,26 +85,27 @@ T safeCast(int n) {
   throw AssemblyResult::ValueOutOfRange;
 }
 
-static bool isNumber(const QString& str) {
+static bool isNumber(const std::string_view& str) {
   const auto front = str.front();
-  return front == HexPrefix || front == BinPrefix || front.isDigit() || front == '+' || front == '-';
+  return front == HexPrefix || front == BinPrefix || isdigit(front) || front == '+' || front == '-';
 }
 
-static int parseNumber(const QString& str) {
-  const auto op = str;
-  const auto front = op.front();
-  if (front == HexPrefix) return op.right(op.length() - 1).toInt(nullptr, 16);
-  if (front == BinPrefix) return op.right(op.length() - 1).toInt(nullptr, 2);
-  return op.toInt(nullptr, 10);
+static int parseNumber(const std::string_view& str) {
+  switch (str.front()) {
+  case HexPrefix: return strtol(str.begin() + 1, nullptr, 16);
+  case BinPrefix: return strtol(str.begin() + 1, nullptr, 2);
+  default: return strtol(str.begin(), nullptr, 10);
+  }
 }
 
-static std::vector<QString> split(const QString& str) {
-  std::vector<QString> items;
-  int offset = 0;
-  QRegularExpressionMatch m;
-  while ((m = OperandItemRegEx.match(str, offset)).hasMatch()) {
-    offset = m.capturedEnd();
-    items.push_back(m.captured(1));
+static std::vector<std::string> split(const std::string_view str) {
+  std::vector<std::string> items;
+  std::cmatch match;
+  auto begin = str.cbegin();
+  const auto end = str.cend();
+  while (std::regex_search(begin, end, match, OperandItemRegEx)) {
+    begin += match.length();
+    items.emplace_back(match.str(1));
   }
   return items;
 }
@@ -138,10 +137,10 @@ AssemblyResult Assembler::processLine(const QString& str) {
   for (const auto& entry : Patterns) {
     const auto s = str.toStdString();
     if (std::regex_match(s, match, entry.regex)) {
-      m_operation = QString::fromStdString(match.str(OperationGroup));
-      m_operand = QString::fromStdString(match.str(FirstOperandGroup));
+      m_operation = match.str(OperationGroup);
+      m_operand = match.str(FirstOperandGroup);
       try {
-        if (auto label = match.str(LabelGroup); !label.empty()) defineSymbol(QString::fromStdString(label), m_locationCounter);
+        if (auto label = match.str(LabelGroup); !label.empty()) defineSymbol(label, m_locationCounter);
         (this->*entry.handler)();
         return AssemblyResult::Ok;
       } catch (AssemblyResult result) { return result; }
@@ -158,13 +157,13 @@ int Assembler::bytesWritten() const {
   return m_written;
 }
 
-static QString removeLoHiPrefix(QChar& prefix, const QString& str) {
+static std::string_view removeLoHiPrefix(char& prefix, const std::string& str) {
   const auto f = str.front();
   if (f == LoBytePrefix || f == HiBytePrefix) {
     prefix = f;
-    return str.right(str.length() - 1);
+    return std::string_view(str).substr(1, str.length() - 1);
   }
-  prefix = QChar::Null;
+  prefix = 0;
   return str;
 }
 
@@ -174,9 +173,9 @@ static int applyLoHiPrefix(QChar prefix, int num) {
   return num & 0xff;
 }
 
-OperandValue Assembler::operandValue(const QString& ostr) const {
-  QChar prefix;
-  const QString str = removeLoHiPrefix(prefix, ostr);
+OperandValue Assembler::operandValue(const std::string& ostr) const {
+  char prefix;
+  const auto str = removeLoHiPrefix(prefix, ostr);
   if (isNumber(str)) return {OperandValue::Literal, applyLoHiPrefix(prefix, parseNumber(str))};
   if (const auto& opt = m_symbols.get(str)) return {OperandValue::Identifier, applyLoHiPrefix(prefix, *opt)};
   if (m_mode == Assembler::ProcessingMode::EmitCode) throw AssemblyResult::SymbolNotDefined;
@@ -196,7 +195,7 @@ void Assembler::handleNoOperation() {
 }
 
 void Assembler::handleSetLocationCounter() {
-  m_locationCounter = safeCast<uint16_t>(operandValue());
+  m_locationCounter = safeCast<Address>(operandValue());
 }
 
 void Assembler::handleEmitBytes() {
@@ -254,7 +253,7 @@ void Assembler::assemble(OperandsFormat mode, OperandValue operand) {
     emitWord(static_cast<uint16_t>(operand));
 }
 
-void Assembler::defineSymbol(QString name, uint16_t value) {
+void Assembler::defineSymbol(const std::string_view name, uint16_t value) {
   if (m_mode == ProcessingMode::ScanForSymbols) {
     if (!m_symbols.put(name, value)) throw AssemblyResult::SymbolAlreadyDefined;
   }
