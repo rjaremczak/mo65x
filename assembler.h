@@ -7,7 +7,6 @@
 #include "memory.h"
 #include "operandvalue.h"
 #include "symboltable.h"
-#include <QString>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -27,7 +26,7 @@ public:
   void init(Address addr = DefaultOrigin);
   void initPreserveSymbols(Address = DefaultOrigin);
   void changeMode(ProcessingMode m_mode);
-  AssemblyResult processLine(const QString&);
+  AssemblyResult processLine(const std::string_view);
   AddressRange affectedAddressRange() const;
   int bytesWritten() const;
 
@@ -40,7 +39,7 @@ private:
     const std::regex regex;
     const Handler handler;
 
-    PatternEntry(const QString& pattern, const Handler handler);
+    PatternEntry(const std::string& pattern, const Handler handler);
   };
   static const PatternEntry Patterns[];
 

@@ -7,7 +7,6 @@
 #include "operandptr.h"
 #include "registers.h"
 #include "runlevel.h"
-#include <atomic>
 #include <chrono>
 #include <commondefs.h>
 #include <map>

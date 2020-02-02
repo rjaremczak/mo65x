@@ -1,7 +1,6 @@
 #pragma once
 
 #include "instructiontype.h"
-#include <QString>
 #include <algorithm>
 #include <map>
 

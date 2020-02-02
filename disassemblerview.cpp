@@ -52,7 +52,7 @@ void DisassemblerView::updateView() {
     auto hl = shouldHighlightCurrentAddress();
     html.append(hl ? "<div style='color:black; background-color: lightgreen'>" : "<div style='color:darkseagreen'>");
     html.append(hl ? "<span style='color:black'>" : "<span style='color:gray'>");
-    html.append(formatHexWord(disassembler.currentAddress()).toUpper());
+    html.append(formatHexWord(disassembler.address()).toUpper());
     html.append("</span> ");
     html.append(disassembler.disassemble());
     html.append("</div>");
@@ -60,13 +60,13 @@ void DisassemblerView::updateView() {
   }
   html.append("</div>");
   ui->view->setHtml(html);
-  addressRange.last = disassembler.currentAddress();
+  addressRange.last = disassembler.address();
 }
 
 void DisassemblerView::nextInstruction() {
   disassembler.setOrigin(addressRange.first);
   disassembler.nextInstruction();
-  changeStart(disassembler.currentAddress());
+  changeStart(disassembler.address());
 }
 
 void DisassemblerView::resizeEvent(QResizeEvent* event) {
@@ -80,7 +80,7 @@ int DisassemblerView::rowsInView() const {
 bool DisassemblerView::shouldHighlightCurrentAddress() const {
   if (highlightMode == HighlightMode::None) return false;
 
-  const auto addr = disassembler.currentAddress();
+  const auto addr = disassembler.address();
   return (highlightMode == HighlightMode::First && addr == addressRange.first) ||
          (highlightMode == HighlightMode::Selected && addr == selectedAddress);
 }

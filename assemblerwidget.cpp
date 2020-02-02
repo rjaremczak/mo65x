@@ -75,7 +75,7 @@ std::optional<QString> AssemblerWidget::process() {
   while (!is.atEnd()) {
     const auto line = is.readLine();
     if (line.isNull()) break;
-    if (auto result = assembler.processLine(line); result != AssemblyResult::Ok) {
+    if (auto result = assembler.processLine(line.toStdString()); result != AssemblyResult::Ok) {
       auto block = ui->sourceCode->document()->findBlockByLineNumber(lineNum);
       auto cursor = ui->sourceCode->textCursor();
       cursor.setPosition(block.position() + block.length() - 1, QTextCursor::MoveAnchor);

@@ -7,30 +7,29 @@ static constexpr auto OperationGroup = 2;
 static constexpr auto FirstOperandGroup = 3;
 static constexpr auto HexPrefix = '$';
 static constexpr auto BinPrefix = '%';
+static constexpr auto LoBytePrefix = '<';
+static constexpr auto HiBytePrefix = '>';
 
-static constexpr QChar LoBytePrefix('<');
-static constexpr QChar HiBytePrefix('>');
+static const std::string Symbol{"[a-z]\\w*"};
+static const std::string Label{"^(?:(" + Symbol + "):)?\\s*"};
+static const std::string Comment{"(?:;.*)?$"};
+static const std::string OrgCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
+static const std::string ByteCmd("(\\.BYTE|DCB)\\s+");
+static const std::string WordCmd("(\\.WORD)\\s+");
+static const std::string HexNum("\\$[\\d|a-h]{1,4}");
+static const std::string DecNum("\\d{1,5}");
+static const std::string BinNum("\\%[01]{1,16}");
+static const std::string Mnemonic("([a-z]{3})\\s*");
+static const std::string NumOrSymbol("(?:" + HexNum + ")|(?:" + DecNum + ")|(?:" + BinNum + ")|(?:" + Symbol + ")");
+static const std::string LoHiPrefix("[" + std::string(1, LoBytePrefix) + "|" + std::string(1, HiBytePrefix) + "]?");
+static const std::string Operand("(" + LoHiPrefix + "(?:" + NumOrSymbol + "))\\s*");
+static const std::string OperandSeparator("\\s*,?\\s*");
+static const std::string OperandList("((?:(?:" + LoHiPrefix + "(?:" + NumOrSymbol + "))" + OperandSeparator + ")+)\\s*");
+static const std::string BranchMnemonic("(BCC|BCS|BNE|BEQ|BMI|BPL|BVC|BVS)\\s*");
+static const std::string BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
 
-static const QString Symbol("[a-z]\\w*");
-static const QString Label("^(?:(" + Symbol + "):)?\\s*");
-static const QString Comment("(?:;.*)?$");
-static const QString OrgCmd("((?:\\.ORG\\s+)|(?:\\*\\s*\\=\\s*))");
-static const QString ByteCmd("(\\.BYTE|DCB)\\s+");
-static const QString WordCmd("(\\.WORD)\\s+");
-static const QString HexNum("\\$[\\d|a-h]{1,4}");
-static const QString DecNum("\\d{1,5}");
-static const QString BinNum("\\%[01]{1,16}");
-static const QString Mnemonic("([a-z]{3})\\s*");
-static const QString NumOrSymbol("(?:" + HexNum + ")|(?:" + DecNum + ")|(?:" + BinNum + ")|(?:" + Symbol + ")");
-static const QString LoHiPrefix("[" + QString(LoBytePrefix) + "|" + QString(HiBytePrefix) + "]?");
-static const QString Operand("(" + LoHiPrefix + "(?:" + NumOrSymbol + "))\\s*");
-static const QString OperandSeparator("\\s*,?\\s*");
-static const QString OperandList("((?:(?:" + LoHiPrefix + "(?:" + NumOrSymbol + "))" + OperandSeparator + ")+)\\s*");
-static const QString BranchMnemonic("(BCC|BCS|BNE|BEQ|BMI|BPL|BVC|BVS)\\s*");
-static const QString BranchTarget("((?:[+|-]?\\d{1,3})|(?:" + Symbol + "))\\s*");
-
-Assembler::PatternEntry::PatternEntry(const QString& pattern, const Handler handler)
-    : regex(QString(Label + pattern + Comment).toStdString(), std::regex_constants::icase), handler(handler) {
+Assembler::PatternEntry::PatternEntry(const std::string& pattern, const Handler handler)
+    : regex(Label + pattern + Comment, std::regex_constants::icase), handler(handler) {
 }
 
 const Assembler::PatternEntry Assembler::Patterns[]{{"", &Assembler::handleNoOperation},
@@ -47,7 +46,7 @@ const Assembler::PatternEntry Assembler::Patterns[]{{"", &Assembler::handleNoOpe
                                                     {Mnemonic + "\\(" + Operand + ",x\\)", &Assembler::handleIndexedIndirectX},
                                                     {Mnemonic + "\\(" + Operand + "\\),y", &Assembler::handleIndirectIndexedY}};
 
-static const std::regex OperandItemRegEx((Operand + OperandSeparator).toStdString(), std::regex_constants::icase);
+static const std::regex OperandItemRegEx(Operand + OperandSeparator, std::regex_constants::icase);
 
 static InstructionType resolveInstructionType(const std::string_view str) {
   const auto it = std::find_if(MnemonicTable.begin(), MnemonicTable.end(), [=](const auto& kv) { return str == kv.second; });
@@ -81,16 +80,15 @@ static const Instruction* resolveInstruction(const std::string_view str, Operand
 template <typename T>
 T safeCast(int n) {
   if (n >= std::numeric_limits<T>::min() && n <= std::numeric_limits<T>::max()) return static_cast<T>(n);
-  qDebug("value %d out of range", n);
   throw AssemblyResult::ValueOutOfRange;
 }
 
-static bool isNumber(const std::string_view& str) {
+static bool isNumber(const std::string_view str) {
   const auto front = str.front();
   return front == HexPrefix || front == BinPrefix || isdigit(front) || front == '+' || front == '-';
 }
 
-static int parseNumber(const std::string_view& str) {
+static int parseNumber(const std::string_view str) {
   switch (str.front()) {
   case HexPrefix: return strtol(str.begin() + 1, nullptr, 16);
   case BinPrefix: return strtol(str.begin() + 1, nullptr, 2);
@@ -131,12 +129,11 @@ void Assembler::changeMode(Assembler::ProcessingMode mode) {
   this->m_mode = mode;
 }
 
-AssemblyResult Assembler::processLine(const QString& str) {
+AssemblyResult Assembler::processLine(const std::string_view str) {
   m_lastLocationCounter = m_locationCounter;
-  std::smatch match;
+  std::cmatch match;
   for (const auto& entry : Patterns) {
-    const auto s = str.toStdString();
-    if (std::regex_match(s, match, entry.regex)) {
+    if (std::regex_match(str.begin(), str.end(), match, entry.regex)) {
       m_operation = match.str(OperationGroup);
       m_operand = match.str(FirstOperandGroup);
       try {
@@ -167,8 +164,8 @@ static std::string_view removeLoHiPrefix(char& prefix, const std::string& str) {
   return str;
 }
 
-static int applyLoHiPrefix(QChar prefix, int num) {
-  if (prefix.isNull()) return num;
+static int applyLoHiPrefix(char prefix, int num) {
+  if (!prefix) return num;
   if (prefix == HiBytePrefix) return num >> 8;
   return num & 0xff;
 }
