@@ -22,14 +22,14 @@ SOURCES += \
     centralwidget.cpp \
     config.cpp \
     cpu.cpp \
-    cpustate.cpp \
+    cpuexecutionstate.cpp \
+    cpustatistics.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
     disassemblerview.cpp \
     disassemblerwidget.cpp \
     screenwidget.cpp \
     emulator.cpp \
-    executionstatistics.cpp \
     filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -55,8 +55,9 @@ HEADERS += \
     config.h \
     controlcommand.h \
     cpudefs.h \
+    cpuexecutionstate.h \
     cpuinfo.h \
-    cpustate.h \
+    cpustatistics.h \
     cpuwidget.h \
     decodetable.h \
     bytespinbox.h \
@@ -68,7 +69,6 @@ HEADERS += \
     screenwidget.h \
     emulator.h \
     emulatorstate.h \
-    executionstatistics.h \
     filedatastorage.h \
     instruction.h \
     instructiontable.h \

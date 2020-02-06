@@ -38,14 +38,14 @@ void Emulator::saveMemoryToFile(AddressRange range, const QString& fname) {
 }
 
 void Emulator::clearStatistics() {
-  cpu.resetStatistics();
+  m_cpuStatistics.reset();
   cpu.resetExecutionState();
   if (auto st = state(); !st.running()) emit stateChanged(state());
 }
 
-const EmulatorState Emulator::state(ExecutionStatistics lastRun) {
+const EmulatorState Emulator::state(CpuStatistics lastRun) {
   const auto info = cpu.info();
-  return {info.state, info.runLevel, cpu.regs, info.executionStatistics, lastRun};
+  return {info.executionState, info.runLevel, cpu.regs, m_cpuStatistics, lastRun};
 }
 
 void Emulator::triggerIrq() {
@@ -71,11 +71,11 @@ void Emulator::stopExecution() {
 
 void Emulator::execute(bool continuous, Frequency clock) {
   QSignalBlocker sb(this);
-  const auto exs0 = cpu.info().executionStatistics;
-  cpu.execute(continuous, std::chrono::duration_cast<Duration>(std::chrono::duration<double>(1.0 / clock)));
-  const auto exs1 = cpu.info().executionStatistics;
+  const auto exs0 = m_cpuStatistics;
+  const auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(1.0 / clock));
+  cpu.execute(m_cpuStatistics, continuous, period);
   sb.unblock();
-  emit stateChanged(state(exs1 - exs0));
+  emit stateChanged(state(m_cpuStatistics - exs0));
   emit memoryContentChanged(AddressRange::Max);
 }
 

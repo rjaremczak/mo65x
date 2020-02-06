@@ -90,13 +90,13 @@ void CpuWidget::updateSpecialCpuAddresses() {
   ui->ioPortConfig->setValue(memory[CpuAddress::IoPortConfig]);
 }
 
-void CpuWidget::updateUI(CpuState state) {
-  const auto processing = state == CpuState::Running || state == CpuState::Stopping;
+void CpuWidget::updateUI(CpuExecutionState state) {
+  const auto processing = state == CpuExecutionState::Running || state == CpuExecutionState::Stopping;
   ui->cpuFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->continuousExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);
-  ui->stepExecution->setDisabled(processing || state == CpuState::Halted);
+  ui->stepExecution->setDisabled(processing || state == CpuExecutionState::Halted);
   ui->nmiVector->setDisabled(processing);
   ui->resetVector->setDisabled(processing);
   ui->irqVector->setDisabled(processing);
@@ -111,6 +111,6 @@ void CpuWidget::skipInstruction() {
 }
 
 void CpuWidget::emitExecutionRequest(bool continuous) {
-  updateUI(CpuState::Running);
+  updateUI(CpuExecutionState::Running);
   emit executionRequested(continuous, static_cast<Frequency>(ui->clockFrequency->value() * 1e6));
 }

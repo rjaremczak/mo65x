@@ -4,16 +4,17 @@
 #include <QString>
 #include <cstdint>
 
-struct ExecutionStatistics {
+struct CpuStatistics {
   long cycles = 0;
-  Duration duration = Duration::zero();
+  std::chrono::nanoseconds duration = std::chrono::nanoseconds::zero();
 
-  bool valid() const { return cycles > 0 && duration != Duration::zero(); }
+  void reset() { *this = CpuStatistics(); }
+  bool valid() const { return cycles > 0 && duration != std::chrono::nanoseconds::zero(); }
   double microSec() const { return std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(duration).count(); }
   double seconds() const { return std::chrono::duration_cast<std::chrono::duration<double>>(duration).count(); }
   double clockMHz() const { return cycles / microSec(); }
 
-  ExecutionStatistics operator-(const ExecutionStatistics& e) const { return {cycles - e.cycles, duration - e.duration}; }
+  CpuStatistics operator-(const CpuStatistics& e) const { return {cycles - e.cycles, duration - e.duration}; }
 };
 
-QString formatExecutionStatistics(ExecutionStatistics es);
+QString formatExecutionStatistics(CpuStatistics es);

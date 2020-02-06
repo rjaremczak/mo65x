@@ -1,6 +1,6 @@
-#include "executionstatistics.h"
+#include "cpustatistics.h"
 
-QString formatExecutionStatistics(ExecutionStatistics es) {
+QString formatExecutionStatistics(CpuStatistics es) {
   if (es.valid()) {
     if (es.seconds() < 0.5) {
       return QString("%1 cycles, %2 μs (%3 MHz)").arg(es.cycles).arg(es.microSec(), 0, 'f', 2).arg(es.clockMHz(), 0, 'f', 2);

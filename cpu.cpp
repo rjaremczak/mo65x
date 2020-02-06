@@ -2,11 +2,11 @@
 #include "decodetable.h"
 #include <chrono>
 
-Cpu::Cpu(Memory& memory) : memory(memory) {
+Cpu::Cpu(Memory& memory) : m_memory(memory) {
 }
 
 void Cpu::prepImpliedOrAccumulatorMode() {
-  effectiveOperandPtr.lo = &regs.a;
+  m_effectiveOperandPtr.lo = &regs.a;
 }
 
 void Cpu::prepRelativeMode() {
@@ -14,78 +14,78 @@ void Cpu::prepRelativeMode() {
 }
 
 void Cpu::prepIndirectMode() {
-  effectiveAddress = memory.word(operandPtr.word());
+  m_effectiveAddress = m_memory.word(m_operandPtr.word());
 }
 
 void Cpu::prepImmediateMode() {
-  effectiveOperandPtr.lo = operandPtr.lo;
+  m_effectiveOperandPtr.lo = m_operandPtr.lo;
 }
 
 void Cpu::prepZeroPageMode() {
-  effectiveAddress = *operandPtr.lo;
+  m_effectiveAddress = *m_operandPtr.lo;
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepZeroPageXMode() {
-  calculateZeroPageEffectiveAddress(*operandPtr.lo, regs.x);
+  calculateZeroPageEffectiveAddress(*m_operandPtr.lo, regs.x);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepZeroPageYMode() {
-  calculateZeroPageEffectiveAddress(*operandPtr.lo, regs.y);
+  calculateZeroPageEffectiveAddress(*m_operandPtr.lo, regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndexedIndirectXMode() {
-  effectiveAddress = memory.word(static_cast<uint8_t>((*operandPtr.lo + regs.x)));
+  m_effectiveAddress = m_memory.word(static_cast<uint8_t>((*m_operandPtr.lo + regs.x)));
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepIndirectIndexedYMode() {
-  calculateEffectiveAddress(memory.word(*operandPtr.lo), regs.y);
+  calculateEffectiveAddress(m_memory.word(*m_operandPtr.lo), regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteMode() {
-  effectiveAddress = operandPtr.word();
+  m_effectiveAddress = m_operandPtr.word();
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteXMode() {
-  calculateEffectiveAddress(operandPtr.word(), regs.x);
+  calculateEffectiveAddress(m_operandPtr.word(), regs.x);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::prepAbsoluteYMode() {
-  calculateEffectiveAddress(operandPtr.word(), regs.y);
+  calculateEffectiveAddress(m_operandPtr.word(), regs.y);
   setEffectiveOperandPtrToAddress();
 }
 
 void Cpu::execLDA() {
-  regs.p.computeNZ(regs.a = *effectiveOperandPtr.lo);
-  if (pageBoundaryCrossed) cycles++;
+  regs.p.computeNZ(regs.a = *m_effectiveOperandPtr.lo);
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execLDX() {
-  regs.p.computeNZ(regs.x = *effectiveOperandPtr.lo);
-  if (pageBoundaryCrossed) cycles++;
+  regs.p.computeNZ(regs.x = *m_effectiveOperandPtr.lo);
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execLDY() {
-  regs.p.computeNZ(regs.y = *effectiveOperandPtr.lo);
-  if (pageBoundaryCrossed) cycles++;
+  regs.p.computeNZ(regs.y = *m_effectiveOperandPtr.lo);
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execSTA() {
-  *effectiveOperandPtr.lo = regs.a;
+  *m_effectiveOperandPtr.lo = regs.a;
 }
 
 void Cpu::execSTX() {
-  *effectiveOperandPtr.lo = regs.x;
+  *m_effectiveOperandPtr.lo = regs.x;
 }
 
 void Cpu::execSTY() {
-  *effectiveOperandPtr.lo = regs.y;
+  *m_effectiveOperandPtr.lo = regs.y;
 }
 
 static bool decimalCorrectionAndCarry(uint16_t& result) {
@@ -98,7 +98,7 @@ static bool decimalCorrectionAndCarry(uint16_t& result) {
 }
 
 void Cpu::execADC() {
-  const uint8_t op2 = *effectiveOperandPtr.lo;
+  const uint8_t op2 = *m_effectiveOperandPtr.lo;
   uint16_t result = regs.a + op2 + static_cast<uint8_t>(regs.p.carry);
   if (regs.p.decimal) {
     regs.p.carry = decimalCorrectionAndCarry(result);
@@ -108,11 +108,11 @@ void Cpu::execADC() {
   }
   regs.p.computeV(regs.a, op2, result);
   regs.a = static_cast<uint8_t>(result);
-  if (pageBoundaryCrossed) cycles++;
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execSBC() {
-  const uint8_t op2 = *effectiveOperandPtr.lo ^ 0xff;
+  const uint8_t op2 = *m_effectiveOperandPtr.lo ^ 0xff;
   uint16_t result = regs.a + op2 + static_cast<uint8_t>(regs.p.carry);
   if (regs.p.decimal) {
     result -= 0x66;
@@ -123,11 +123,11 @@ void Cpu::execSBC() {
   }
   regs.p.computeV(regs.a, op2, result);
   regs.a = static_cast<uint8_t>(result);
-  if (pageBoundaryCrossed) cycles++;
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execINC() {
-  regs.p.computeNZ(++(*effectiveOperandPtr.lo));
+  regs.p.computeNZ(++(*m_effectiveOperandPtr.lo));
 }
 
 void Cpu::execINX() {
@@ -139,7 +139,7 @@ void Cpu::execINY() {
 }
 
 void Cpu::execDEC() {
-  regs.p.computeNZ(--(*effectiveOperandPtr.lo));
+  regs.p.computeNZ(--(*m_effectiveOperandPtr.lo));
 }
 
 void Cpu::execDEX() {
@@ -151,47 +151,47 @@ void Cpu::execDEY() {
 }
 
 void Cpu::execASL() {
-  auto val = *effectiveOperandPtr.lo;
+  auto val = *m_effectiveOperandPtr.lo;
   regs.p.carry = val & 0x80;
-  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(val << 1));
+  regs.p.computeNZ(*m_effectiveOperandPtr.lo = static_cast<uint8_t>(val << 1));
 }
 
 void Cpu::execLSR() {
-  auto val = *effectiveOperandPtr.lo;
+  auto val = *m_effectiveOperandPtr.lo;
   regs.p.carry = val & 0x01;
-  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(val >> 1));
+  regs.p.computeNZ(*m_effectiveOperandPtr.lo = static_cast<uint8_t>(val >> 1));
 }
 
 void Cpu::execROL() {
-  const uint16_t res = static_cast<uint16_t>(*effectiveOperandPtr.lo << 1) | regs.p.carry;
+  const uint16_t res = static_cast<uint16_t>(*m_effectiveOperandPtr.lo << 1) | regs.p.carry;
   regs.p.carry = res & 0x100;
-  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(res));
+  regs.p.computeNZ(*m_effectiveOperandPtr.lo = static_cast<uint8_t>(res));
 }
 
 void Cpu::execROR() {
-  const uint16_t tmp = *effectiveOperandPtr.lo | (regs.p.carry ? 0x100 : 0x00);
+  const uint16_t tmp = *m_effectiveOperandPtr.lo | (regs.p.carry ? 0x100 : 0x00);
   regs.p.carry = tmp & 0x01;
-  regs.p.computeNZ(*effectiveOperandPtr.lo = static_cast<uint8_t>(tmp >> 1));
+  regs.p.computeNZ(*m_effectiveOperandPtr.lo = static_cast<uint8_t>(tmp >> 1));
 }
 
 void Cpu::execAND() {
-  regs.p.computeNZ(regs.a &= *effectiveOperandPtr.lo);
-  if (pageBoundaryCrossed) cycles++;
+  regs.p.computeNZ(regs.a &= *m_effectiveOperandPtr.lo);
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execORA() {
-  regs.p.computeNZ(regs.a |= *effectiveOperandPtr.lo);
-  if (pageBoundaryCrossed) cycles++;
+  regs.p.computeNZ(regs.a |= *m_effectiveOperandPtr.lo);
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execEOR() {
-  regs.p.computeNZ(regs.a ^= *effectiveOperandPtr.lo);
-  if (pageBoundaryCrossed) cycles++;
+  regs.p.computeNZ(regs.a ^= *m_effectiveOperandPtr.lo);
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execCMP() {
   execCompare(regs.a);
-  if (pageBoundaryCrossed) cycles++;
+  if (m_pageBoundaryCrossed) m_extraCycles++;
 }
 
 void Cpu::execCPX() {
@@ -203,7 +203,7 @@ void Cpu::execCPY() {
 }
 
 void Cpu::execBIT() {
-  const auto operand = *effectiveOperandPtr.lo;
+  const auto operand = *m_effectiveOperandPtr.lo;
   regs.p.zero = !(regs.a & operand);
   regs.p.negative = operand & 0x80;
   regs.p.overflow = operand & 0x40;
@@ -314,12 +314,12 @@ void Cpu::execBVS() {
 }
 
 void Cpu::execJMP() {
-  regs.pc = effectiveAddress;
+  regs.pc = m_effectiveAddress;
 }
 
 void Cpu::execJSR() {
   pushWord(regs.pc - 1);
-  regs.pc = effectiveAddress;
+  regs.pc = m_effectiveAddress;
 }
 
 void Cpu::execRTS() {
@@ -336,27 +336,27 @@ void Cpu::execBRK() {
   pushWord(regs.pc + 1);
   push(regs.p | ProcessorStatus::BreakBitMask);
   regs.p.interrupt = true;
-  regs.pc = memory.word(CpuAddress::IrqVector);
+  regs.pc = m_memory.word(CpuAddress::IrqVector);
 }
 
 void Cpu::irq() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory.word(CpuAddress::IrqVector);
-  runLevel = CpuRunLevel::Normal;
+  regs.pc = m_memory.word(CpuAddress::IrqVector);
+  m_runLevel = CpuRunLevel::Normal;
 }
 
 void Cpu::nmi() {
   pushWord(regs.pc);
   push(regs.p);
   regs.p.interrupt = true;
-  regs.pc = memory.word(CpuAddress::NmiVector);
-  runLevel = CpuRunLevel::Normal;
+  regs.pc = m_memory.word(CpuAddress::NmiVector);
+  m_runLevel = CpuRunLevel::Normal;
 }
 
 void Cpu::reset() {
-  regs.pc = memory.word(CpuAddress::ResetVector);
+  regs.pc = m_memory.word(CpuAddress::ResetVector);
   regs.a = 0;
   regs.x = 0;
   regs.y = 0;
@@ -367,78 +367,85 @@ void Cpu::reset() {
   regs.p.interrupt = true;
   regs.p.zero = false;
   regs.p.carry = false;
-  resetStatistics();
-  runLevel = CpuRunLevel::Normal;
+  m_pageBoundaryCrossed = false;
+  m_extraCycles = 0;
+  m_runLevel = CpuRunLevel::Normal;
 }
 
 void Cpu::resetExecutionState() {
-  if (state == CpuState::Halted || state == CpuState::Stopped) state = CpuState::Idle;
-}
-
-void Cpu::resetStatistics() {
-  cycles = 0;
-  duration = Duration::zero();
+  if (m_executionState == CpuExecutionState::Halted || m_executionState == CpuExecutionState::Stopped)
+    m_executionState = CpuExecutionState::Idle;
 }
 
 void Cpu::stopExecution() {
-  if (state == CpuState::Running) state = CpuState::Stopping;
+  if (m_executionState == CpuExecutionState::Running) m_executionState = CpuExecutionState::Stopping;
 }
 
-void Cpu::execKIL() {
-  regs.pc--;
-  state = CpuState::Halted;
-}
+int Cpu::execute() {
+  m_extraCycles = 0;
+  m_pageBoundaryCrossed = false;
+  const auto pcPtr = &m_memory[regs.pc];
+  m_operandPtr.lo = &m_memory[regs.pc + 1];
+  m_operandPtr.hi = &m_memory[regs.pc + 2];
+  const auto& entry = DecodeTable[*pcPtr];
 
-void Cpu::execute(bool continuous, Duration period) {
-  state = CpuState::Running;
-  while (state == CpuState::Running) {
-    const auto t0 = PreciseClock::now();
-    pageBoundaryCrossed = false;
-    const auto pcPtr = &memory[regs.pc];
-    operandPtr.lo = &memory[regs.pc + 1];
-    operandPtr.hi = &memory[regs.pc + 2];
-    const auto& entry = DecodeTable[*pcPtr];
-    const auto ins = entry.instruction;
+  regs.pc += entry.instruction->size;
 
-    regs.pc += ins->size;
+  (this->*entry.prepareOperands)();
+  (this->*entry.executeInstruction)();
 
-    (this->*entry.prepareOperands)();
-    (this->*entry.executeInstruction)();
-
-    const auto dc = ins->cycles;
-    const auto t1 = t0 + period * dc;
-    while (PreciseClock::now() < t1) {}
-    cycles += dc;
-    duration += std::chrono::duration_cast<Duration>(PreciseClock::now() - t0);
-
-    switch (runLevel) {
-    case CpuRunLevel::Normal: break;
-    case CpuRunLevel::PendingReset: reset(); break;
-    case CpuRunLevel::PendingNmi: nmi(); break;
-    case CpuRunLevel::PendingIrq: irq(); break;
-    }
-    if (!continuous) break;
+  switch (m_runLevel) {
+  case CpuRunLevel::Normal: break;
+  case CpuRunLevel::PendingReset: reset(); break;
+  case CpuRunLevel::PendingNmi: nmi(); break;
+  case CpuRunLevel::PendingIrq: irq(); break;
   }
-  switch (state) {
-  case CpuState::Running: state = CpuState::Idle; break;
-  case CpuState::Stopping: state = CpuState::Stopped; break;
+  return entry.instruction->cycles + m_extraCycles;
+}
+
+void Cpu::postExecute() {
+  switch (m_executionState) {
+  case CpuExecutionState::Running: m_executionState = CpuExecutionState::Idle; break;
+  case CpuExecutionState::Stopping: m_executionState = CpuExecutionState::Stopped; break;
   default: break;
   }
 }
 
+void Cpu::execKIL() {
+  regs.pc--;
+  m_executionState = CpuExecutionState::Halted;
+}
+
+void Cpu::execute(CpuStatistics& cpuStatistics, bool continuous, std::chrono::nanoseconds period) {
+  m_executionState = CpuExecutionState::Running;
+  while (m_executionState == CpuExecutionState::Running) {
+    const auto t0 = std::chrono::high_resolution_clock::now();
+    const auto cycles = execute();
+    const auto dt = period * cycles;
+    const auto t1 = t0 + dt;
+    while (std::chrono::high_resolution_clock::now() < t1) {}
+
+    cpuStatistics.cycles += cycles;
+    cpuStatistics.duration += dt;
+
+    if (!continuous) break;
+  }
+  postExecute();
+}
+
 void Cpu::triggerReset() {
-  if (runLevel < CpuRunLevel::PendingReset) {
+  if (m_runLevel < CpuRunLevel::PendingReset) {
     if (running()) {
-      runLevel = CpuRunLevel::PendingReset;
+      m_runLevel = CpuRunLevel::PendingReset;
     } else
       reset();
   }
 }
 
 void Cpu::triggerNmi() {
-  if (runLevel < CpuRunLevel::PendingNmi) {
+  if (m_runLevel < CpuRunLevel::PendingNmi) {
     if (running()) {
-      runLevel = CpuRunLevel::PendingNmi;
+      m_runLevel = CpuRunLevel::PendingNmi;
     } else {
       nmi();
     }
@@ -446,15 +453,11 @@ void Cpu::triggerNmi() {
 }
 
 void Cpu::triggerIrq() {
-  if (runLevel < CpuRunLevel::PendingIrq && !regs.p.interrupt) {
+  if (m_runLevel < CpuRunLevel::PendingIrq && !regs.p.interrupt) {
     if (running()) {
-      runLevel = CpuRunLevel::PendingIrq;
+      m_runLevel = CpuRunLevel::PendingIrq;
     } else {
       irq();
     }
   }
-}
-
-CpuInfo Cpu::info() const {
-  return {runLevel, state, {cycles, duration}};
 }

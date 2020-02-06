@@ -1,19 +1,19 @@
 #pragma once
 
 #include "commondefs.h"
-#include "cpustate.h"
-#include "executionstatistics.h"
+#include "cpuexecutionstate.h"
+#include "cpustatistics.h"
 #include "registers.h"
 #include "runlevel.h"
 #include <QMetaType>
 #include <chrono>
 
 struct EmulatorState {
-  CpuState state;
+  CpuExecutionState state;
   CpuRunLevel runLevel;
   Registers regs;
-  ExecutionStatistics avgExecutionStatistics;
-  ExecutionStatistics lastExecutionStatistics;
+  CpuStatistics avgExecutionStatistics;
+  CpuStatistics lastExecutionStatistics;
 
-  bool running() const { return state == CpuState::Running; }
+  bool running() const { return state == CpuExecutionState::Running; }
 };

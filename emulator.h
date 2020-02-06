@@ -14,7 +14,7 @@ public:
   explicit Emulator(QObject* parent = nullptr);
   const Memory& memoryView() const { return memory; }
   Memory& memoryRef() { return memory; }
-  const EmulatorState state(ExecutionStatistics = {});
+  const EmulatorState state(CpuStatistics = {});
 
 signals:
   void stateChanged(EmulatorState);
@@ -44,4 +44,5 @@ public slots:
 private:
   Memory memory;
   Cpu cpu;
+  CpuStatistics m_cpuStatistics;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "executionstatistics.h"
+#include "cpustatistics.h"
 #include <QString>
 #include <cstdint>
 
