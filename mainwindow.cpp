@@ -35,11 +35,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(cpuWidget, &CpuWidget::registerXChanged, emulator, &EmulatorQt::changeRegisterX);
   connect(cpuWidget, &CpuWidget::registerYChanged, emulator, &EmulatorQt::changeRegisterY);
 
-  connect(cpuWidget, &CpuWidget::clearStatisticsRequested, emulator, &EmulatorQt::clearStatistics, Qt::DirectConnection);
-  connect(cpuWidget, &CpuWidget::stopExecutionRequested, emulator, &EmulatorQt::stopExecution, Qt::DirectConnection);
-  connect(cpuWidget, &CpuWidget::resetRequested, emulator, &EmulatorQt::triggerReset, Qt::DirectConnection);
-  connect(cpuWidget, &CpuWidget::nmiRequested, emulator, &EmulatorQt::triggerNmi, Qt::DirectConnection);
-  connect(cpuWidget, &CpuWidget::irqRequested, emulator, &EmulatorQt::triggerIrq, Qt::DirectConnection);
+  connect(cpuWidget, &CpuWidget::clearStatisticsRequested, this, &MainWindow::clearStatistics);
+  connect(cpuWidget, &CpuWidget::stopExecutionRequested, this, &MainWindow::stopExecution);
+  connect(cpuWidget, &CpuWidget::resetRequested, this, &MainWindow::triggerReset);
+  connect(cpuWidget, &CpuWidget::nmiRequested, this, &MainWindow::triggerNmi);
+  connect(cpuWidget, &CpuWidget::irqRequested, this, &MainWindow::triggerIrq);
 
   connect(emulator, &EmulatorQt::stateChanged, cpuWidget, &CpuWidget::updateState);
   connect(emulator, &EmulatorQt::stateChanged, disassemblerWidget, &DisassemblerWidget::updateState);
@@ -108,7 +108,7 @@ void MainWindow::startEmulator() {
   emulator->moveToThread(&emulatorThread);
   connect(&emulatorThread, &QThread::finished, emulator, &EmulatorQt::deleteLater);
   emulatorThread.start();
-  emulatorThread.setObjectName("emulator");
+  emulatorThread.setObjectName("EmulatorQt");
 }
 
 void MainWindow::propagateState(EmulatorState es) {
@@ -131,6 +131,35 @@ void MainWindow::propagateState(EmulatorState es) {
   videoWidget->updateView();
 }
 
+void MainWindow::emulatorStateChanged() {
+  emit emulator->stateChanged(emulator->state());
+}
+
 void MainWindow::polling() {
   if (const auto es = emulator->state(); es.cpuState.running()) propagateState(es);
+}
+
+void MainWindow::clearStatistics() {
+  emulator->clearStatistics();
+  emulatorStateChanged();
+}
+
+void MainWindow::stopExecution() {
+  emulator->stopExecution();
+  emulatorStateChanged();
+}
+
+void MainWindow::triggerReset() {
+  emulator->triggerReset();
+  emulatorStateChanged();
+}
+
+void MainWindow::triggerNmi() {
+  emulator->triggerNmi();
+  emulatorStateChanged();
+}
+
+void MainWindow::triggerIrq() {
+  emulator->triggerIrq();
+  emulatorStateChanged();
 }

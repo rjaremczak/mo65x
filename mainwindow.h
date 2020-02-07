@@ -6,6 +6,7 @@
 #include "config.h"
 #include "cpuwidget.h"
 #include "disassemblerwidget.h"
+#include "emulator.h"
 #include "emulatorqt.h"
 #include "filedatastorage.h"
 #include "memorywidget.h"
@@ -47,12 +48,20 @@ private:
   QTimer* pollTimer;
   QThread emulatorThread;
 
+  Emulator m_emulator;
+
   void initConfigStorage();
   void startEmulator();
   void propagateState(EmulatorState);
+  void emulatorStateChanged();
 
 private slots:
   void polling();
+  void clearStatistics();
+  void stopExecution();
+  void triggerReset();
+  void triggerNmi();
+  void triggerIrq();
 };
 
 #endif // MAINWINDOW_H

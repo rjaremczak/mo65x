@@ -39,8 +39,8 @@ void EmulatorQt::saveMemoryToFile(AddressRange range, const QString& fname) {
 
 void EmulatorQt::clearStatistics() {
   m_accCpuStatistics.reset();
+  m_lastCpuStatistics.reset();
   m_cpu.resetExecutionState();
-  if (auto st = state(); !st.cpuState.running()) emit stateChanged(state());
 }
 
 EmulatorState EmulatorQt::state() const {
@@ -49,30 +49,26 @@ EmulatorState EmulatorQt::state() const {
 
 void EmulatorQt::triggerIrq() {
   m_cpu.triggerIrq();
-  emit stateChanged(state());
 }
 
 void EmulatorQt::triggerNmi() {
   m_cpu.triggerNmi();
-  emit stateChanged(state());
 }
 
 void EmulatorQt::triggerReset() {
   m_cpu.triggerReset();
-  emit stateChanged(state());
 }
 
 void EmulatorQt::stopExecution() {
   m_cpu.stopExecution();
   QThread::msleep(100);
-  emit stateChanged(state());
 }
 
 void EmulatorQt::execute(bool continuous, Frequency clock) {
   QSignalBlocker sb(this);
 
   const auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(1.0 / clock));
-  const auto prevStat = m_accCpuStatistics;
+  m_lastCpuStatistics.reset();
   m_cpu.preExecute();
   while (m_cpu.running()) {
     const auto t0 = std::chrono::high_resolution_clock::now();
@@ -84,10 +80,12 @@ void EmulatorQt::execute(bool continuous, Frequency clock) {
     m_accCpuStatistics.cycles += cycles;
     m_accCpuStatistics.duration += dt;
 
+    m_lastCpuStatistics.cycles += cycles;
+    m_lastCpuStatistics.duration += dt;
+
     if (!continuous) break;
   }
   m_cpu.postExecute();
-  m_lastCpuStatistics = m_accCpuStatistics - prevStat;
   sb.unblock();
   emit stateChanged(state());
   emit memoryContentChanged(AddressRange::Max);

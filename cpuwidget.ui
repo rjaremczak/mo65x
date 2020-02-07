@@ -728,37 +728,80 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="lastExecStats">
-      <property name="font">
-       <font>
-        <pointsize>9</pointsize>
-       </font>
+     <layout class="QFormLayout" name="statsLayout">
+      <property name="horizontalSpacing">
+       <number>5</number>
       </property>
-      <property name="text">
-       <string>aaa</string>
+      <property name="verticalSpacing">
+       <number>0</number>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="avgExecStats">
-      <property name="font">
-       <font>
-        <pointsize>9</pointsize>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:gray</string>
-      </property>
-      <property name="text">
-       <string>aaa</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-     </widget>
+      <item row="0" column="1">
+       <widget class="QLabel" name="lastExecStats">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:white</string>
+        </property>
+        <property name="text">
+         <string>aaa</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="avgExecStats">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:lightgray</string>
+        </property>
+        <property name="text">
+         <string>aaa</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>last</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:gray</string>
+        </property>
+        <property name="text">
+         <string>acc</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QFrame" name="auxFrame">
