@@ -6,7 +6,7 @@
 #include "config.h"
 #include "cpuwidget.h"
 #include "disassemblerwidget.h"
-#include "emulator.h"
+#include "emulatorqt.h"
 #include "filedatastorage.h"
 #include "memorywidget.h"
 #include "videowidget.h"
@@ -41,7 +41,7 @@ private:
   DisassemblerWidget* disassemblerWidget;
   CpuWidget* cpuWidget;
   VideoWidget* videoWidget;
-  Emulator* emulator;
+  EmulatorQt* emulator;
   FileDataStorage<Config>* configStorage;
   Config config;
   QTimer* pollTimer;

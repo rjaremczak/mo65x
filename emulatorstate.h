@@ -9,6 +9,6 @@
 struct EmulatorState {
   CpuState cpuState;
   Registers regs;
-  CpuStatistics avgExecutionStatistics;
+  CpuStatistics accExecutionStatistics;
   CpuStatistics lastExecutionStatistics;
 };

@@ -1,23 +1,27 @@
 #pragma once
 
 #include "addressrange.h"
+#include "commondefs.h"
 #include "cpu.h"
-#include "cpustatistics.h"
 #include "emulatorstate.h"
 #include "memory.h"
-#include <istream>
-#include <thread>
+#include <QObject>
 
-class Emulator
-{
+class EmulatorQt : public QObject {
+  Q_OBJECT
+
 public:
-  Emulator();
-  ~Emulator();
+  explicit EmulatorQt(QObject* parent = nullptr);
   const Memory& memoryView() const { return m_memory; }
   Memory& memoryRef() { return m_memory; }
   EmulatorState state() const;
-  void loadMemory(Address first, std::basic_istream<char>& is);
-  void saveMemory(AddressRange range, std::basic_ostream<char>& os);
+
+signals:
+  void stateChanged(EmulatorState);
+  void memoryContentChanged(AddressRange);
+  void operationCompleted(const QString& message, bool success);
+
+public slots:
   void execute(bool continuous, Frequency clock);
   void changeProgramCounter(Address);
   void changeStackPointer(Address);
@@ -25,6 +29,8 @@ public:
   void changeRegisterX(uint8_t);
   void changeRegisterY(uint8_t);
   void changeMemory(Address, uint8_t);
+  void loadMemoryFromFile(Address start, const QString& fname);
+  void saveMemoryToFile(AddressRange range, const QString& fname);
 
   // to be connected as direct connections
 
@@ -35,9 +41,10 @@ public:
   void clearStatistics();
 
 private:
-  std::thread m_thread;
   Memory m_memory;
   Cpu m_cpu;
   CpuStatistics m_accCpuStatistics;
   CpuStatistics m_lastCpuStatistics;
+
+  void loadMemory(Address first, const Data& data);
 };

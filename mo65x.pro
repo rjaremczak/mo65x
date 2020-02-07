@@ -28,8 +28,9 @@ SOURCES += \
     disassembler.cpp \
     disassemblerview.cpp \
     disassemblerwidget.cpp \
-    screenwidget.cpp \
     emulator.cpp \
+    emulatorqt.cpp \
+    screenwidget.cpp \
     filedatastorage.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -63,9 +64,10 @@ HEADERS += \
     disassembler.h \
     disassemblerview.h \
     disassemblerwidget.h \
+    emulator.h \
+    emulatorqt.h \
     operandvalue.h \
     screenwidget.h \
-    emulator.h \
     emulatorstate.h \
     filedatastorage.h \
     instruction.h \
