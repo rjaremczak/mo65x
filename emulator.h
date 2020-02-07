@@ -29,9 +29,6 @@ public:
   void changeRegisterX(uint8_t);
   void changeRegisterY(uint8_t);
   void changeMemory(Address, uint8_t);
-
-  // to be connected as direct connections
-
   void triggerIrq();
   void triggerNmi();
   void triggerReset();
@@ -42,6 +39,7 @@ private:
   void loop() noexcept;
 
   State m_state = State::Idle;
+  Frequency m_frequency;
   Memory m_memory;
   Cpu m_cpu;
   CpuStatistics m_accCpuStatistics;
