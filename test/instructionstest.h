@@ -14,7 +14,7 @@ private:
   Assembler assembler;
   Memory memory;
   Cpu cpu;
-  CpuStatistics cpuStatistics;
+  int lastCycles;
 
 private slots:
   // functions executed by QtTest before and after test suite

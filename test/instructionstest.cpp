@@ -34,20 +34,21 @@
   QCOMPARE(cpu.regs.p.carry, c)
 
 #define TEST_INST(instr, numCycles)                                                                                              \
-  cpuStatistics.cycles = 0;                                                                                                      \
   QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok);                                                                    \
-  cpu.execute(cpuStatistics, false);                                                                                             \
-  QCOMPARE(cpu.state().execution, CpuState::Execution::Idle);                                                                    \
-  QCOMPARE(cpuStatistics.cycles, numCycles)
+  cpu.preExecute();                                                                                                              \
+  lastCycles = cpu.execute();                                                                                                    \
+  QCOMPARE(lastCycles, numCycles);                                                                                               \
+  cpu.postExecute();                                                                                                             \
+  QCOMPARE(cpu.state().execution, CpuState::Execution::Idle)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
   const auto base = assembler.m_locationCounter;                                                                                 \
   QCOMPARE(cpu.regs.pc, base + static_cast<int8_t>(*cpu.m_operandPtr.lo));                                                       \
-  QCOMPARE(cpuStatistics.cycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
+  QCOMPARE(lastCycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
   QCOMPARE(cpu.regs.pc, assembler.m_locationCounter);                                                                            \
-  QCOMPARE(cpuStatistics.cycles, 2U)
+  QCOMPARE(lastCycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
@@ -67,8 +68,7 @@ void InstructionsTest::init() {
   cpu.reset();
   cpu.regs.pc = AsmOrigin;
   cpu.regs.sp.offset = StackPointerOffset;
-  cpuStatistics.reset();
-  QCOMPARE(cpuStatistics.cycles, 0);
+  lastCycles = 0;
 }
 
 void InstructionsTest::testIRQ() {

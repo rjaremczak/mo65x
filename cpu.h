@@ -28,7 +28,6 @@ public:
   void preExecute();
   int execute();
   void postExecute();
-  void execute(CpuStatistics& cpuStatistics, bool continuous, std::chrono::nanoseconds period = std::chrono::nanoseconds(1000));
   void triggerReset();
   void triggerNmi();
   void triggerIrq();

@@ -420,23 +420,6 @@ void Cpu::execKIL() {
   m_state.execution = CpuState::Execution::Halted;
 }
 
-void Cpu::execute(CpuStatistics& cpuStatistics, bool continuous, std::chrono::nanoseconds period) {
-  preExecute();
-  while (m_state.execution == CpuState::Execution::Running) {
-    const auto t0 = std::chrono::high_resolution_clock::now();
-    const auto cycles = execute();
-    const auto dt = period * cycles;
-    const auto t1 = t0 + dt;
-    while (std::chrono::high_resolution_clock::now() < t1) {}
-
-    cpuStatistics.cycles += cycles;
-    cpuStatistics.duration += dt;
-
-    if (!continuous) break;
-  }
-  postExecute();
-}
-
 void Cpu::triggerReset() {
   if (m_state.mode < CpuState::Mode::PendingReset) {
     if (running()) {
