@@ -37,7 +37,7 @@
   cpuStatistics.cycles = 0;                                                                                                      \
   QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok);                                                                    \
   cpu.execute(cpuStatistics, false);                                                                                             \
-  QCOMPARE(cpu.m_executionState, CpuExecutionState::Idle);                                                                       \
+  QCOMPARE(cpu.state().execution, CpuState::Execution::Idle);                                                                    \
   QCOMPARE(cpuStatistics.cycles, numCycles)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \

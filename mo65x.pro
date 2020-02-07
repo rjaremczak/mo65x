@@ -22,7 +22,7 @@ SOURCES += \
     centralwidget.cpp \
     config.cpp \
     cpu.cpp \
-    cpuexecutionstate.cpp \
+    cpustate.cpp \
     cpustatistics.cpp \
     cpuwidget.cpp \
     disassembler.cpp \
@@ -36,7 +36,6 @@ SOURCES += \
     memory.cpp \
     memorywidget.cpp \
     mnemonics.cpp \
-    runlevel.cpp \
     symboltable.cpp \
     videowidget.cpp \
     wordspinbox.cpp \
@@ -55,8 +54,7 @@ HEADERS += \
     config.h \
     controlcommand.h \
     cpudefs.h \
-    cpuexecutionstate.h \
-    cpuinfo.h \
+    cpustate.h \
     cpustatistics.h \
     cpuwidget.h \
     decodetable.h \
@@ -81,7 +79,6 @@ HEADERS += \
     operandsformat.h \
     processorstatus.h \
     registers.h \
-    runlevel.h \
     stackpointer.h \
     symboltable.h \
     uitools.h \

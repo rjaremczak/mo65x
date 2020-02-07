@@ -43,7 +43,7 @@ private:
 
   int rowsInView() const;
   void updateSpecialCpuAddresses();
-  void updateUI(CpuExecutionState);
+  void updateUI(CpuState::Execution);
   void emitExecutionRequest(bool continuous);
 
 private slots:

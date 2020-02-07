@@ -1,13 +1,11 @@
 #pragma once
 
-#include "cpuexecutionstate.h"
-#include "cpuinfo.h"
+#include "cpustate.h"
 #include "cpustatistics.h"
 #include "instruction.h"
 #include "memory.h"
 #include "operandptr.h"
 #include "registers.h"
-#include "runlevel.h"
 #include <chrono>
 #include <commondefs.h>
 #include <map>
@@ -23,21 +21,21 @@ public:
   Registers regs;
 
   Cpu(Memory&);
-  bool running() const { return m_executionState == CpuExecutionState::Running; }
+  bool running() const { return m_state.running(); }
   void reset();
   void resetExecutionState();
   void stopExecution();
+  void preExecute();
   int execute();
   void postExecute();
   void execute(CpuStatistics& cpuStatistics, bool continuous, std::chrono::nanoseconds period = std::chrono::nanoseconds(1000));
   void triggerReset();
   void triggerNmi();
   void triggerIrq();
-  CpuInfo info() const { return {m_runLevel, m_executionState}; }
+  CpuState state() const { return m_state; }
 
 private:
-  CpuRunLevel m_runLevel = CpuRunLevel::Normal;
-  CpuExecutionState m_executionState = CpuExecutionState::Idle;
+  CpuState m_state;
   Memory& m_memory;
   OperandPtr m_operandPtr;
   OperandPtr m_effectiveOperandPtr;

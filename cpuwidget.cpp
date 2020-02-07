@@ -49,7 +49,7 @@ void CpuWidget::updateOnChange(AddressRange range) {
 void CpuWidget::updateState(EmulatorState es) {
   const auto& regs = es.regs;
 
-  setWindowTitle(tr("%1 @ %2").arg(formatCpuState(es.state), formatRunLevel(es.runLevel)));
+  setWindowTitle(tr("%1 @ %2").arg(CpuState::format(es.cpuState.execution), CpuState::format(es.cpuState.mode)));
 
   ui->regA->setValue(regs.a);
   ui->regX->setValue(regs.x);
@@ -75,7 +75,7 @@ void CpuWidget::updateState(EmulatorState es) {
 
   ui->regPC->setValue(regs.pc);
   disassemblerView->changeStart(regs.pc);
-  updateUI(es.state);
+  updateUI(es.cpuState.execution);
 }
 
 void CpuWidget::changeProgramCounter(uint16_t addr) {
@@ -90,13 +90,13 @@ void CpuWidget::updateSpecialCpuAddresses() {
   ui->ioPortConfig->setValue(memory[CpuAddress::IoPortConfig]);
 }
 
-void CpuWidget::updateUI(CpuExecutionState state) {
-  const auto processing = state == CpuExecutionState::Running || state == CpuExecutionState::Stopping;
+void CpuWidget::updateUI(CpuState::Execution state) {
+  const auto processing = state == CpuState::Execution::Running || state == CpuState::Execution::Stopping;
   ui->cpuFrame->setDisabled(processing);
   ui->skipInstruction->setDisabled(processing);
   ui->continuousExecution->setDisabled(processing);
   ui->stopExecution->setDisabled(!processing);
-  ui->stepExecution->setDisabled(processing || state == CpuExecutionState::Halted);
+  ui->stepExecution->setDisabled(processing || state == CpuState::Execution::Halted);
   ui->nmiVector->setDisabled(processing);
   ui->resetVector->setDisabled(processing);
   ui->irqVector->setDisabled(processing);
@@ -111,6 +111,6 @@ void CpuWidget::skipInstruction() {
 }
 
 void CpuWidget::emitExecutionRequest(bool continuous) {
-  updateUI(CpuExecutionState::Running);
+  updateUI(CpuState::Execution::Running);
   emit executionRequested(continuous, static_cast<Frequency>(ui->clockFrequency->value() * 1e6));
 }

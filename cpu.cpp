@@ -344,7 +344,7 @@ void Cpu::irq() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = m_memory.word(CpuAddress::IrqVector);
-  m_runLevel = CpuRunLevel::Normal;
+  m_state.mode = CpuState::Mode::Normal;
 }
 
 void Cpu::nmi() {
@@ -352,7 +352,7 @@ void Cpu::nmi() {
   push(regs.p);
   regs.p.interrupt = true;
   regs.pc = m_memory.word(CpuAddress::NmiVector);
-  m_runLevel = CpuRunLevel::Normal;
+  m_state.mode = CpuState::Mode::Normal;
 }
 
 void Cpu::reset() {
@@ -369,16 +369,20 @@ void Cpu::reset() {
   regs.p.carry = false;
   m_pageBoundaryCrossed = false;
   m_extraCycles = 0;
-  m_runLevel = CpuRunLevel::Normal;
+  m_state.mode = CpuState::Mode::Normal;
 }
 
 void Cpu::resetExecutionState() {
-  if (m_executionState == CpuExecutionState::Halted || m_executionState == CpuExecutionState::Stopped)
-    m_executionState = CpuExecutionState::Idle;
+  if (m_state.execution == CpuState::Execution::Halted || m_state.execution == CpuState::Execution::Stopped)
+    m_state.execution = CpuState::Execution::Idle;
 }
 
 void Cpu::stopExecution() {
-  if (m_executionState == CpuExecutionState::Running) m_executionState = CpuExecutionState::Stopping;
+  if (m_state.execution == CpuState::Execution::Running) m_state.execution = CpuState::Execution::Stopping;
+}
+
+void Cpu::preExecute() {
+  m_state.execution = CpuState::Execution::Running;
 }
 
 int Cpu::execute() {
@@ -394,31 +398,31 @@ int Cpu::execute() {
   (this->*entry.prepareOperands)();
   (this->*entry.executeInstruction)();
 
-  switch (m_runLevel) {
-  case CpuRunLevel::Normal: break;
-  case CpuRunLevel::PendingReset: reset(); break;
-  case CpuRunLevel::PendingNmi: nmi(); break;
-  case CpuRunLevel::PendingIrq: irq(); break;
+  switch (m_state.mode) {
+  case CpuState::Mode::Normal: break;
+  case CpuState::Mode::PendingReset: reset(); break;
+  case CpuState::Mode::PendingNmi: nmi(); break;
+  case CpuState::Mode::PendingIrq: irq(); break;
   }
   return entry.instruction->cycles + m_extraCycles;
 }
 
 void Cpu::postExecute() {
-  switch (m_executionState) {
-  case CpuExecutionState::Running: m_executionState = CpuExecutionState::Idle; break;
-  case CpuExecutionState::Stopping: m_executionState = CpuExecutionState::Stopped; break;
+  switch (m_state.execution) {
+  case CpuState::Execution::Running: m_state.execution = CpuState::Execution::Idle; break;
+  case CpuState::Execution::Stopping: m_state.execution = CpuState::Execution::Stopped; break;
   default: break;
   }
 }
 
 void Cpu::execKIL() {
   regs.pc--;
-  m_executionState = CpuExecutionState::Halted;
+  m_state.execution = CpuState::Execution::Halted;
 }
 
 void Cpu::execute(CpuStatistics& cpuStatistics, bool continuous, std::chrono::nanoseconds period) {
-  m_executionState = CpuExecutionState::Running;
-  while (m_executionState == CpuExecutionState::Running) {
+  preExecute();
+  while (m_state.execution == CpuState::Execution::Running) {
     const auto t0 = std::chrono::high_resolution_clock::now();
     const auto cycles = execute();
     const auto dt = period * cycles;
@@ -434,18 +438,18 @@ void Cpu::execute(CpuStatistics& cpuStatistics, bool continuous, std::chrono::na
 }
 
 void Cpu::triggerReset() {
-  if (m_runLevel < CpuRunLevel::PendingReset) {
+  if (m_state.mode < CpuState::Mode::PendingReset) {
     if (running()) {
-      m_runLevel = CpuRunLevel::PendingReset;
+      m_state.mode = CpuState::Mode::PendingReset;
     } else
       reset();
   }
 }
 
 void Cpu::triggerNmi() {
-  if (m_runLevel < CpuRunLevel::PendingNmi) {
+  if (m_state.mode < CpuState::Mode::PendingNmi) {
     if (running()) {
-      m_runLevel = CpuRunLevel::PendingNmi;
+      m_state.mode = CpuState::Mode::PendingNmi;
     } else {
       nmi();
     }
@@ -453,9 +457,9 @@ void Cpu::triggerNmi() {
 }
 
 void Cpu::triggerIrq() {
-  if (m_runLevel < CpuRunLevel::PendingIrq && !regs.p.interrupt) {
+  if (m_state.mode < CpuState::Mode::PendingIrq && !regs.p.interrupt) {
     if (running()) {
-      m_runLevel = CpuRunLevel::PendingIrq;
+      m_state.mode = CpuState::Mode::PendingIrq;
     } else {
       irq();
     }

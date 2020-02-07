@@ -12,9 +12,9 @@ class Emulator : public QObject {
 
 public:
   explicit Emulator(QObject* parent = nullptr);
-  const Memory& memoryView() const { return memory; }
-  Memory& memoryRef() { return memory; }
-  const EmulatorState state(CpuStatistics = {});
+  const Memory& memoryView() const { return m_memory; }
+  Memory& memoryRef() { return m_memory; }
+  EmulatorState state() const;
 
 signals:
   void stateChanged(EmulatorState);
@@ -42,7 +42,8 @@ public slots:
   void clearStatistics();
 
 private:
-  Memory memory;
-  Cpu cpu;
-  CpuStatistics m_cpuStatistics;
+  Memory m_memory;
+  Cpu m_cpu;
+  CpuStatistics m_accCpuStatistics;
+  CpuStatistics m_lastCpuStatistics;
 };

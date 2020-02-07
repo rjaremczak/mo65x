@@ -132,5 +132,5 @@ void MainWindow::propagateState(EmulatorState es) {
 }
 
 void MainWindow::polling() {
-  if (const auto es = emulator->state(); es.running()) propagateState(es);
+  if (const auto es = emulator->state(); es.cpuState.running()) propagateState(es);
 }
