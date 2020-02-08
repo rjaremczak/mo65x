@@ -69,10 +69,10 @@ void EmulatorQt::execute(bool continuous, Frequency clock) {
 
   const auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(1.0 / clock));
   m_lastCpuStatistics.reset();
-  m_cpu.preExecute();
+  m_cpu.preRun();
   while (m_cpu.running()) {
     const auto t0 = std::chrono::high_resolution_clock::now();
-    const auto cycles = m_cpu.execute();
+    const auto cycles = m_cpu.stepRun();
     const auto dt = period * cycles;
     const auto t1 = t0 + dt;
     while (std::chrono::high_resolution_clock::now() < t1) {}
@@ -85,7 +85,7 @@ void EmulatorQt::execute(bool continuous, Frequency clock) {
 
     if (!continuous) break;
   }
-  m_cpu.postExecute();
+  m_cpu.postRun();
   sb.unblock();
   emit stateChanged(state());
   emit memoryContentChanged(AddressRange::Max);

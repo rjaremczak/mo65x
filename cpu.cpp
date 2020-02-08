@@ -381,11 +381,11 @@ void Cpu::stopExecution() {
   if (m_state.execution == CpuState::Execution::Running) m_state.execution = CpuState::Execution::Stopping;
 }
 
-void Cpu::preExecute() {
+void Cpu::preRun() {
   m_state.execution = CpuState::Execution::Running;
 }
 
-int Cpu::execute() {
+int Cpu::stepRun() {
   m_extraCycles = 0;
   m_pageBoundaryCrossed = false;
   const auto pcPtr = &m_memory[regs.pc];
@@ -407,7 +407,7 @@ int Cpu::execute() {
   return entry.instruction->cycles + m_extraCycles;
 }
 
-void Cpu::postExecute() {
+void Cpu::postRun() {
   switch (m_state.execution) {
   case CpuState::Execution::Running: m_state.execution = CpuState::Execution::Idle; break;
   case CpuState::Execution::Stopping: m_state.execution = CpuState::Execution::Stopped; break;

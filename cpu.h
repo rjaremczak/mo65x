@@ -25,9 +25,9 @@ public:
   void reset();
   void resetExecutionState();
   void stopExecution();
-  void preExecute();
-  int execute();
-  void postExecute();
+  void preRun();
+  int stepRun();
+  void postRun();
   void triggerReset();
   void triggerNmi();
   void triggerIrq();

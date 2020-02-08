@@ -35,10 +35,10 @@
 
 #define TEST_INST(instr, numCycles)                                                                                              \
   QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok);                                                                    \
-  cpu.preExecute();                                                                                                              \
-  lastCycles = cpu.execute();                                                                                                    \
+  cpu.preRun();                                                                                                                  \
+  lastCycles = cpu.stepRun();                                                                                                    \
   QCOMPARE(lastCycles, numCycles);                                                                                               \
-  cpu.postExecute();                                                                                                             \
+  cpu.postRun();                                                                                                                 \
   QCOMPARE(cpu.state().execution, CpuState::Execution::Idle)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \

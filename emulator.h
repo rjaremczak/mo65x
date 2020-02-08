@@ -13,13 +13,11 @@
 class Emulator
 {
 public:
-  enum class State : uint8_t { Idle, StepExecution, ContinuousExecution };
-
   Emulator();
   ~Emulator();
   const Memory& memoryView() const { return m_memory; }
   Memory& memoryRef() { return m_memory; }
-  State state() const { return m_state; }
+  bool running() const { return m_running; }
   void loadMemory(Address first, std::basic_istream<char>& is);
   void saveMemory(AddressRange range, std::basic_ostream<char>& os);
   void execute(bool continuous, Frequency clock);
@@ -33,19 +31,20 @@ public:
   void triggerNmi();
   void triggerReset();
   void clearStatistics();
-  void stopExecution();
+  bool stopExecution();
 
 private:
   void loop() noexcept;
 
-  State m_state = State::Idle;
-  Frequency m_frequency;
   Memory m_memory;
   Cpu m_cpu;
   CpuStatistics m_accCpuStatistics;
   CpuStatistics m_lastCpuStatistics;
+  bool m_running = false;
+  bool m_continuous = false;
+  std::chrono::nanoseconds m_period;
   std::atomic_flag m_loop;
-  std::mutex m_stateMutex;
-  std::condition_variable m_stateCondition;
+  std::mutex m_runningMutex;
+  std::condition_variable m_runningCondition;
   std::thread m_thread;
 };
