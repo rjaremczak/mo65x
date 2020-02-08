@@ -46,7 +46,13 @@ void Emulator::stopExecution() {
 void Emulator::loop() noexcept {
   std::generate(m_memory.begin(), m_memory.end(), [] { return std::rand(); });
   clearStatistics();
-  pthread_setname_np(pthread_self(), "emulator");
+  const auto str = "emulator";
+
+#ifdef __APPLE__
+  pthread_setname_np(str);
+#else
+  pthread_setname_np(pthread_self(), str);
+#endif
 
   m_loop.test_and_set();
   while (m_loop.test_and_set()) {
