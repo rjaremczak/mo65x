@@ -31,7 +31,7 @@ signals:
   void registerYChanged(uint8_t);
 
 public slots:
-  void updateOnChange(AddressRange);
+  void updateOnMemoryChange(AddressRange);
   void updateState(EmulatorState);
   void changeProgramCounter(uint16_t);
 

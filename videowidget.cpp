@@ -17,7 +17,7 @@ void VideoWidget::setFrameBufferAddress(Address addr) {
   addressRange = AddressRange(addr, ResolutionX * ResolutionY - 1);
 }
 
-void VideoWidget::updateOnChange(AddressRange range) {
+void VideoWidget::updateOnMemoryChange(AddressRange range) {
   if (addressRange.overlapsWith(range)) updateView();
 }
 

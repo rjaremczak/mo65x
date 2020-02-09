@@ -36,24 +36,25 @@ public slots:
   void prepareToQuit();
 
 private:
-  CentralWidget* viewWidget;
-  AssemblerWidget* assemblerWidget;
-  MemoryWidget* memoryWidget;
-  DisassemblerWidget* disassemblerWidget;
-  CpuWidget* cpuWidget;
-  VideoWidget* videoWidget;
-  EmulatorQt* emulator;
-  FileDataStorage<Config>* configStorage;
-  Config config;
-  QTimer* pollTimer;
-  QThread emulatorThread;
+  CentralWidget* m_viewWidget;
+  AssemblerWidget* m_assemblerWidget;
+  MemoryWidget* m_memoryWidget;
+  DisassemblerWidget* m_disassemblerWidget;
+  CpuWidget* m_cpuWidget;
+  VideoWidget* m_videoWidget;
+  FileDataStorage<Config>* m_configStorage;
+  Config m_config;
+  QTimer* m_pollTimer;
+
+  // QThread m_emulatorThread;
+  // EmulatorQt* emulator;
 
   Emulator m_emulator;
 
   void initConfigStorage();
-  void startEmulator();
   void propagateState(EmulatorState);
   void emulatorStateChanged();
+  void emulatorMemoryContentChanged(AddressRange);
 
 private slots:
   void polling();
@@ -62,6 +63,18 @@ private slots:
   void triggerReset();
   void triggerNmi();
   void triggerIrq();
+
+  // former EmulatorQt slots
+
+  void execute(bool continuous, Frequency clock);
+  void changeProgramCounter(uint16_t);
+  void changeStackPointer(uint16_t);
+  void changeRegisterA(uint8_t);
+  void changeRegisterX(uint8_t);
+  void changeRegisterY(uint8_t);
+  void memoryContentChanged(AddressRange);
+  void loadMemoryFromFile(Address start, const QString& fname);
+  void saveMemoryToFile(AddressRange, const QString& fname);
 };
 
 #endif // MAINWINDOW_H

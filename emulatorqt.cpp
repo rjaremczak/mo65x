@@ -127,8 +127,3 @@ void EmulatorQt::changeRegisterY(uint8_t y) {
     emit stateChanged(state());
   }
 }
-
-void EmulatorQt::changeMemory(Address addr, uint8_t b) {
-  m_memory[addr] = b;
-  emit memoryContentChanged(addr);
-}

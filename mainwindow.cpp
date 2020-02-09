@@ -10,72 +10,68 @@ static const QString ProjectVersion = "0.94";
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   initConfigStorage();
-  startEmulator();
 
-  cpuWidget = new CpuWidget(this, emulator->memoryView());
-  this->addDockWidget(Qt::RightDockWidgetArea, cpuWidget);
+  m_cpuWidget = new CpuWidget(this, m_emulator.memoryView());
+  this->addDockWidget(Qt::RightDockWidgetArea, m_cpuWidget);
 
-  videoWidget = new VideoWidget(this, emulator->memoryView());
-  this->addDockWidget(Qt::LeftDockWidgetArea, videoWidget);
+  m_videoWidget = new VideoWidget(this, m_emulator.memoryView());
+  this->addDockWidget(Qt::LeftDockWidgetArea, m_videoWidget);
 
-  assemblerWidget = new AssemblerWidget(this, emulator->memoryRef());
-  memoryWidget = new MemoryWidget(this, emulator->memoryView());
-  disassemblerWidget = new DisassemblerWidget(this, emulator->memoryView());
-  viewWidget = new CentralWidget(this, assemblerWidget, memoryWidget, disassemblerWidget);
-  setCentralWidget(viewWidget);
+  m_assemblerWidget = new AssemblerWidget(this, m_emulator.memoryRef());
+  m_memoryWidget = new MemoryWidget(this, m_emulator.memoryView());
+  m_disassemblerWidget = new DisassemblerWidget(this, m_emulator.memoryView());
+  m_viewWidget = new CentralWidget(this, m_assemblerWidget, m_memoryWidget, m_disassemblerWidget);
+  setCentralWidget(m_viewWidget);
 
-  pollTimer = new QTimer(this);
-  pollTimer->start(40);
-  connect(pollTimer, &QTimer::timeout, this, &MainWindow::polling);
+  m_pollTimer = new QTimer(this);
+  m_pollTimer->start(40);
+  connect(m_pollTimer, &QTimer::timeout, this, &MainWindow::polling);
 
-  connect(cpuWidget, &CpuWidget::executionRequested, emulator, &EmulatorQt::execute);
-  connect(cpuWidget, &CpuWidget::programCounterChanged, emulator, &EmulatorQt::changeProgramCounter);
-  connect(cpuWidget, &CpuWidget::stackPointerChanged, emulator, &EmulatorQt::changeStackPointer);
-  connect(cpuWidget, &CpuWidget::registerAChanged, emulator, &EmulatorQt::changeAccumulator);
-  connect(cpuWidget, &CpuWidget::registerXChanged, emulator, &EmulatorQt::changeRegisterX);
-  connect(cpuWidget, &CpuWidget::registerYChanged, emulator, &EmulatorQt::changeRegisterY);
+  connect(m_cpuWidget, &CpuWidget::executionRequested, this, &MainWindow::execute);
+  connect(m_cpuWidget, &CpuWidget::programCounterChanged, this, &MainWindow::changeProgramCounter);
+  connect(m_cpuWidget, &CpuWidget::stackPointerChanged, this, &MainWindow::changeStackPointer);
+  connect(m_cpuWidget, &CpuWidget::registerAChanged, this, &MainWindow::changeRegisterA);
+  connect(m_cpuWidget, &CpuWidget::registerXChanged, this, &MainWindow::changeRegisterX);
+  connect(m_cpuWidget, &CpuWidget::registerYChanged, this, &MainWindow::changeRegisterY);
 
-  connect(cpuWidget, &CpuWidget::clearStatisticsRequested, this, &MainWindow::clearStatistics);
-  connect(cpuWidget, &CpuWidget::stopExecutionRequested, this, &MainWindow::stopExecution);
-  connect(cpuWidget, &CpuWidget::resetRequested, this, &MainWindow::triggerReset);
-  connect(cpuWidget, &CpuWidget::nmiRequested, this, &MainWindow::triggerNmi);
-  connect(cpuWidget, &CpuWidget::irqRequested, this, &MainWindow::triggerIrq);
+  connect(m_cpuWidget, &CpuWidget::clearStatisticsRequested, this, &MainWindow::clearStatistics);
+  connect(m_cpuWidget, &CpuWidget::stopExecutionRequested, this, &MainWindow::stopExecution);
+  connect(m_cpuWidget, &CpuWidget::resetRequested, this, &MainWindow::triggerReset);
+  connect(m_cpuWidget, &CpuWidget::nmiRequested, this, &MainWindow::triggerNmi);
+  connect(m_cpuWidget, &CpuWidget::irqRequested, this, &MainWindow::triggerIrq);
 
-  connect(emulator, &EmulatorQt::stateChanged, cpuWidget, &CpuWidget::updateState);
-  connect(emulator, &EmulatorQt::stateChanged, disassemblerWidget, &DisassemblerWidget::updateState);
-  connect(emulator, &EmulatorQt::memoryContentChanged, cpuWidget, &CpuWidget::updateOnChange);
-  connect(emulator, &EmulatorQt::memoryContentChanged, memoryWidget, &MemoryWidget::updateOnChange);
-  connect(emulator, &EmulatorQt::memoryContentChanged, disassemblerWidget, &DisassemblerWidget::updateOnChange);
-  connect(emulator, &EmulatorQt::memoryContentChanged, videoWidget, &VideoWidget::updateOnChange);
+  // connect(emulator, &EmulatorQt::stateChanged, m_cpuWidget, &CpuWidget::updateState);
+  // connect(emulator, &EmulatorQt::stateChanged, m_disassemblerWidget, &DisassemblerWidget::updateState);
+  // connect(emulator, &EmulatorQt::memoryContentChanged, m_cpuWidget, &CpuWidget::updateOnMemoryChange);
+  // connect(emulator, &EmulatorQt::memoryContentChanged, m_memoryWidget, &MemoryWidget::updateOnMemoryChange);
+  // connect(emulator, &EmulatorQt::memoryContentChanged, m_disassemblerWidget, &DisassemblerWidget::updateOnMemoryChange);
+  // connect(emulator, &EmulatorQt::memoryContentChanged, m_videoWidget, &VideoWidget::updateOnMemoryChange);
   connect(emulator, &EmulatorQt::operationCompleted, this, &MainWindow::showMessage);
 
-  connect(assemblerWidget, &AssemblerWidget::newFileCreated, [&] { changeAsmFileName(""); });
-  connect(assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
-  connect(assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showMessage);
-  connect(assemblerWidget, &AssemblerWidget::codeWritten, emulator, &EmulatorQt::memoryContentChanged);
-  connect(assemblerWidget, &AssemblerWidget::programCounterChanged, emulator, &EmulatorQt::changeProgramCounter);
+  connect(m_assemblerWidget, &AssemblerWidget::newFileCreated, [&] { changeAsmFileName(""); });
+  connect(m_assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
+  connect(m_assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
+  connect(m_assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showMessage);
+  connect(m_assemblerWidget, &AssemblerWidget::codeWritten, this, &EmulatorQt::memoryContentChanged);
+  connect(m_assemblerWidget, &AssemblerWidget::programCounterChanged, this, &MainWindow::changeProgramCounter);
 
-  connect(memoryWidget, &MemoryWidget::loadFromFileRequested, emulator, &EmulatorQt::loadMemoryFromFile);
-  connect(memoryWidget, &MemoryWidget::saveToFileRequested, emulator, &EmulatorQt::saveMemoryToFile);
+  connect(m_memoryWidget, &MemoryWidget::loadFromFileRequested, this, &MainWindow::loadMemoryFromFile);
+  connect(m_memoryWidget, &MemoryWidget::saveToFileRequested, this, &MainWindow::saveMemoryToFile);
 
-  connect(disassemblerWidget, &DisassemblerWidget::goToStartClicked, emulator, &EmulatorQt::changeProgramCounter);
+  connect(m_disassemblerWidget, &DisassemblerWidget::goToStartClicked, this, &EmulatorQt::changeProgramCounter);
 
-  if (!config.asmFileName.isEmpty()) assemblerWidget->loadFile(config.asmFileName);
-  videoWidget->setFrameBufferAddress(0x200);
-  propagateState(emulator->state());
+  if (!m_config.asmFileName.isEmpty()) m_assemblerWidget->loadFile(m_config.asmFileName);
+  m_videoWidget->setFrameBufferAddress(0x200);
+  propagateState(m_emulator.state());
 }
 
 MainWindow::~MainWindow() {
-  emulator->stopExecution();
-  emulatorThread.quit();
-  emulatorThread.wait();
   delete ui;
 }
 
 void MainWindow::changeAsmFileName(const QString& fileName) {
-  config.asmFileName = fileName;
-  configStorage->write(config);
+  m_config.asmFileName = fileName;
+  m_configStorage->write(m_config);
 
   QFileInfo fileInfo(fileName);
   setWindowTitle(ProjectName + " " + ProjectVersion + " © mindpart.com : " + fileInfo.fileName());
@@ -92,74 +88,104 @@ void MainWindow::showMessage(const QString& message, bool success) {
 
 void MainWindow::prepareToQuit() {
   qDebug("quitting...");
-  emulator->stopExecution();
 }
 
 void MainWindow::initConfigStorage() {
   auto appDir = QDir(QDir::homePath() + "/." + ProjectName);
   if (!appDir.exists()) appDir.mkpath(".");
 
-  configStorage = new FileDataStorage<Config>(appDir.filePath("config.json"));
-  config = configStorage->readOrCreate();
-}
-
-void MainWindow::startEmulator() {
-  emulator = new EmulatorQt();
-  emulator->moveToThread(&emulatorThread);
-  connect(&emulatorThread, &QThread::finished, emulator, &EmulatorQt::deleteLater);
-  emulatorThread.start();
-  emulatorThread.setObjectName("EmulatorQt");
+  m_configStorage = new FileDataStorage<Config>(appDir.filePath("config.json"));
+  m_config = m_configStorage->readOrCreate();
 }
 
 void MainWindow::propagateState(EmulatorState es) {
 
-  if (viewWidget->isVisible(memoryWidget)) {
-    const QSignalBlocker memoryBlocker(this->memoryWidget);
-    memoryWidget->updateOnChange(AddressRange::Max);
+  if (m_viewWidget->isVisible(m_memoryWidget)) {
+    const QSignalBlocker memoryBlocker(this->m_memoryWidget);
+    m_memoryWidget->updateOnMemoryChange(AddressRange::Max);
   }
 
-  if (viewWidget->isVisible(disassemblerWidget)) {
-    const QSignalBlocker disassemblerBlocker(this->disassemblerWidget);
-    disassemblerWidget->updateState(es);
-    disassemblerWidget->updateOnChange(AddressRange::Max);
+  if (m_viewWidget->isVisible(m_disassemblerWidget)) {
+    const QSignalBlocker disassemblerBlocker(this->m_disassemblerWidget);
+    m_disassemblerWidget->updateState(es);
+    m_disassemblerWidget->updateOnMemoryChange(AddressRange::Max);
   }
 
-  const QSignalBlocker cpuBlocker(this->cpuWidget);
-  cpuWidget->updateState(es);
+  const QSignalBlocker cpuBlocker(this->m_cpuWidget);
+  m_cpuWidget->updateState(es);
 
-  const QSignalBlocker videoBlocker(this->videoWidget);
-  videoWidget->updateView();
+  const QSignalBlocker videoBlocker(this->m_videoWidget);
+  m_videoWidget->updateView();
 }
 
 void MainWindow::emulatorStateChanged() {
-  emit emulator->stateChanged(emulator->state());
+  const auto es = m_emulator.state();
+  m_cpuWidget->updateState(es);
+  m_disassemblerWidget->updateState(es);
+}
+
+void MainWindow::emulatorMemoryContentChanged(AddressRange range) {
+  m_cpuWidget->updateOnMemoryChange(range);
+  m_memoryWidget->updateOnMemoryChange(range);
+  m_disassemblerWidget->updateOnMemoryChange(range);
+  m_videoWidget->updateOnMemoryChange(range);
 }
 
 void MainWindow::polling() {
-  if (const auto es = emulator->state(); es.cpuState.running()) propagateState(es);
+  if (const auto es = m_emulator.state(); es.cpuState.running()) propagateState(es);
 }
 
 void MainWindow::clearStatistics() {
-  emulator->clearStatistics();
+  m_emulator.clearStatistics();
   emulatorStateChanged();
 }
 
 void MainWindow::stopExecution() {
-  emulator->stopExecution();
+  m_emulator.stopExecution();
   emulatorStateChanged();
 }
 
 void MainWindow::triggerReset() {
-  emulator->triggerReset();
+  m_emulator.triggerReset();
   emulatorStateChanged();
 }
 
 void MainWindow::triggerNmi() {
-  emulator->triggerNmi();
+  m_emulator.triggerNmi();
   emulatorStateChanged();
 }
 
 void MainWindow::triggerIrq() {
-  emulator->triggerIrq();
+  m_emulator.triggerIrq();
   emulatorStateChanged();
+}
+
+void MainWindow::execute(bool continuous, Frequency clock) {
+}
+
+void MainWindow::changeProgramCounter(uint16_t) {
+}
+
+void MainWindow::changeStackPointer(uint16_t) {
+}
+
+void MainWindow::changeRegisterA(uint8_t) {
+}
+
+void MainWindow::changeRegisterX(uint8_t) {
+}
+
+void MainWindow::changeRegisterY(uint8_t) {
+}
+
+void MainWindow::memoryContentChanged(AddressRange range) {
+  emulatorMemoryContentChanged(range);
+}
+
+void MainWindow::loadMemoryFromFile(Address start, const QString& fname) {
+  // emit operationCompleted(rsize > 0 ? tr("loaded %1 B\nfrom file %2").arg(rsize).arg(fname) : "load error", rsize > 0);
+}
+
+void MainWindow::saveMemoryToFile(AddressRange, const QString& fname) {
+  //  emit operationCompleted(rsize > 0 ? tr("saved %1 B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
 }

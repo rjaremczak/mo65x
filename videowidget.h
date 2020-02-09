@@ -21,7 +21,7 @@ public:
 
 public slots:
   void setFrameBufferAddress(Address addr);
-  void updateOnChange(AddressRange range);
+  void updateOnMemoryChange(AddressRange range);
   void updateView();
 
 private:

@@ -22,6 +22,6 @@ void DisassemblerWidget::updateState(EmulatorState state) {
   view->changeSelected(state.regs.pc);
 }
 
-void DisassemblerWidget::updateOnChange(AddressRange range) {
+void DisassemblerWidget::updateOnMemoryChange(AddressRange range) {
   view->updateMemoryView(range);
 }

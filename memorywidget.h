@@ -25,7 +25,7 @@ signals:
   void saveToFileRequested(AddressRange, const QString& fname);
 
 public slots:
-  void updateOnChange(AddressRange);
+  void updateOnMemoryChange(AddressRange);
 
 protected:
   void resizeEvent(QResizeEvent*) override;

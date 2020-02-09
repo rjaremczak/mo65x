@@ -28,7 +28,6 @@ public slots:
   void changeAccumulator(uint8_t);
   void changeRegisterX(uint8_t);
   void changeRegisterY(uint8_t);
-  void changeMemory(Address, uint8_t);
   void loadMemoryFromFile(Address start, const QString& fname);
   void saveMemoryToFile(AddressRange range, const QString& fname);
 

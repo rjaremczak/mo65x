@@ -24,7 +24,7 @@ signals:
 
 public slots:
   void updateState(EmulatorState);
-  void updateOnChange(AddressRange);
+  void updateOnMemoryChange(AddressRange);
 
 private:
   Ui::DisassemblerWidget* ui;

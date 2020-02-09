@@ -18,6 +18,8 @@ public:
   const Memory& memoryView() const { return m_memory; }
   Memory& memoryRef() { return m_memory; }
   bool running() const { return m_running; }
+  EmulatorState state() const { return {m_cpu.state(), m_cpu.regs, m_accCpuStatistics, m_lastCpuStatistics}; }
+
   void loadMemory(Address first, std::basic_istream<char>& is);
   void saveMemory(AddressRange range, std::basic_ostream<char>& os);
   void execute(bool continuous, Frequency clock);
