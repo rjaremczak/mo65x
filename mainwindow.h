@@ -44,7 +44,6 @@ private:
   FileDataStorage<Config>* m_configStorage;
   Config m_config;
   QTimer* m_pollTimer;
-
   Emulator m_emulator;
 
   void initConfigStorage();

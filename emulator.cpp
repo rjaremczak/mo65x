@@ -4,6 +4,7 @@
 Emulator::Emulator() : m_cpu(m_memory), m_thread(&Emulator::loop, this) {
   const auto str = "emulator";
   std::generate(m_memory.begin(), m_memory.end(), [] { return std::rand(); });
+  m_cpu.reset();
 #ifdef __APPLE__
   pthread_setname_np(str);
 #else
@@ -61,7 +62,7 @@ void Emulator::setRegisterX(uint8_t x) {
 
 void Emulator::setRegisterY(uint8_t y) {
   std::unique_lock lock(m_runningMutex, std::try_to_lock);
-  if (lock.owns_lock() && !m_running) { m_cpu.regs.a = y; }
+  if (lock.owns_lock() && !m_running) { m_cpu.regs.y = y; }
 }
 
 void Emulator::triggerIrq() {
