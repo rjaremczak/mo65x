@@ -3,7 +3,7 @@
 
 Emulator::Emulator() : m_cpu(m_memory), m_thread(&Emulator::loop, this) {
   const auto str = "emulator";
-//  std::generate(m_memory.begin(), m_memory.end(), [] { return std::rand(); });
+  std::generate(m_memory.begin(), m_memory.end(), [] { return std::rand(); });
 #ifdef __APPLE__
   pthread_setname_np(str);
 #else
