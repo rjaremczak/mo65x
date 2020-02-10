@@ -20,20 +20,20 @@ public:
   bool running() const { return m_running; }
   EmulatorState state() const { return {m_cpu.state(), m_cpu.regs, m_accCpuStatistics, m_lastCpuStatistics}; }
 
-  void loadMemory(Address first, std::basic_istream<char>& is);
-  void saveMemory(AddressRange range, std::basic_ostream<char>& os);
+  void readMemory(AddressRange range, Data& buf) const;
+  void writeMemory(AddressRange range, const Data& buf);
   void execute(bool continuous, Frequency clock);
-  void changeProgramCounter(Address);
-  void changeStackPointer(Address);
-  void changeAccumulator(uint8_t);
-  void changeRegisterX(uint8_t);
-  void changeRegisterY(uint8_t);
-  void changeMemory(Address, uint8_t);
+  void setRegisterPC(Address);
+  void setRegisterSP(Address);
+  void setRegisterA(uint8_t);
+  void setRegisterX(uint8_t);
+  void setRegisterY(uint8_t);
   void triggerIrq();
   void triggerNmi();
   void triggerReset();
   void clearStatistics();
   bool stopExecution();
+  void waitForStop();
 
 private:
   void loop() noexcept;

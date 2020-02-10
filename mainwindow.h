@@ -7,7 +7,6 @@
 #include "cpuwidget.h"
 #include "disassemblerwidget.h"
 #include "emulator.h"
-#include "emulatorqt.h"
 #include "filedatastorage.h"
 #include "memorywidget.h"
 #include "videowidget.h"
@@ -46,9 +45,6 @@ private:
   Config m_config;
   QTimer* m_pollTimer;
 
-  // QThread m_emulatorThread;
-  // EmulatorQt* emulator;
-
   Emulator m_emulator;
 
   void initConfigStorage();
@@ -67,11 +63,11 @@ private slots:
   // former EmulatorQt slots
 
   void execute(bool continuous, Frequency clock);
-  void changeProgramCounter(uint16_t);
-  void changeStackPointer(uint16_t);
-  void changeRegisterA(uint8_t);
-  void changeRegisterX(uint8_t);
-  void changeRegisterY(uint8_t);
+  void setRegisterPC(Address);
+  void setRegisterSP(Address);
+  void setRegisterA(uint8_t);
+  void setRegisterX(uint8_t);
+  void setRegisterY(uint8_t);
   void memoryContentChanged(AddressRange);
   void loadMemoryFromFile(Address start, const QString& fname);
   void saveMemoryToFile(AddressRange, const QString& fname);

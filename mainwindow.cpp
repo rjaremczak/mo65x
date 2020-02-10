@@ -28,11 +28,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(m_pollTimer, &QTimer::timeout, this, &MainWindow::polling);
 
   connect(m_cpuWidget, &CpuWidget::executionRequested, this, &MainWindow::execute);
-  connect(m_cpuWidget, &CpuWidget::programCounterChanged, this, &MainWindow::changeProgramCounter);
-  connect(m_cpuWidget, &CpuWidget::stackPointerChanged, this, &MainWindow::changeStackPointer);
-  connect(m_cpuWidget, &CpuWidget::registerAChanged, this, &MainWindow::changeRegisterA);
-  connect(m_cpuWidget, &CpuWidget::registerXChanged, this, &MainWindow::changeRegisterX);
-  connect(m_cpuWidget, &CpuWidget::registerYChanged, this, &MainWindow::changeRegisterY);
+  connect(m_cpuWidget, &CpuWidget::programCounterChanged, this, &MainWindow::setRegisterPC);
+  connect(m_cpuWidget, &CpuWidget::stackPointerChanged, this, &MainWindow::setRegisterSP);
+  connect(m_cpuWidget, &CpuWidget::registerAChanged, this, &MainWindow::setRegisterA);
+  connect(m_cpuWidget, &CpuWidget::registerXChanged, this, &MainWindow::setRegisterX);
+  connect(m_cpuWidget, &CpuWidget::registerYChanged, this, &MainWindow::setRegisterY);
 
   connect(m_cpuWidget, &CpuWidget::clearStatisticsRequested, this, &MainWindow::clearStatistics);
   connect(m_cpuWidget, &CpuWidget::stopExecutionRequested, this, &MainWindow::stopExecution);
@@ -46,19 +46,19 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   // connect(emulator, &EmulatorQt::memoryContentChanged, m_memoryWidget, &MemoryWidget::updateOnMemoryChange);
   // connect(emulator, &EmulatorQt::memoryContentChanged, m_disassemblerWidget, &DisassemblerWidget::updateOnMemoryChange);
   // connect(emulator, &EmulatorQt::memoryContentChanged, m_videoWidget, &VideoWidget::updateOnMemoryChange);
-  connect(emulator, &EmulatorQt::operationCompleted, this, &MainWindow::showMessage);
+  // connect(emulator, &EmulatorQt::operationCompleted, this, &MainWindow::showMessage);
 
   connect(m_assemblerWidget, &AssemblerWidget::newFileCreated, [&] { changeAsmFileName(""); });
   connect(m_assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
   connect(m_assemblerWidget, &AssemblerWidget::fileSaved, this, &MainWindow::changeAsmFileName);
   connect(m_assemblerWidget, &AssemblerWidget::operationCompleted, this, &MainWindow::showMessage);
-  connect(m_assemblerWidget, &AssemblerWidget::codeWritten, this, &EmulatorQt::memoryContentChanged);
-  connect(m_assemblerWidget, &AssemblerWidget::programCounterChanged, this, &MainWindow::changeProgramCounter);
+  connect(m_assemblerWidget, &AssemblerWidget::codeWritten, this, &MainWindow::memoryContentChanged);
+  connect(m_assemblerWidget, &AssemblerWidget::programCounterChanged, this, &MainWindow::setRegisterPC);
 
   connect(m_memoryWidget, &MemoryWidget::loadFromFileRequested, this, &MainWindow::loadMemoryFromFile);
   connect(m_memoryWidget, &MemoryWidget::saveToFileRequested, this, &MainWindow::saveMemoryToFile);
 
-  connect(m_disassemblerWidget, &DisassemblerWidget::goToStartClicked, this, &EmulatorQt::changeProgramCounter);
+  connect(m_disassemblerWidget, &DisassemblerWidget::goToStartClicked, this, &MainWindow::setRegisterPC);
 
   if (!m_config.asmFileName.isEmpty()) m_assemblerWidget->loadFile(m_config.asmFileName);
   m_videoWidget->setFrameBufferAddress(0x200);
@@ -161,21 +161,34 @@ void MainWindow::triggerIrq() {
 }
 
 void MainWindow::execute(bool continuous, Frequency clock) {
+  m_emulator.execute(continuous, clock);
+  if (!continuous) m_emulator.waitForStop();
+  emulatorStateChanged();
 }
 
-void MainWindow::changeProgramCounter(uint16_t) {
+void MainWindow::setRegisterPC(Address pc) {
+  m_emulator.setRegisterPC(pc);
+  emulatorStateChanged();
 }
 
-void MainWindow::changeStackPointer(uint16_t) {
+void MainWindow::setRegisterSP(Address sp) {
+  m_emulator.setRegisterSP(sp);
+  emulatorStateChanged();
 }
 
-void MainWindow::changeRegisterA(uint8_t) {
+void MainWindow::setRegisterA(uint8_t a) {
+  m_emulator.setRegisterA(a);
+  emulatorStateChanged();
 }
 
-void MainWindow::changeRegisterX(uint8_t) {
+void MainWindow::setRegisterX(uint8_t x) {
+  m_emulator.setRegisterX(x);
+  emulatorStateChanged();
 }
 
-void MainWindow::changeRegisterY(uint8_t) {
+void MainWindow::setRegisterY(uint8_t y) {
+  m_emulator.setRegisterY(y);
+  emulatorStateChanged();
 }
 
 void MainWindow::memoryContentChanged(AddressRange range) {
@@ -183,9 +196,24 @@ void MainWindow::memoryContentChanged(AddressRange range) {
 }
 
 void MainWindow::loadMemoryFromFile(Address start, const QString& fname) {
-  // emit operationCompleted(rsize > 0 ? tr("loaded %1 B\nfrom file %2").arg(rsize).arg(fname) : "load error", rsize > 0);
+  QFile file(fname);
+  qint64 rsize = -1;
+  if (file.open(QIODevice::ReadOnly)) {
+    const auto size = std::min(static_cast<qint64>(Memory::Size - start), file.size());
+    Data buf(static_cast<size_t>(size));
+    rsize = file.read(reinterpret_cast<char*>(buf.data()), size);
+    if (rsize == size) m_emulator.writeMemory(start, buf);
+  }
+  showMessage(rsize > 0 ? tr("loaded %1 B\nfrom file %2").arg(rsize).arg(fname) : "load error", rsize > 0);
 }
 
-void MainWindow::saveMemoryToFile(AddressRange, const QString& fname) {
-  //  emit operationCompleted(rsize > 0 ? tr("saved %1 B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
+void MainWindow::saveMemoryToFile(AddressRange range, const QString& fname) {
+  QFile file(fname);
+  qint64 rsize = -1;
+  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    Data buf(range.size());
+    m_emulator.readMemory(range, buf);
+    rsize = file.write(reinterpret_cast<char*>(buf.data()), static_cast<int>(buf.size()));
+  }
+  showMessage(rsize > 0 ? tr("saved %1 B\nto file %2").arg(rsize).arg(fname) : "save error", rsize > 0);
 }
