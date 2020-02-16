@@ -115,3 +115,6 @@ test {
 }
 
 message($${TARGET})
+
+DISTFILES += \
+  CMakeLists.txt

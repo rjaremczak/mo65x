@@ -3,12 +3,16 @@
 #include "emulatorstate.h"
 #include "filedatastorage.h"
 #include "mainwindow.h"
+#include "test/assemblertest.h"
+#include "test/flagstest.h"
+#include "test/instructionstest.h"
 #include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QMetaType>
 #include <QScreen>
 #include <QStyleFactory>
+#include <QTest>
 
 Q_DECLARE_METATYPE(EmulatorState)
 Q_DECLARE_METATYPE(Data)
@@ -16,6 +20,16 @@ Q_DECLARE_METATYPE(Address)
 Q_DECLARE_METATYPE(AddressRange)
 Q_DECLARE_METATYPE(FileOperationCallBack)
 Q_DECLARE_METATYPE(Frequency)
+
+int test(int argc, char** argv) {
+  QApplication app(argc, argv);
+
+  AssemblerTest assemblerTest;
+  InstructionsTest opCodesTest;
+  FlagsTest flagsTest;
+
+  return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv) | QTest::qExec(&flagsTest, argc, argv);
+}
 
 int main(int argc, char* argv[]) {
 
