@@ -94,6 +94,8 @@ void Emulator::waitForStop() {
 }
 
 void Emulator::loop() noexcept {
+  using precise_clock = std::chrono::steady_clock;
+
   clearStatistics();
   m_loop.test_and_set();
   while (m_loop.test_and_set()) {
@@ -103,11 +105,11 @@ void Emulator::loop() noexcept {
       m_lastCpuStatistics.reset();
       m_cpu.preRun();
       while (m_cpu.running()) {
-        const auto t0 = std::chrono::high_resolution_clock::now();
+        const auto t0 = precise_clock::now();
         const auto cycles = m_cpu.stepRun();
         const auto dt = m_period * cycles;
         const auto t1 = t0 + dt;
-        while (std::chrono::high_resolution_clock::now() < t1) {}
+        while (precise_clock::now() < t1) {}
 
         m_accCpuStatistics.cycles += cycles;
         m_accCpuStatistics.duration += dt;
