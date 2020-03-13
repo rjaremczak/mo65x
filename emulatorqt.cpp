@@ -64,18 +64,19 @@ void EmulatorQt::stopExecution() {
   QThread::msleep(100);
 }
 
-void EmulatorQt::execute(bool continuous, Frequency clock) {
-  QSignalBlocker sb(this);
+void EmulatorQt::execute(bool continuous, Frequency freq) {
+  using precise_clock = std::chrono::steady_clock;
 
-  const auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(1.0 / clock));
+  QSignalBlocker sb(this);
+  const auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(1.0 / freq));
   m_lastCpuStatistics.reset();
   m_cpu.preRun();
   while (m_cpu.running()) {
-    const auto t0 = std::chrono::high_resolution_clock::now();
+    const auto t0 = precise_clock::now();
     const auto cycles = m_cpu.stepRun();
     const auto dt = period * cycles;
     const auto t1 = t0 + dt;
-    while (std::chrono::high_resolution_clock::now() < t1) {}
+    //while (precise_clock::now() < t1) {}
 
     m_accCpuStatistics.cycles += cycles;
     m_accCpuStatistics.duration += dt;
