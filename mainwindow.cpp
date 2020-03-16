@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 static const QString ProjectName = "mo65x";
-static const QString ProjectVersion = "0.94";
+static const QString ProjectVersion = "1.01";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -39,14 +39,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   connect(m_cpuWidget, &CpuWidget::resetRequested, this, &MainWindow::triggerReset);
   connect(m_cpuWidget, &CpuWidget::nmiRequested, this, &MainWindow::triggerNmi);
   connect(m_cpuWidget, &CpuWidget::irqRequested, this, &MainWindow::triggerIrq);
-
-  // connect(emulator, &EmulatorQt::stateChanged, m_cpuWidget, &CpuWidget::updateState);
-  // connect(emulator, &EmulatorQt::stateChanged, m_disassemblerWidget, &DisassemblerWidget::updateState);
-  // connect(emulator, &EmulatorQt::memoryContentChanged, m_cpuWidget, &CpuWidget::updateOnMemoryChange);
-  // connect(emulator, &EmulatorQt::memoryContentChanged, m_memoryWidget, &MemoryWidget::updateOnMemoryChange);
-  // connect(emulator, &EmulatorQt::memoryContentChanged, m_disassemblerWidget, &DisassemblerWidget::updateOnMemoryChange);
-  // connect(emulator, &EmulatorQt::memoryContentChanged, m_videoWidget, &VideoWidget::updateOnMemoryChange);
-  // connect(emulator, &EmulatorQt::operationCompleted, this, &MainWindow::showMessage);
 
   connect(m_assemblerWidget, &AssemblerWidget::newFileCreated, [&] { changeAsmFileName(""); });
   connect(m_assemblerWidget, &AssemblerWidget::fileLoaded, this, &MainWindow::changeAsmFileName);
@@ -94,7 +86,7 @@ void MainWindow::initConfigStorage() {
   auto appDir = QDir(QDir::homePath() + "/." + ProjectName);
   if (!appDir.exists()) appDir.mkpath(".");
 
-  m_configStorage = new FileDataStorage<Config>(appDir.filePath("config.json"));
+  m_configStorage = new FileDataStorage<Config>(appDir.filePath("config.json").toStdString());
   m_config = m_configStorage->readOrCreate();
 }
 

@@ -4,19 +4,25 @@
 #include <QFileDevice>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <fstream>
+#include <sstream>
+#include <experimental/filesystem>
 
 template <class DataObjectType> class FileDataStorage {
-  const QString m_filePath;
+  const std::string m_filePath;
 
 public:
-  FileDataStorage(const QString& filePath) : m_filePath(filePath) {}
+  FileDataStorage(const std::string& filePath) : m_filePath(filePath) {}
 
   void read(DataObjectType& dataObject) {
-    QFile file(m_filePath);
-    if (file.open(QIODevice::ReadOnly)) {
-      dataObject.read(QJsonDocument::fromJson(file.readAll()).object());
+    std::ifstream is(m_filePath);
+    if (is.is_open()) {
+      std::ostringstream oss;
+      oss << is.rdbuf();
+      const auto buf = QByteArray::fromStdString(oss.str());
+      dataObject.read(QJsonDocument::fromJson(buf).object());
     } else {
-      qFatal("unable to read configuration file %s", qPrintable(m_filePath));
+      qFatal("unable to read configuration file %s", m_filePath);
     }
   }
 
@@ -27,13 +33,14 @@ public:
   }
 
   void write(const DataObjectType& dataObject) {
-    QFile file(m_filePath);
-    if (file.open(QIODevice::WriteOnly)) {
+    std::ofstream os(m_filePath);
+    if (os.is_open()) {
       QJsonObject json;
       dataObject.write(json);
-      file.write(QJsonDocument(json).toJson());
+      const auto buf = QJsonDocument(json).toJson();
+      os.write(buf.data(), buf.size());
     } else {
-      qFatal("unable to save configuration file %s", qPrintable(m_filePath));
+      qFatal("unable to save configuration file %s", m_filePath);
     }
   }
 
@@ -47,7 +54,7 @@ public:
   }
 
   DataObjectType readOrCreate() {
-    if (QFile(m_filePath).exists()) {
+    if (std::experimental::filesystem::exists(m_filePath)) {
       return read();
     } else {
       DataObjectType dataObject;

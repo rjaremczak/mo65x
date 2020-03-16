@@ -13,6 +13,7 @@ find_package(Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
 
 #include_directories(./)
 #include_directories(test)
+include_directories(lib)
 
 file(GLOB_RECURSE APP_SOURCES "*.c*" "*.h")
 file(GLOB_RECURSE TEST_SOURCES "test/*.c*" "test/*.h")
@@ -27,4 +28,5 @@ target_link_libraries(mo65x
     Qt5::Gui
     Qt5::Test
     pthread
+    stdc++fs
 )
