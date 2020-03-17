@@ -6,7 +6,6 @@
 #include <QJsonObject>
 #include <fstream>
 #include <sstream>
-#include <experimental/filesystem>
 
 template <class DataObjectType> class FileDataStorage {
   const std::string m_filePath;
@@ -14,16 +13,15 @@ template <class DataObjectType> class FileDataStorage {
 public:
   FileDataStorage(const std::string& filePath) : m_filePath(filePath) {}
 
-  void read(DataObjectType& dataObject) {
+  bool read(DataObjectType& dataObject) {
     std::ifstream is(m_filePath);
-    if (is.is_open()) {
-      std::ostringstream oss;
-      oss << is.rdbuf();
-      const auto buf = QByteArray::fromStdString(oss.str());
-      dataObject.read(QJsonDocument::fromJson(buf).object());
-    } else {
-      qFatal("unable to read configuration file %s", m_filePath);
-    }
+    if (!is.is_open()) return false;
+
+    std::ostringstream oss;
+    oss << is.rdbuf();
+    const auto buf = QByteArray::fromStdString(oss.str());
+    dataObject.read(QJsonDocument::fromJson(buf).object());
+    return true;
   }
 
   DataObjectType read() {
@@ -44,22 +42,9 @@ public:
     }
   }
 
-  DataObjectType readOrCreate(const DataObjectType& defaultDataObject) {
-    if (QFile(m_filePath).exists()) {
-      return read();
-    } else {
-      write(defaultDataObject);
-      return defaultDataObject;
-    }
-  }
-
-  DataObjectType readOrCreate() {
-    if (std::experimental::filesystem::exists(m_filePath)) {
-      return read();
-    } else {
-      DataObjectType dataObject;
-      write(dataObject);
-      return dataObject;
-    }
+  DataObjectType readOrInitialise() {
+    DataObjectType dao;
+    if (!read(dao)) write(dao);
+    return dao;
   }
 };
