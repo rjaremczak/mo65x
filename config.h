@@ -1,11 +1,10 @@
 #pragma once
 
-#include <QJsonObject>
-#include <QString>
+#include <nlohmann/json.hpp>
 
 struct Config {
-  QString asmFileName;
+  std::string asmFileName;
 
-  void read(const QJsonObject& json);
-  void write(QJsonObject& json) const;
+  void read(const nlohmann::json&);
+  nlohmann::json toJson() const;
 };

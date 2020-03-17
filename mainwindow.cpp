@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   connect(m_disassemblerWidget, &DisassemblerWidget::goToStartClicked, this, &MainWindow::setRegisterPC);
 
-  if (!m_config.asmFileName.isEmpty()) m_assemblerWidget->loadFile(m_config.asmFileName);
+  if (!m_config.asmFileName.empty()) m_assemblerWidget->loadFile(QString::fromStdString(m_config.asmFileName));
   m_videoWidget->setFrameBufferAddress(0x200);
   propagateState(m_emulator.state());
 }
@@ -62,7 +62,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::changeAsmFileName(const QString& fileName) {
-  m_config.asmFileName = fileName;
+  m_config.asmFileName = fileName.toStdString();
   m_configStorage->write(m_config);
 
   QFileInfo fileInfo(fileName);

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <nlohmann/json.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -11,14 +10,13 @@ template <class DataObjectType> class FileDataStorage {
 public:
   FileDataStorage(const std::string& filePath) : m_filePath(filePath) {}
 
-  bool read(DataObjectType& dataObject) {
+  bool read(DataObjectType& dao) {
     std::ifstream is(m_filePath);
     if (!is.is_open()) return false;
 
     std::ostringstream oss;
     oss << is.rdbuf();
-    const auto buf = QByteArray::fromStdString(oss.str());
-    dataObject.read(QJsonDocument::fromJson(buf).object());
+    dao.read(nlohmann::json::parse(oss.str()));
     return true;
   }
 
@@ -28,13 +26,9 @@ public:
     return dataObject;
   }
 
-  void write(const DataObjectType& dataObject) {
+  void write(const DataObjectType& dao) {
     std::ofstream os(m_filePath);
-    if (!os.is_open()) return;
-
-    QJsonObject json;
-    dataObject.write(json);
-    os << QJsonDocument(json).toJson().toStdString();
+    if (os.is_open()) os << dao.toJson().dump(4);
   }
 
   DataObjectType readOrInit() {

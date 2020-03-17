@@ -2,10 +2,12 @@
 
 static constexpr auto AsmFileName = "asmFileName";
 
-void Config::read(const QJsonObject& json) {
-  asmFileName = json[AsmFileName].toString();
+void Config::read(const nlohmann::json& json) {
+  asmFileName = json[AsmFileName];
 }
 
-void Config::write(QJsonObject& json) const {
+nlohmann::json Config::toJson() const {
+  nlohmann::json json;
   json[AsmFileName] = asmFileName;
+  return json;
 }
