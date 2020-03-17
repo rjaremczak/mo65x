@@ -87,7 +87,7 @@ void MainWindow::initConfigStorage() {
   if (!appDir.exists()) appDir.mkpath(".");
 
   m_configStorage = new FileDataStorage<Config>(appDir.filePath("config.json").toStdString());
-  m_config = m_configStorage->readOrInitialise();
+  m_config = m_configStorage->readOrInit();
 }
 
 void MainWindow::propagateState(EmulatorState es) {

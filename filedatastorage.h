@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QFile>
-#include <QFileDevice>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <fstream>
@@ -32,17 +30,14 @@ public:
 
   void write(const DataObjectType& dataObject) {
     std::ofstream os(m_filePath);
-    if (os.is_open()) {
-      QJsonObject json;
-      dataObject.write(json);
-      const auto buf = QJsonDocument(json).toJson();
-      os.write(buf.data(), buf.size());
-    } else {
-      qFatal("unable to save configuration file %s", m_filePath);
-    }
+    if (!os.is_open()) return;
+
+    QJsonObject json;
+    dataObject.write(json);
+    os << QJsonDocument(json).toJson().toStdString();
   }
 
-  DataObjectType readOrInitialise() {
+  DataObjectType readOrInit() {
     DataObjectType dao;
     if (!read(dao)) write(dao);
     return dao;
