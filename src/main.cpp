@@ -31,8 +31,21 @@ int test(int argc, char** argv) {
   return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv) | QTest::qExec(&flagsTest, argc, argv);
 }
 
+int gtest(int argc, char** argv) {
+    QApplication app(argc, argv);
+
+    AssemblerTest assemblerTest;
+    InstructionsTest opCodesTest;
+    FlagsTest flagsTest;
+
+    return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv) | QTest::qExec(&flagsTest, argc, argv);
+}
+
 int main(int argc, char* argv[]) {
 
+#ifdef RUN_TESTS
+    return test(argc, argv);
+#else
   // register types already aliased by Qt
   qRegisterMetaType<uint8_t>("uint8_t");
   qRegisterMetaType<uint16_t>("uint16_t");
@@ -98,4 +111,5 @@ int main(int argc, char* argv[]) {
   QObject::connect(&app, &QCoreApplication::aboutToQuit, &mainWindow, &MainWindow::prepareToQuit);
   mainWindow.show();
   return app.exec();
+#endif
 }

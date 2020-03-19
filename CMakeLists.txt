@@ -9,18 +9,23 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(RUN_TESTS)
+    add_definitions(-DRUN_TESTS)
+endif(RUN_TESTS)
+
 find_package(Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
 
-#include_directories(./)
-#include_directories(test)
-include_directories(lib)
+include_directories(src lib)
 
-file(GLOB_RECURSE APP_SOURCES "*.c*" "*.h")
+add_subdirectory(lib/googletest)
+
+set(LIB_SOURCES lib/nlohmann/json.hpp)
+file(GLOB_RECURSE APP_SOURCES "src/*.c*" "src/*.h")
 file(GLOB_RECURSE TEST_SOURCES "test/*.c*" "test/*.h")
 
 list(REMOVE_ITEM TEST_SOURCES "test/main.cpp")
 
-add_executable(mo65x ${APP_SOURCES} ${TEST_SOURCES})
+add_executable(mo65x ${APP_SOURCES} ${LIB_SOURCES} ${TEST_SOURCES})
 
 target_link_libraries(mo65x
     Qt5::Widgets
