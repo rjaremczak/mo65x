@@ -13,6 +13,7 @@
 #include <QScreen>
 #include <QStyleFactory>
 #include <QTest>
+#include <gtest/gtest.h>
 
 Q_DECLARE_METATYPE(EmulatorState)
 Q_DECLARE_METATYPE(Data)
@@ -32,19 +33,14 @@ int test(int argc, char** argv) {
 }
 
 int gtest(int argc, char** argv) {
-    QApplication app(argc, argv);
-
-    AssemblerTest assemblerTest;
-    InstructionsTest opCodesTest;
-    FlagsTest flagsTest;
-
-    return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv) | QTest::qExec(&flagsTest, argc, argv);
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
 
 int main(int argc, char* argv[]) {
 
 #ifdef RUN_TESTS
-    return test(argc, argv);
+  return gtest(argc, argv) & test(argc, argv);
 #else
   // register types already aliased by Qt
   qRegisterMetaType<uint8_t>("uint8_t");

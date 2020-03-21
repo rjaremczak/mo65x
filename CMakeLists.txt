@@ -15,9 +15,9 @@ endif(RUN_TESTS)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
 
-include_directories(src lib)
-
 add_subdirectory(lib/googletest)
+
+include_directories(src lib lib/googletest/googletest/include)
 
 set(LIB_SOURCES lib/nlohmann/json.hpp)
 file(GLOB_RECURSE APP_SOURCES "src/*.c*" "src/*.h")
@@ -33,5 +33,5 @@ target_link_libraries(mo65x
     Qt5::Gui
     Qt5::Test
     pthread
-    stdc++fs
+    gtest
 )
