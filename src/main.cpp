@@ -27,9 +27,8 @@ int test(int argc, char** argv) {
 
   AssemblerTest assemblerTest;
   InstructionsTest opCodesTest;
-  FlagsTest flagsTest;
 
-  return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv) | QTest::qExec(&flagsTest, argc, argv);
+  return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv);
 }
 
 int gtest(int argc, char** argv) {
