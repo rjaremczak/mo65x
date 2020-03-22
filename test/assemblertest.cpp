@@ -1,219 +1,218 @@
 #include "assemblertest.h"
-#include <QTest>
 
-#define TEST_INST(instr) QVERIFY(assembler.processLine(instr) == AssemblyResult::Ok)
+#define TEST_INST(instr) EXPECT_EQ(assembler.processLine(instr), AssemblyResult::Ok)
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
-  QCOMPARE(memory[assembler.m_lastLocationCounter], opCode)
+  EXPECT_EQ(memory[assembler.lastLocationCounter()], opCode)
 
 #define TEST_INST_2(instr, opCode, lo)                                                                                           \
   TEST_INST_1(instr, opCode);                                                                                                    \
-  if (lo >= 0) QCOMPARE(lo, memory[assembler.m_lastLocationCounter + 1])
+  if (lo >= 0) EXPECT_EQ(lo, memory[assembler.lastLocationCounter() + 1])
 
 #define TEST_INST_3(instr, opCode, lo, hi)                                                                                       \
   TEST_INST_2(instr, opCode, lo);                                                                                                \
-  if (hi >= 0) QCOMPARE(hi, memory[assembler.m_lastLocationCounter + 2])
+  if (hi >= 0) EXPECT_EQ(hi, memory[assembler.lastLocationCounter() + 2])
 
-AssemblerTest::AssemblerTest(QObject* parent) : QObject(parent), assembler(memory) {
+AssemblerTest::AssemblerTest() : ::testing::Test(), assembler(memory, symbols) {
 }
 
-void AssemblerTest::init() {
+TEST_F(AssemblerTest, init) {
   assembler.init(AsmOrigin);
-  QVERIFY(assembler.symbols().empty());
-  QCOMPARE(assembler.m_mode, Assembler::ProcessingMode::EmitCode);
+  EXPECT_TRUE(symbols.empty());
+  EXPECT_EQ(assembler.mode(), Assembler::ProcessingMode::EmitCode);
 }
 
-void AssemblerTest::testByteOperand() {
+TEST_F(AssemblerTest, testByteOperand) {
   TEST_INST_2("LDY %11010001", 0xa4, 0b11010001);
   TEST_INST_2("LDX #123", 0xa2, 123);
   TEST_INST_2("LDA #%00110101", 0xa9, 0b00110101);
 }
 
-void AssemblerTest::testWordOperand() {
+TEST_F(AssemblerTest, testWordOperand) {
   TEST_INST_3("ROR %0001001011101101", 0x6e, 0b11101101, 0b00010010);
   TEST_INST_3("LSR 65533,X", 0x5e, 0xfd, 0xff);
   TEST_INST_3("JMP ($ffa0)", 0x6c, 0xa0, 0xff);
 }
 
-void AssemblerTest::testImpliedMode() {
+TEST_F(AssemblerTest, testImpliedMode) {
   TEST_INST_1("SEI", 0x78);
 }
 
-void AssemblerTest::testAccumulatorMode() {
+TEST_F(AssemblerTest, testAccumulatorMode) {
   TEST_INST_1("ASL", 0x0a);
 }
 
-void AssemblerTest::testImmediateMode() {
+TEST_F(AssemblerTest, testImmediateMode) {
   TEST_INST_2("LDX #$2f", 0xa2, 0x2f);
 }
 
-void AssemblerTest::testZeroPageMode() {
+TEST_F(AssemblerTest, testZeroPageMode) {
   TEST_INST_2("LDY $8f", 0xa4, 0x8f);
 }
 
-void AssemblerTest::testZeroPageXMode() {
+TEST_F(AssemblerTest, testZeroPageXMode) {
   TEST_INST_2("LDA $a0,X", 0xb5, 0xa0);
 }
 
-void AssemblerTest::testZeroPageYMode() {
+TEST_F(AssemblerTest, testZeroPageYMode) {
   TEST_INST_2("STX $7a,Y", 0x96, 0x7a);
 }
 
-void AssemblerTest::testAbsoluteMode() {
+TEST_F(AssemblerTest, testAbsoluteMode) {
   TEST_INST_3("ROR $3400", 0x6e, 0x00, 0x34);
   TEST_INST_3("jmp $2000", 0x4c, 0x00, 0x20);
-  assembler.m_symbols.put("c", 0xfab0);
+  symbols.put("c", 0xfab0);
   TEST_INST_3("jmp c", 0x4c, 0xb0, 0xfa);
 }
 
-void AssemblerTest::testAbsoluteXMode() {
+TEST_F(AssemblerTest, testAbsoluteXMode) {
   TEST_INST_3("LSR $35f0,X", 0x5e, 0xf0, 0x35);
 }
 
-void AssemblerTest::testAbsoluteYMode() {
+TEST_F(AssemblerTest, testAbsoluteYMode) {
   TEST_INST_3("EOR $f7a0,Y", 0x59, 0xa0, 0xf7);
 }
 
-void AssemblerTest::testIndirectMode() {
+TEST_F(AssemblerTest, testIndirectMode) {
   TEST_INST_3("JMP ($ffa0)", 0x6c, 0xa0, 0xff);
 }
 
-void AssemblerTest::testIndexedIndirectXMode() {
+TEST_F(AssemblerTest, testIndexedIndirectXMode) {
   TEST_INST_2("LDA ($8c,X)", 0xa1, 0x8c);
 }
 
-void AssemblerTest::testIndirectIndexedYMode() {
+TEST_F(AssemblerTest, testIndirectIndexedYMode) {
   TEST_INST_2("ORA ($a7),Y", 0x11, 0xa7);
 }
 
-void AssemblerTest::testRelativeModeMinus() {
+TEST_F(AssemblerTest, testRelativeModeMinus) {
   TEST_INST_2("BCC -1", 0x90, -1);
 }
 
-void AssemblerTest::testRelativeModeLabel() {
+TEST_F(AssemblerTest, testRelativeModeLabel) {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST("firstloop:");
   assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   TEST_INST_1("  BNE firstloop ;loop until Y is $10", 0xd0);
 }
 
-void AssemblerTest::testRelativeModePlus() {
+TEST_F(AssemblerTest, testRelativeModePlus) {
   TEST_INST_2("BVS +8", 0x70, 8);
 }
 
-void AssemblerTest::testOrg() {
+TEST_F(AssemblerTest, testOrg) {
   TEST_INST("  .ORG $3000 ;origin");
-  QCOMPARE(assembler.m_locationCounter, 0x3000);
+  EXPECT_EQ(assembler.locationCounter(), 0x3000);
   TEST_INST("  .ORG $4000 ;origin");
-  QCOMPARE(assembler.m_locationCounter, 0x4000);
+  EXPECT_EQ(assembler.locationCounter(), 0x4000);
 }
 
-void AssemblerTest::testOrgStar() {
+TEST_F(AssemblerTest, testOrgStar) {
   TEST_INST("  *= $5000 ;origin");
-  QCOMPARE(assembler.m_locationCounter, 0x5000);
+  EXPECT_EQ(assembler.locationCounter(), 0x5000);
 }
 
-void AssemblerTest::testComment() {
+TEST_F(AssemblerTest, testComment) {
   TEST_INST("  SEI   ;disable interrupts ");
   TEST_INST("; disable interrupts ");
   TEST_INST(" LDA #$20  ;comment");
 }
 
-void AssemblerTest::testEmptyLineLabel() {
+TEST_F(AssemblerTest, testEmptyLineLabel) {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST("Label_001:");
-  QCOMPARE(assembler.m_symbols.get("Label_001"), assembler.m_locationCounter);
-  QCOMPARE(assembler.m_symbols.get("dummy"), std::nullopt);
+  EXPECT_EQ(symbols.get("Label_001"), assembler.locationCounter());
+  EXPECT_EQ(symbols.get("dummy"), std::nullopt);
 }
 
-void AssemblerTest::testSymbolPass() {
+TEST_F(AssemblerTest, testSymbolPass) {
+  assembler.init(1000);
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
-  assembler.m_locationCounter = 1000;
   TEST_INST("TestLabel_01:  SEI   ; disable interrupts ");
   TEST_INST("c:lda dziabaDucha");
-  QCOMPARE(assembler.m_symbols.get("TestLabel_01"), 1000);
-  QCOMPARE(assembler.m_written, 0);
-  QCOMPARE(assembler.m_locationCounter, 1004);
+  EXPECT_EQ(symbols.get("TestLabel_01"), 1000);
+  EXPECT_EQ(assembler.bytesWritten(), 0);
+  EXPECT_EQ(assembler.locationCounter(), 1004);
 }
 
-void AssemblerTest::testAssemblyPass() {
-  assembler.m_locationCounter = 2002;
+TEST_F(AssemblerTest, testAssemblyPass) {
+  assembler.init(2002);
   TEST_INST("CLI");
   TEST_INST("TestLabel_11:  LDA #$20   ; this is a one weird comment  ");
-  QCOMPARE(assembler.m_symbols.get("TestLabel_11"), std::nullopt);
-  QCOMPARE(assembler.m_written, 3);
-  QCOMPARE(assembler.m_locationCounter, 2005);
+  EXPECT_EQ(symbols.get("TestLabel_11"), std::nullopt);
+  EXPECT_EQ(assembler.bytesWritten(), 3);
+  EXPECT_EQ(assembler.locationCounter(), 2005);
 }
 
-void AssemblerTest::testEmitBytes() {
+TEST_F(AssemblerTest, testEmitBytes) {
   TEST_INST(".BYTE 20");
-  QCOMPARE(assembler.bytesWritten(), 1);
-  QCOMPARE(memory[assembler.m_lastLocationCounter], 20);
+  EXPECT_EQ(assembler.bytesWritten(), 1);
+  EXPECT_EQ(memory[assembler.lastLocationCounter()], 20);
   TEST_INST(".BYTE $20 45 $4a");
-  QCOMPARE(assembler.bytesWritten(), 4);
-  QCOMPARE(memory[assembler.m_lastLocationCounter], 0x20);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 1], 45);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 2], 0x4a);
+  EXPECT_EQ(assembler.bytesWritten(), 4);
+  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0x20);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 1], 45);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 2], 0x4a);
   TEST_INST(".BYTE $20, $3f,$4a ,$23 , 123");
-  QCOMPARE(assembler.bytesWritten(), 9);
-  QCOMPARE(memory[assembler.m_lastLocationCounter], 0x20);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 1], 0x3f);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 2], 0x4a);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 3], 0x23);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 4], 123);
+  EXPECT_EQ(assembler.bytesWritten(), 9);
+  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0x20);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 1], 0x3f);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 2], 0x4a);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 3], 0x23);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 4], 123);
 }
 
-void AssemblerTest::testEmitWords() {
+TEST_F(AssemblerTest, testEmitWords) {
   TEST_INST(".word $20ff $23af $fab0 ; test comment");
-  QCOMPARE(assembler.bytesWritten(), 6);
-  QCOMPARE(memory.word(assembler.m_lastLocationCounter), 0x20ff);
-  QCOMPARE(memory.word(assembler.m_lastLocationCounter + 2), 0x23af);
-  QCOMPARE(memory.word(assembler.m_lastLocationCounter + 4), 0xfab0);
+  EXPECT_EQ(assembler.bytesWritten(), 6);
+  EXPECT_EQ(memory.word(assembler.lastLocationCounter()), 0x20ff);
+  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 2), 0x23af);
+  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 4), 0xfab0);
   TEST_INST(".word $3000 $15ad 10230");
-  QCOMPARE(assembler.bytesWritten(), 12);
-  QCOMPARE(memory.word(assembler.m_lastLocationCounter), 0x3000);
-  QCOMPARE(memory.word(assembler.m_lastLocationCounter + 2), 0x15ad);
-  QCOMPARE(memory.word(assembler.m_lastLocationCounter + 4), 10230);
+  EXPECT_EQ(assembler.bytesWritten(), 12);
+  EXPECT_EQ(memory.word(assembler.lastLocationCounter()), 0x3000);
+  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 2), 0x15ad);
+  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 4), 10230);
 }
 
-void AssemblerTest::testLowerCaseInstruction() {
+TEST_F(AssemblerTest, testLowerCaseInstruction) {
   TEST_INST("cli");
 }
 
-void AssemblerTest::testDcb() {
+TEST_F(AssemblerTest, testDcb) {
   TEST_INST("dcb 0,0,0,0,0,0,0,0,0,$b,$b,$c,$f,$f,$f,$f");
-  QCOMPARE(assembler.bytesWritten(), 16);
-  QCOMPARE(memory[assembler.m_lastLocationCounter], 0);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 15], 0xf);
+  EXPECT_EQ(assembler.bytesWritten(), 16);
+  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 15], 0xf);
 }
 
-void AssemblerTest::testLoBytePrefix() {
+TEST_F(AssemblerTest, testLoBytePrefix) {
   TEST_INST_2("LDA #<$1afc", 0xa9, 0xfc);
-  assembler.m_symbols.put("label", 0x2afe);
+  symbols.put("label", 0x2afe);
   TEST_INST_2("LDA #<label", 0xa9, 0xfe);
   TEST_INST("dcb <label, 2");
-  QCOMPARE(memory[assembler.m_lastLocationCounter], 0xfe);
-  QCOMPARE(memory[assembler.m_lastLocationCounter + 1], 2);
+  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0xfe);
+  EXPECT_EQ(memory[assembler.lastLocationCounter() + 1], 2);
 }
 
-void AssemblerTest::testHiBytePrefix() {
+TEST_F(AssemblerTest, testHiBytePrefix) {
   TEST_INST_2("LDA #>$1afc", 0xa9, 0x1a);
-  assembler.m_symbols.put("label", 0x3afe);
+  symbols.put("label", 0x3afe);
   TEST_INST_2("LDA #>label", 0xa9, 0x3a);
   TEST_INST_2("dcb >label, 2", 0x3a, 2);
 }
 
-void AssemblerTest::testLoHiBytePrefix() {
-  assembler.m_symbols.put("a", 0xfa20);
-  assembler.m_symbols.put("b", 0x10a0);
+TEST_F(AssemblerTest, testLoHiBytePrefix) {
+  symbols.put("a", 0xfa20);
+  symbols.put("b", 0x10a0);
   TEST_INST_2("dcb >a, <b", 0xfa, 0xa0);
   TEST_INST_2("dcb <a, >b", 0x20, 0x10);
 }
 
-void AssemblerTest::testSymbolDef() {
+TEST_F(AssemblerTest, testSymbolDef) {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST(".org $1000");
   TEST_INST("lda init");
-  QCOMPARE(assembler.m_locationCounter, 0x1003);
+  EXPECT_EQ(assembler.locationCounter(), 0x1003);
 }

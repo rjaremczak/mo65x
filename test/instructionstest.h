@@ -11,6 +11,7 @@ public:
   explicit InstructionsTest(QObject* parent = nullptr);
 
 private:
+  SymbolTable symbols;
   Assembler assembler;
   Memory memory;
   Cpu cpu;

@@ -28,8 +28,9 @@ public slots:
 
 private:
   Ui::AssemblerWidget* ui;
-  QString fileName;
-  Assembler assembler;
+  QString m_fileName;
+  SymbolTable m_symbols;
+  Assembler m_assembler;
 
   std::optional<QString> process();
 

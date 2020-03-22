@@ -53,7 +53,7 @@
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
 
-InstructionsTest::InstructionsTest(QObject* parent) : QObject(parent), assembler(memory), cpu(memory) {
+InstructionsTest::InstructionsTest(QObject* parent) : QObject(parent), assembler(memory, symbols), cpu(memory) {
 }
 
 void InstructionsTest::initTestCase() {

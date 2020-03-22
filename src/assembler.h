@@ -20,18 +20,21 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
-  const auto& symbols() const { return m_symbols; }
+  Assembler(Memory&, SymbolTable&);
 
-  Assembler(Memory&);
+  auto mode() const { return m_mode; }
+  auto locationCounter() const { return m_locationCounter; }
+  auto lastLocationCounter() const { return m_lastLocationCounter; }
+
+  int bytesWritten() const;
+  AddressRange affectedAddressRange() const;
+
   void init(Address addr = DefaultOrigin);
   void initPreserveSymbols(Address = DefaultOrigin);
   void changeMode(ProcessingMode m_mode);
   AssemblyResult processLine(const std::string_view);
-  AddressRange affectedAddressRange() const;
-  int bytesWritten() const;
 
 private:
-  friend class AssemblerTest;
   friend class InstructionsTest;
 
   struct PatternEntry {
@@ -44,12 +47,13 @@ private:
   static const PatternEntry Patterns[];
 
   Memory& m_memory;
+  SymbolTable& m_symbols;
+
   AddressRange m_addressRange;
   ProcessingMode m_mode;
   int m_written;
   Address m_locationCounter;
   Address m_lastLocationCounter;
-  SymbolTable m_symbols;
   std::string m_operation;
   std::string m_operand;
 
@@ -70,8 +74,8 @@ private:
   void handleIndexedIndirectX();
   void handleIndirectIndexedY();
   void handleBranch();
-  void assemble(OperandsFormat m_mode, OperandValue = OperandValue());
   void defineSymbol(const std::string_view, uint16_t);
+  void assemble(OperandsFormat m_mode, OperandValue = OperandValue());
   void emitByte(uint8_t);
   void emitWord(uint16_t);
   void updateAddressRange(uint16_t);

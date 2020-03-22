@@ -25,10 +25,9 @@ Q_DECLARE_METATYPE(Frequency)
 int test(int argc, char** argv) {
   QApplication app(argc, argv);
 
-  AssemblerTest assemblerTest;
   InstructionsTest opCodesTest;
 
-  return QTest::qExec(&opCodesTest, argc, argv) | QTest::qExec(&assemblerTest, argc, argv);
+  return QTest::qExec(&opCodesTest, argc, argv);
 }
 
 int gtest(int argc, char** argv) {
