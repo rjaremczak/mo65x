@@ -1,68 +1,64 @@
 #include "instructionstest.h"
 #include "disassembler.h"
-#include <QTest>
 #include <algorithm>
+#include <numeric>
 
 #define TEST_NZC(n, z, c)                                                                                                        \
-  QCOMPARE(cpu.regs.p.negative, n);                                                                                              \
-  QCOMPARE(cpu.regs.p.zero, z);                                                                                                  \
-  QCOMPARE(cpu.regs.p.carry, c)
+  EXPECT_EQ(cpu.regs.p.negative, n);                                                                                              \
+  EXPECT_EQ(cpu.regs.p.zero, z);                                                                                                  \
+  EXPECT_EQ(cpu.regs.p.carry, c)
 
 #define TEST_ANZC(rega, n, z, c)                                                                                                 \
-  QCOMPARE(cpu.regs.a, uint8_t(rega));                                                                                           \
+  EXPECT_EQ(cpu.regs.a, uint8_t(rega));                                                                                           \
   TEST_NZC(n, z, c)
 
 #define TEST_ANZCV(rega, n, z, c, v)                                                                                             \
   TEST_ANZC(rega, n, z, c);                                                                                                      \
-  QCOMPARE(cpu.regs.p.overflow, v)
+  EXPECT_EQ(cpu.regs.p.overflow, v)
 
 #define TEST_XNZC(regx, n, z, c)                                                                                                 \
-  QCOMPARE(cpu.regs.x, uint8_t(regx));                                                                                           \
+  EXPECT_EQ(cpu.regs.x, uint8_t(regx));                                                                                           \
   TEST_NZC(n, z, c)
 
 #define TEST_YNZC(regy, n, z, c)                                                                                                 \
-  QCOMPARE(cpu.regs.y, uint8_t(regy));                                                                                           \
+  EXPECT_EQ(cpu.regs.y, uint8_t(regy));                                                                                           \
   TEST_NZC(n, z, c)
 
 #define TEST_MEMNZ(addr, val, n, z)                                                                                              \
-  QCOMPARE(memory[addr], val);                                                                                                   \
-  QCOMPARE(cpu.regs.p.negative, n);                                                                                              \
-  QCOMPARE(cpu.regs.p.zero, z)
+  EXPECT_EQ(memory[addr], val);                                                                                                   \
+  EXPECT_EQ(cpu.regs.p.negative, n);                                                                                              \
+  EXPECT_EQ(cpu.regs.p.zero, z)
 
 #define TEST_MEMNZC(addr, val, n, z, c)                                                                                          \
   TEST_MEMNZ(addr, val, n, z);                                                                                                   \
-  QCOMPARE(cpu.regs.p.carry, c)
+  EXPECT_EQ(cpu.regs.p.carry, c)
 
 #define TEST_INST(instr, numCycles)                                                                                              \
-  QCOMPARE(assembler.processLine(instr), AssemblyResult::Ok);                                                                    \
+  EXPECT_EQ(assembler.processLine(instr), AssemblyResult::Ok);                                                                    \
   cpu.preRun();                                                                                                                  \
   lastCycles = cpu.stepRun();                                                                                                    \
-  QCOMPARE(lastCycles, numCycles);                                                                                               \
+  EXPECT_EQ(lastCycles, numCycles);                                                                                               \
   cpu.postRun();                                                                                                                 \
-  QCOMPARE(cpu.state().execution, CpuState::Execution::Idle)
+  EXPECT_EQ(cpu.state().execution, CpuState::Execution::Idle)
 
 #define TEST_BRANCH_TAKEN()                                                                                                      \
   const auto base = assembler.m_locationCounter;                                                                                 \
-  QCOMPARE(cpu.regs.pc, base + static_cast<int8_t>(*cpu.m_operandPtr.lo));                                                       \
-  QCOMPARE(lastCycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
+  EXPECT_EQ(cpu.regs.pc, base + static_cast<int8_t>(*cpu.m_operandPtr.lo));                                                       \
+  EXPECT_EQ(lastCycles, (base ^ cpu.regs.pc) & 0xff00 ? 4 : 3)
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
-  QCOMPARE(cpu.regs.pc, assembler.m_locationCounter);                                                                            \
-  QCOMPARE(lastCycles, 2)
+  EXPECT_EQ(cpu.regs.pc, assembler.m_locationCounter);                                                                            \
+  EXPECT_EQ(lastCycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
 
-InstructionsTest::InstructionsTest(QObject* parent) : QObject(parent), assembler(memory, symbols), cpu(memory) {
+InstructionsTest::InstructionsTest() : ::testing::Test(), assembler(memory, symbols), cpu(memory) {
 }
 
-void InstructionsTest::initTestCase() {
-  QVERIFY(&cpu.m_memory == &memory);
+void InstructionsTest::SetUp() {
   std::fill(memory.begin(), memory.end(), 0);
-  QVERIFY(std::accumulate(memory.begin(), memory.end(), 0) == 0);
-}
-
-void InstructionsTest::init() {
+  EXPECT_TRUE(std::accumulate(memory.begin(), memory.end(), 0) == 0);
   assembler.init(AsmOrigin);
   assembler.changeMode(Assembler::ProcessingMode::EmitCode);
   cpu.reset();
@@ -71,175 +67,176 @@ void InstructionsTest::init() {
   lastCycles = 0;
 }
 
-void InstructionsTest::testIRQ() {
+TEST_F(InstructionsTest, testIRQ) {
   memory.setWord(CpuAddress::IrqVector, 0xabcd);
   cpu.regs.p = 0b11001111;
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc;
   cpu.irq();
-  QCOMPARE(cpu.regs.p.interrupt, true);
-  QCOMPARE(memory[cpu.regs.sp.address() + 1], 0b11001111);
-  QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
-  QCOMPARE(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
-  QCOMPARE(cpu.regs.sp.address(), sp0 - 3);
-  QCOMPARE(cpu.regs.pc, 0xabcd);
+  EXPECT_EQ(cpu.regs.p.interrupt, true);
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 1], 0b11001111);
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
+  EXPECT_EQ(cpu.regs.sp.address(), sp0 - 3);
+  EXPECT_EQ(cpu.regs.pc, 0xabcd);
 }
 
-void InstructionsTest::testReset() {
+TEST_F(InstructionsTest, testReset) {
   memory.setWord(CpuAddress::ResetVector, 0xFCE2);
   cpu.reset();
-  QCOMPARE(cpu.regs.pc, 0xFCE2);
+  EXPECT_EQ(cpu.regs.pc, 0xFCE2);
 }
 
-void InstructionsTest::testImpliedMode() {
+TEST_F(InstructionsTest, testImpliedMode) {
   cpu.regs.p.interrupt = true;
   TEST_INST("CLI", 2);
 }
 
-void InstructionsTest::testAccumulatorMode() {
+TEST_F(InstructionsTest, testAccumulatorMode) {
   cpu.prepImpliedOrAccumulatorMode();
-  QCOMPARE(cpu.m_effectiveOperandPtr.lo, &cpu.regs.a);
+  EXPECT_EQ(cpu.m_effectiveOperandPtr.lo, &cpu.regs.a);
 }
 
-void InstructionsTest::testImmediateMode() {
+TEST_F(InstructionsTest, testImmediateMode) {
   cpu.m_operandPtr.lo = &memory[0x10];
   cpu.prepImmediateMode();
-  QCOMPARE(cpu.m_effectiveOperandPtr.lo, &memory[0x10]);
+  EXPECT_EQ(cpu.m_effectiveOperandPtr.lo, &memory[0x10]);
 }
 
-void InstructionsTest::testZeroPageMode() {
+TEST_F(InstructionsTest, testZeroPageMode) {
   memory[0xa0] = 0x40;
   memory[0x40] = 0xf8;
   cpu.m_operandPtr.lo = &memory[0xa0];
   cpu.prepZeroPageMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0x40);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0xf8);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0x40);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0xf8);
 }
 
-void InstructionsTest::testZeroPageXMode() {
+TEST_F(InstructionsTest, testZeroPageXMode) {
   memory[0xa0] = 0x80;
   memory[0x10] = 0xe8;
   cpu.m_operandPtr.lo = &memory[0xa0];
   cpu.regs.x = 0x90;
   cpu.prepZeroPageXMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0x10);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0xe8);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0x10);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0xe8);
 }
 
-void InstructionsTest::testZeroPageYMode() {
+TEST_F(InstructionsTest, testZeroPageYMode) {
   memory[0xa0] = 0x80;
   memory[0xb1] = 0xe8;
   cpu.m_operandPtr.lo = &memory[0xa0];
   cpu.regs.y = 0x31;
   cpu.prepZeroPageYMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0xb1);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0xe8);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0xb1);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0xe8);
 }
 
-void InstructionsTest::testAbsoluteMode() {
+TEST_F(InstructionsTest, testAbsoluteMode) {
   memory[0x20fa] = 0xf0;
   memory.setWord(0x1002, 0x20fa);
   cpu.m_operandPtr.lo = &memory[0x1002];
   cpu.m_operandPtr.hi = &memory[0x1003];
   cpu.prepAbsoluteMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0x20fa);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0xf0);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0x20fa);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0xf0);
 }
 
-void InstructionsTest::testAbsoluteXMode() {
+TEST_F(InstructionsTest, testAbsoluteXMode) {
   memory[0x20b0] = 0x34;
   memory.setWord(0x1002, 0x20a0);
   cpu.m_operandPtr.lo = &memory[0x1002];
   cpu.m_operandPtr.hi = &memory[0x1003];
   cpu.regs.x = 0x10;
   cpu.prepAbsoluteXMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0x20b0);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0x34);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0x20b0);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0x34);
 }
 
-void InstructionsTest::testAbsoluteYMode() {
+TEST_F(InstructionsTest, testAbsoluteYMode) {
   memory[0xa020] = 0x84;
   memory.setWord(0x2002, 0xa010);
   cpu.m_operandPtr.lo = &memory[0x2002];
   cpu.m_operandPtr.hi = &memory[0x2003];
   cpu.regs.y = 0x10;
   cpu.prepAbsoluteYMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0xa020);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0x84);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0xa020);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0x84);
 }
 
-void InstructionsTest::testIndirectMode() {
+TEST_F(InstructionsTest, testIndirectMode) {
   memory.setWord(0xfff0, 0xfab0);
   memory.setWord(0xfab0, 0x34f0);
   cpu.m_operandPtr.lo = &memory[0xfff0];
   cpu.m_operandPtr.hi = &memory[0xfff1];
   cpu.prepIndirectMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0x34f0);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0x34f0);
 }
 
-void InstructionsTest::testIndexedIndirectXMode() {
+TEST_F(InstructionsTest, testIndexedIndirectXMode) {
   memory.setWord(0x82, 0xaf01);
   memory[0x2001] = 0x70;
   cpu.m_operandPtr.lo = &memory[0x2001];
   cpu.regs.x = 0x12;
   cpu.prepIndexedIndirectXMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0xaf01);
-  QCOMPARE(cpu.m_effectiveOperandPtr.lo, &memory[0xaf01]);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0xaf01);
+  EXPECT_EQ(cpu.m_effectiveOperandPtr.lo, &memory[0xaf01]);
 }
 
-void InstructionsTest::testIndirectIndexedYMode() {
+TEST_F(InstructionsTest, testIndirectIndexedYMode) {
   uint8_t vector = 0x82;
   memory.setWord(vector, 0xcf81);
   memory[0xd001] = 0xea;
   cpu.m_operandPtr.lo = &vector;
   cpu.regs.y = 0x80;
   cpu.prepIndirectIndexedYMode();
-  QCOMPARE(cpu.m_effectiveAddress, 0xd001);
-  QCOMPARE(*cpu.m_effectiveOperandPtr.lo, 0xea);
+  EXPECT_EQ(cpu.m_effectiveAddress, 0xd001);
+  EXPECT_EQ(*cpu.m_effectiveOperandPtr.lo, 0xea);
 }
 
-void InstructionsTest::testPageBoundaryCrossingDetection() {
+TEST_F(InstructionsTest, testPageBoundaryCrossingDetection) {
   cpu.m_pageBoundaryCrossed = false;
   cpu.calculateEffectiveAddress(0x1080, 0x7f);
-  QVERIFY(!cpu.m_pageBoundaryCrossed);
+  EXPECT_TRUE(!cpu.m_pageBoundaryCrossed);
   cpu.calculateEffectiveAddress(0x1080, 0x80);
-  QVERIFY(cpu.m_pageBoundaryCrossed);
+  EXPECT_TRUE(cpu.m_pageBoundaryCrossed);
   cpu.calculateEffectiveAddress(0x3080, 0x02);
-  QVERIFY(!cpu.m_pageBoundaryCrossed);
+  EXPECT_TRUE(!cpu.m_pageBoundaryCrossed);
 }
 
-void InstructionsTest::testBranchForward() {
+TEST_F(InstructionsTest, testBranchForward) {
+  SetUp();
   int8_t d = 13;
   cpu.m_operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
-  QCOMPARE(cpu.regs.pc, AsmOrigin + 13);
-  QCOMPARE(cpu.m_extraCycles, 1);
+  EXPECT_EQ(cpu.regs.pc, AsmOrigin + 13);
+  EXPECT_EQ(cpu.m_extraCycles, 1);
 }
 
-void InstructionsTest::testBranchBackward() {
+TEST_F(InstructionsTest, testBranchBackward) {
   int8_t d = -100;
   cpu.regs.pc += 120;
   cpu.m_operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
-  QCOMPARE(cpu.regs.pc, AsmOrigin + 20);
-  QCOMPARE(cpu.m_extraCycles, 1);
+  EXPECT_EQ(cpu.regs.pc, AsmOrigin + 20);
+  EXPECT_EQ(cpu.m_extraCycles, 1);
 }
 
-void InstructionsTest::testBranchWithPageBoundaryCrossed() {
+TEST_F(InstructionsTest, testBranchWithPageBoundaryCrossed) {
   int8_t d = 13;
   cpu.regs.pc += 250;
   cpu.m_operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
-  QCOMPARE(cpu.regs.pc, AsmOrigin + 263);
-  QCOMPARE(cpu.m_extraCycles, 2);
+  EXPECT_EQ(cpu.regs.pc, AsmOrigin + 263);
+  EXPECT_EQ(cpu.m_extraCycles, 2);
 }
 
-void InstructionsTest::testWordPushPull() {
+TEST_F(InstructionsTest, testWordPushPull) {
   cpu.pushWord(0x203a);
-  QCOMPARE(cpu.pullWord(), 0x203a);
+  EXPECT_EQ(cpu.pullWord(), 0x203a);
 }
 
-void InstructionsTest::testADC() {
+TEST_F(InstructionsTest, testADC) {
   auto setup = [&](bool c, uint8_t a, uint8_t op) {
     cpu.regs.p = 0;
     cpu.regs.p.carry = c;
@@ -272,7 +269,7 @@ void InstructionsTest::testADC() {
   TEST_ANZCV(-120, 1, 0, 1, 0);
 }
 
-void InstructionsTest::testADC_decimal() {
+TEST_F(InstructionsTest, testADC_decimal) {
   auto setup = [&](uint8_t a, bool c) {
     cpu.regs.p = 0;
     cpu.regs.p.decimal = true;
@@ -289,7 +286,7 @@ void InstructionsTest::testADC_decimal() {
   TEST_ANZC(0x80, 1, 0, 0);
 }
 
-void InstructionsTest::testSBC() {
+TEST_F(InstructionsTest, testSBC) {
   auto setup = [&](bool c, int a, int op) {
     cpu.regs.p = 0;
     cpu.regs.p.carry = c;
@@ -318,7 +315,7 @@ void InstructionsTest::testSBC() {
   TEST_ANZCV(0, 0, 1, 1, 0);
 }
 
-void InstructionsTest::testAND() {
+TEST_F(InstructionsTest, testAND) {
   cpu.regs.a = 0x84;
   TEST_INST("AND #$fb", 2);
   TEST_ANZCV(0x80, 1, 0, 0, 0);
@@ -331,7 +328,7 @@ void InstructionsTest::testAND() {
   TEST_ANZCV(0x80, 1, 0, 0, 0);
 }
 
-void InstructionsTest::testEOR() {
+TEST_F(InstructionsTest, testEOR) {
   cpu.regs.a = 0b11011110;
   memory[0x2102] = 0b01001101;
   TEST_INST("EOR $2102", 4);
@@ -343,7 +340,7 @@ void InstructionsTest::testEOR() {
   TEST_ANZCV(0, 0, 1, 0, 0);
 }
 
-void InstructionsTest::testASL() {
+TEST_F(InstructionsTest, testASL) {
   cpu.regs.a = 0b11000001;
   TEST_INST("ASL", 2);
   TEST_ANZCV(0b10000010, 1, 0, 1, 0);
@@ -354,7 +351,7 @@ void InstructionsTest::testASL() {
   TEST_ANZCV(0b10000010, 1, 0, 0, 0);
 }
 
-void InstructionsTest::testLSR() {
+TEST_F(InstructionsTest, testLSR) {
   cpu.regs.a = 0b11000001;
   TEST_INST("LSR", 2);
   TEST_ANZC(0b01100000, 0, 0, 1);
@@ -368,7 +365,7 @@ void InstructionsTest::testLSR() {
   TEST_MEMNZC(0xf0, 0, 0, 1, 1);
 }
 
-void InstructionsTest::testORA() {
+TEST_F(InstructionsTest, testORA) {
   cpu.regs.a = 0b11000001;
   TEST_INST("ORA #$02", 2);
   TEST_ANZC(0xc3, 1, 0, 0);
@@ -382,7 +379,7 @@ void InstructionsTest::testORA() {
   TEST_ANZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testROL() {
+TEST_F(InstructionsTest, testROL) {
   cpu.regs.p.carry = true;
   cpu.regs.a = 0b11000001;
   TEST_INST("ROL", 2);
@@ -399,7 +396,7 @@ void InstructionsTest::testROL() {
   TEST_ANZC(0, 0, 1, 1);
 }
 
-void InstructionsTest::testROR() {
+TEST_F(InstructionsTest, testROR) {
   cpu.regs.p.carry = true;
   cpu.regs.a = 0b11000001;
   TEST_INST("ROR", 2);
@@ -416,7 +413,7 @@ void InstructionsTest::testROR() {
   TEST_ANZC(0, 0, 1, 1);
 }
 
-void InstructionsTest::testDEC() {
+TEST_F(InstructionsTest, testDEC) {
   memory[0x3102] = 0x00;
   cpu.regs.x = 0x82;
   TEST_INST("DEC $3080,X", 7);
@@ -427,7 +424,7 @@ void InstructionsTest::testDEC() {
   TEST_MEMNZ(0x31, 0x00, 0, 1);
 }
 
-void InstructionsTest::testDEX() {
+TEST_F(InstructionsTest, testDEX) {
   cpu.regs.x = 0;
   TEST_INST("DEX", 2);
   TEST_XNZC(0xff, 1, 0, 0);
@@ -437,7 +434,7 @@ void InstructionsTest::testDEX() {
   TEST_XNZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testDEY() {
+TEST_F(InstructionsTest, testDEY) {
   cpu.regs.y = 0;
   TEST_INST("DEY", 2);
   TEST_YNZC(0xff, 1, 0, 0);
@@ -447,7 +444,7 @@ void InstructionsTest::testDEY() {
   TEST_YNZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testINC() {
+TEST_F(InstructionsTest, testINC) {
   memory[0x3102] = 0xff;
   cpu.regs.x = 0x82;
   TEST_INST("INC $3080,X", 7);
@@ -458,7 +455,7 @@ void InstructionsTest::testINC() {
   TEST_MEMNZ(0x31, 0x80, 1, 0);
 }
 
-void InstructionsTest::testINX() {
+TEST_F(InstructionsTest, testINX) {
   cpu.regs.x = 0xff;
   TEST_INST("INX", 2);
   TEST_XNZC(0, 0, 1, 0);
@@ -468,7 +465,7 @@ void InstructionsTest::testINX() {
   TEST_XNZC(0x80, 1, 0, 0);
 }
 
-void InstructionsTest::testINY() {
+TEST_F(InstructionsTest, testINY) {
   cpu.regs.y = 0xff;
   TEST_INST("INY", 2);
   TEST_YNZC(0, 0, 1, 0);
@@ -478,7 +475,7 @@ void InstructionsTest::testINY() {
   TEST_YNZC(0xa0, 1, 0, 0);
 }
 
-void InstructionsTest::testLDA() {
+TEST_F(InstructionsTest, testLDA) {
   TEST_INST("LDA #$23", 2);
   TEST_ANZC(0x23, 0, 0, 0);
 
@@ -489,7 +486,7 @@ void InstructionsTest::testLDA() {
   TEST_ANZC(0xf4, 1, 0, 0);
 }
 
-void InstructionsTest::testLDX() {
+TEST_F(InstructionsTest, testLDX) {
   TEST_INST("LDX #$23", 2);
   TEST_XNZC(0x23, 0, 0, 0);
 
@@ -499,7 +496,7 @@ void InstructionsTest::testLDX() {
   TEST_XNZC(0xf4, 1, 0, 0);
 }
 
-void InstructionsTest::testLDY() {
+TEST_F(InstructionsTest, testLDY) {
   TEST_INST("LDY #$23", 2);
   TEST_YNZC(0x23, 0, 0, 0);
 
@@ -509,7 +506,7 @@ void InstructionsTest::testLDY() {
   TEST_YNZC(0xf4, 1, 0, 0);
 }
 
-void InstructionsTest::testSTA() {
+TEST_F(InstructionsTest, testSTA) {
   cpu.regs.a = 0x8a;
   TEST_INST("STA $2300", 4);
   TEST_MEMNZ(0x2300, 0x8a, 0, 0);
@@ -519,7 +516,7 @@ void InstructionsTest::testSTA() {
   TEST_MEMNZ(0x2300, 0x00, 0, 0);
 }
 
-void InstructionsTest::testSTX() {
+TEST_F(InstructionsTest, testSTX) {
   cpu.regs.x = 0x8a;
   TEST_INST("STX $3300", 4);
   TEST_MEMNZ(0x3300, 0x8a, 0, 0);
@@ -529,7 +526,7 @@ void InstructionsTest::testSTX() {
   TEST_MEMNZ(0x3300, 0x00, 0, 0);
 }
 
-void InstructionsTest::testSTY() {
+TEST_F(InstructionsTest, testSTY) {
   cpu.regs.y = 0x8a;
   TEST_INST("STY $3300", 4);
   TEST_MEMNZ(0x3300, 0x8a, 0, 0);
@@ -539,7 +536,7 @@ void InstructionsTest::testSTY() {
   TEST_MEMNZ(0x3300, 0x00, 0, 0);
 }
 
-void InstructionsTest::testTXA() {
+TEST_F(InstructionsTest, testTXA) {
   cpu.regs.x = 0xcf;
   TEST_INST("TXA", 2);
   TEST_ANZC(0xcf, 1, 0, 0);
@@ -549,7 +546,7 @@ void InstructionsTest::testTXA() {
   TEST_ANZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testTAX() {
+TEST_F(InstructionsTest, testTAX) {
   cpu.regs.a = 0xcf;
   TEST_INST("TAX", 2);
   TEST_XNZC(0xcf, 1, 0, 0);
@@ -559,7 +556,7 @@ void InstructionsTest::testTAX() {
   TEST_XNZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testTYA() {
+TEST_F(InstructionsTest, testTYA) {
   cpu.regs.y = 0xcf;
   TEST_INST("TYA", 2);
   TEST_ANZC(0xcf, 1, 0, 0);
@@ -569,7 +566,7 @@ void InstructionsTest::testTYA() {
   TEST_ANZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testTAY() {
+TEST_F(InstructionsTest, testTAY) {
   cpu.regs.a = 0xcf;
   TEST_INST("TAY", 2);
   TEST_YNZC(0xcf, 1, 0, 0);
@@ -579,7 +576,7 @@ void InstructionsTest::testTAY() {
   TEST_YNZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testTSX() {
+TEST_F(InstructionsTest, testTSX) {
   cpu.regs.sp.offset = 0x8f;
   TEST_INST("TSX", 2);
   TEST_XNZC(0x8f, 1, 0, 0);
@@ -589,69 +586,69 @@ void InstructionsTest::testTSX() {
   TEST_XNZC(0, 0, 1, 0);
 }
 
-void InstructionsTest::testTXS() {
+TEST_F(InstructionsTest, testTXS) {
   cpu.regs.x = 0x81;
   TEST_INST("TXS", 2);
-  QCOMPARE(cpu.regs.sp.offset, 0x81);
-  QCOMPARE(cpu.regs.p.negative, false);
-  QCOMPARE(cpu.regs.p.zero, false);
+  EXPECT_EQ(cpu.regs.sp.offset, 0x81);
+  EXPECT_EQ(cpu.regs.p.negative, false);
+  EXPECT_EQ(cpu.regs.p.zero, false);
 
   cpu.regs.x = 0;
   TEST_INST("TXS", 2);
-  QCOMPARE(cpu.regs.sp.offset, 0);
-  QCOMPARE(cpu.regs.p.negative, false);
-  QCOMPARE(cpu.regs.p.zero, false);
+  EXPECT_EQ(cpu.regs.sp.offset, 0);
+  EXPECT_EQ(cpu.regs.p.negative, false);
+  EXPECT_EQ(cpu.regs.p.zero, false);
 }
 
-void InstructionsTest::testBCC_taken() {
+TEST_F(InstructionsTest, testBCC_taken) {
   cpu.regs.p.carry = false;
   TEST_INST("BCC +3", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBCC_notTaken() {
+TEST_F(InstructionsTest, testBCC_notTaken) {
   cpu.regs.p.carry = true;
   TEST_INST("BCC +13", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBCS_taken() {
+TEST_F(InstructionsTest, testBCS_taken) {
   cpu.regs.p.carry = true;
   TEST_INST("BCS +33", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBCS_notTaken() {
+TEST_F(InstructionsTest, testBCS_notTaken) {
   cpu.regs.p.carry = false;
   TEST_INST("BCS +13", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBEQ_taken() {
+TEST_F(InstructionsTest, testBEQ_taken) {
   cpu.regs.p.zero = true;
   TEST_INST("BEQ +103", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBEQ_notTaken() {
+TEST_F(InstructionsTest, testBEQ_notTaken) {
   cpu.regs.p.zero = false;
   TEST_INST("BEQ -2", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBNE_taken() {
+TEST_F(InstructionsTest, testBNE_taken) {
   cpu.regs.p.zero = false;
   TEST_INST("BNE +43", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBNE_notTaken() {
+TEST_F(InstructionsTest, testBNE_notTaken) {
   cpu.regs.p.zero = true;
   TEST_INST("BNE -27", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBMI_taken() {
+TEST_F(InstructionsTest, testBMI_taken) {
   cpu.regs.p.negative = true;
 
   // increase PC and LC to avoid page crossing
@@ -662,137 +659,137 @@ void InstructionsTest::testBMI_taken() {
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBMI_notTaken() {
+TEST_F(InstructionsTest, testBMI_notTaken) {
   cpu.regs.p.negative = false;
   TEST_INST("BMI -42", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBPL_taken() {
+TEST_F(InstructionsTest, testBPL_taken) {
   cpu.regs.p.negative = false;
   TEST_INST("BPL +2", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBPL_notTaken() {
+TEST_F(InstructionsTest, testBPL_notTaken) {
   cpu.regs.p.negative = true;
   TEST_INST("BPL -82", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBVC_taken() {
+TEST_F(InstructionsTest, testBVC_taken) {
   cpu.regs.p.overflow = false;
   TEST_INST("BVC +29", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBVC_notTaken() {
+TEST_F(InstructionsTest, testBVC_notTaken) {
   cpu.regs.p.overflow = true;
   TEST_INST("BVC +29", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testBVS_taken() {
+TEST_F(InstructionsTest, testBVS_taken) {
   cpu.regs.p.overflow = true;
   TEST_INST("BVS +29", 3);
   TEST_BRANCH_TAKEN();
 }
 
-void InstructionsTest::testBVS_notTaken() {
+TEST_F(InstructionsTest, testBVS_notTaken) {
   cpu.regs.p.overflow = false;
   TEST_INST("BVS +29", 2);
   TEST_BRANCH_NOT_TAKEN();
 }
 
-void InstructionsTest::testJMP_absolute() {
+TEST_F(InstructionsTest, testJMP_absolute) {
   assembler.m_symbols.put("c", 0x4af0);
   TEST_INST("  jmp c", 3);
-  QCOMPARE(cpu.regs.pc, 0x4af0);
+  EXPECT_EQ(cpu.regs.pc, 0x4af0);
 }
 
-void InstructionsTest::testJMP_indirect() {
+TEST_F(InstructionsTest, testJMP_indirect) {
   memory.setWord(0xa000, 0x1f80);
   TEST_INST("JMP ($a000)", 5);
-  QCOMPARE(cpu.regs.pc, 0x1f80);
+  EXPECT_EQ(cpu.regs.pc, 0x1f80);
 }
 
-void InstructionsTest::testPHA() {
+TEST_F(InstructionsTest, testPHA) {
   const auto addr = cpu.regs.sp.address();
   cpu.regs.a = 0x1f;
   TEST_INST("PHA", 3);
-  QCOMPARE(cpu.regs.sp.address(), addr - 1);
-  QCOMPARE(memory[addr], 0x1f);
+  EXPECT_EQ(cpu.regs.sp.address(), addr - 1);
+  EXPECT_EQ(memory[addr], 0x1f);
 }
 
-void InstructionsTest::testPLA() {
+TEST_F(InstructionsTest, testPLA) {
   cpu.regs.sp.offset = 0x80;
   memory[0x181] = 0xab;
   TEST_INST("PLA", 4);
   TEST_ANZC(0xab, 1, 0, 0);
-  QCOMPARE(cpu.regs.sp.address(), 0x181);
+  EXPECT_EQ(cpu.regs.sp.address(), 0x181);
 }
 
-void InstructionsTest::testPHP() {
+TEST_F(InstructionsTest, testPHP) {
   const auto addr = cpu.regs.sp.address();
   memory[addr] = 0;
   cpu.regs.p = 0b11001100;
   TEST_INST("PHP", 3);
-  QCOMPARE(cpu.regs.sp.address(), addr - 1);
-  QCOMPARE(memory[addr], 0b11001100);
+  EXPECT_EQ(cpu.regs.sp.address(), addr - 1);
+  EXPECT_EQ(memory[addr], 0b11001100);
 }
 
-void InstructionsTest::testPLP() {
+TEST_F(InstructionsTest, testPLP) {
   cpu.regs.sp.offset = 0x80;
   memory[0x181] = 0b00001100;
   TEST_INST("PLP", 4);
-  QCOMPARE(cpu.regs.p, 0b00001100);
-  QCOMPARE(cpu.regs.sp.address(), 0x181);
+  EXPECT_EQ(cpu.regs.p, 0b00001100);
+  EXPECT_EQ(cpu.regs.sp.address(), 0x181);
 }
 
-void InstructionsTest::testJSR() {
+TEST_F(InstructionsTest, testJSR) {
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc + 2;
   TEST_INST("JSR $f000", 6);
-  QCOMPARE(memory[cpu.regs.sp.address() + 1], uint8_t(pc0));
-  QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0 >> 8));
-  QCOMPARE(cpu.regs.sp.address(), sp0 - 2);
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 1], uint8_t(pc0));
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 2], uint8_t(pc0 >> 8));
+  EXPECT_EQ(cpu.regs.sp.address(), sp0 - 2);
 }
 
-void InstructionsTest::testRTS() {
+TEST_F(InstructionsTest, testRTS) {
   cpu.pushWord(0x8002);
   TEST_INST("RTS", 6);
-  QCOMPARE(cpu.regs.pc, 0x8003);
+  EXPECT_EQ(cpu.regs.pc, 0x8003);
 }
 
-void InstructionsTest::testBRK() {
+TEST_F(InstructionsTest, testBRK) {
   memory.setWord(CpuAddress::IrqVector, 0xabcd);
   cpu.regs.p = 0b11001111;
   auto sp0 = cpu.regs.sp.address();
   auto pc0 = cpu.regs.pc + 2;
   TEST_INST("BRK", 7);
-  QCOMPARE(cpu.regs.p.interrupt, true);
-  QCOMPARE(memory[cpu.regs.sp.address() + 1], 0b11011111);
-  QCOMPARE(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
-  QCOMPARE(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
-  QCOMPARE(cpu.regs.sp.address(), sp0 - 3);
-  QCOMPARE(cpu.regs.pc, 0xabcd);
+  EXPECT_EQ(cpu.regs.p.interrupt, true);
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 1], 0b11011111);
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 2], uint8_t(pc0));
+  EXPECT_EQ(memory[cpu.regs.sp.address() + 3], uint8_t(pc0 >> 8));
+  EXPECT_EQ(cpu.regs.sp.address(), sp0 - 3);
+  EXPECT_EQ(cpu.regs.pc, 0xabcd);
 }
 
-void InstructionsTest::testRTI() {
+TEST_F(InstructionsTest, testRTI) {
   cpu.regs.p.interrupt = true;
   cpu.pushWord(0x8003);
   cpu.push(0b11010011);
   TEST_INST("RTI", 6);
-  QCOMPARE(cpu.regs.p.interrupt, false);
-  QCOMPARE(cpu.regs.pc, 0x8003);
-  QCOMPARE(uint8_t(cpu.regs.p), 0b11000011);
+  EXPECT_EQ(cpu.regs.p.interrupt, false);
+  EXPECT_EQ(cpu.regs.pc, 0x8003);
+  EXPECT_EQ(uint8_t(cpu.regs.p), 0b11000011);
 }
 
-void InstructionsTest::testNOP() {
+TEST_F(InstructionsTest, testNOP) {
   TEST_INST("NOP", 2);
 }
 
-void InstructionsTest::testBIT() {
+TEST_F(InstructionsTest, testBIT) {
   cpu.regs.a = 0x81;
   memory[0x2001] = 0x41;
   TEST_INST("BIT $2001", 4);
@@ -804,7 +801,7 @@ void InstructionsTest::testBIT() {
   TEST_ANZCV(0x41, 0, 1, 0, 0);
 }
 
-void InstructionsTest::testCMP() {
+TEST_F(InstructionsTest, testCMP) {
   cpu.regs.a = 0x81;
   TEST_INST("CMP #$80", 2);
   TEST_ANZCV(0x81, 0, 0, 1, 0);
@@ -828,7 +825,7 @@ void InstructionsTest::testCMP() {
   TEST_ANZCV(150, 0, 0, 1, 0);
 }
 
-void InstructionsTest::testCPX() {
+TEST_F(InstructionsTest, testCPX) {
   cpu.regs.x = uint8_t(-100);
   memory[0x2000] = uint8_t(-110);
   TEST_INST("CPX $2000", 4);
@@ -840,7 +837,7 @@ void InstructionsTest::testCPX() {
   TEST_XNZC(150, 0, 0, 1);
 }
 
-void InstructionsTest::testCPY() {
+TEST_F(InstructionsTest, testCPY) {
   cpu.regs.y = 0x71;
   TEST_INST("CPY #$90", 2);
   TEST_YNZC(0x71, 1, 0, 0);
@@ -851,38 +848,38 @@ void InstructionsTest::testCPY() {
   TEST_YNZC(-100, 0, 0, 1);
 }
 
-void InstructionsTest::testCLC() {
+TEST_F(InstructionsTest, testCLC) {
   cpu.regs.p.carry = true;
   TEST_INST("CLC", 2);
-  QCOMPARE(cpu.regs.p.carry, false);
+  EXPECT_EQ(cpu.regs.p.carry, false);
 }
 
-void InstructionsTest::testSEC() {
+TEST_F(InstructionsTest, testSEC) {
   cpu.regs.p.carry = false;
   TEST_INST("SEC", 2);
-  QCOMPARE(cpu.regs.p.carry, true);
+  EXPECT_EQ(cpu.regs.p.carry, true);
 }
 
-void InstructionsTest::testCLD() {
+TEST_F(InstructionsTest, testCLD) {
   cpu.regs.p.decimal = true;
   TEST_INST("CLD", 2);
-  QCOMPARE(cpu.regs.p.decimal, false);
+  EXPECT_EQ(cpu.regs.p.decimal, false);
 }
 
-void InstructionsTest::testSED() {
+TEST_F(InstructionsTest, testSED) {
   cpu.regs.p.decimal = false;
   TEST_INST("SED", 2);
-  QCOMPARE(cpu.regs.p.decimal, true);
+  EXPECT_EQ(cpu.regs.p.decimal, true);
 }
 
-void InstructionsTest::testCLI() {
+TEST_F(InstructionsTest, testCLI) {
   cpu.regs.p.interrupt = true;
   TEST_INST("CLI", 2);
-  QCOMPARE(cpu.regs.p.interrupt, false);
+  EXPECT_EQ(cpu.regs.p.interrupt, false);
 }
 
-void InstructionsTest::testSEI() {
+TEST_F(InstructionsTest, testSEI) {
   cpu.regs.p.interrupt = false;
   TEST_INST("SEI", 2);
-  QCOMPARE(cpu.regs.p.interrupt, true);
+  EXPECT_EQ(cpu.regs.p.interrupt, true);
 }

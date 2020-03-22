@@ -1,7 +1,10 @@
 #pragma once
 
-#include "assembler.h"
 #include <gtest/gtest.h>
+
+#define private public
+#include "assembler.h"
+#undef private
 
 static constexpr auto AsmOrigin = 0x0800;
 

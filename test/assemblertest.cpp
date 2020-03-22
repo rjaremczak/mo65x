@@ -4,15 +4,15 @@
 
 #define TEST_INST_1(instr, opCode)                                                                                               \
   TEST_INST(instr);                                                                                                              \
-  EXPECT_EQ(memory[assembler.lastLocationCounter()], opCode)
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter], opCode)
 
 #define TEST_INST_2(instr, opCode, lo)                                                                                           \
   TEST_INST_1(instr, opCode);                                                                                                    \
-  if (lo >= 0) EXPECT_EQ(lo, memory[assembler.lastLocationCounter() + 1])
+  if (lo >= 0) EXPECT_EQ(lo, memory[assembler.m_lastLocationCounter + 1])
 
 #define TEST_INST_3(instr, opCode, lo, hi)                                                                                       \
   TEST_INST_2(instr, opCode, lo);                                                                                                \
-  if (hi >= 0) EXPECT_EQ(hi, memory[assembler.lastLocationCounter() + 2])
+  if (hi >= 0) EXPECT_EQ(hi, memory[assembler.m_lastLocationCounter + 2])
 
 AssemblerTest::AssemblerTest() : ::testing::Test(), assembler(memory, symbols) {
 }
@@ -20,7 +20,7 @@ AssemblerTest::AssemblerTest() : ::testing::Test(), assembler(memory, symbols) {
 TEST_F(AssemblerTest, init) {
   assembler.init(AsmOrigin);
   EXPECT_TRUE(symbols.empty());
-  EXPECT_EQ(assembler.mode(), Assembler::ProcessingMode::EmitCode);
+  EXPECT_EQ(assembler.m_mode, Assembler::ProcessingMode::EmitCode);
 }
 
 TEST_F(AssemblerTest, testByteOperand) {
@@ -103,14 +103,14 @@ TEST_F(AssemblerTest, testRelativeModePlus) {
 
 TEST_F(AssemblerTest, testOrg) {
   TEST_INST("  .ORG $3000 ;origin");
-  EXPECT_EQ(assembler.locationCounter(), 0x3000);
+  EXPECT_EQ(assembler.m_locationCounter, 0x3000);
   TEST_INST("  .ORG $4000 ;origin");
-  EXPECT_EQ(assembler.locationCounter(), 0x4000);
+  EXPECT_EQ(assembler.m_locationCounter, 0x4000);
 }
 
 TEST_F(AssemblerTest, testOrgStar) {
   TEST_INST("  *= $5000 ;origin");
-  EXPECT_EQ(assembler.locationCounter(), 0x5000);
+  EXPECT_EQ(assembler.m_locationCounter, 0x5000);
 }
 
 TEST_F(AssemblerTest, testComment) {
@@ -122,7 +122,7 @@ TEST_F(AssemblerTest, testComment) {
 TEST_F(AssemblerTest, testEmptyLineLabel) {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST("Label_001:");
-  EXPECT_EQ(symbols.get("Label_001"), assembler.locationCounter());
+  EXPECT_EQ(symbols.get("Label_001"), assembler.m_locationCounter);
   EXPECT_EQ(symbols.get("dummy"), std::nullopt);
 }
 
@@ -133,7 +133,7 @@ TEST_F(AssemblerTest, testSymbolPass) {
   TEST_INST("c:lda dziabaDucha");
   EXPECT_EQ(symbols.get("TestLabel_01"), 1000);
   EXPECT_EQ(assembler.bytesWritten(), 0);
-  EXPECT_EQ(assembler.locationCounter(), 1004);
+  EXPECT_EQ(assembler.m_locationCounter, 1004);
 }
 
 TEST_F(AssemblerTest, testAssemblyPass) {
@@ -142,38 +142,38 @@ TEST_F(AssemblerTest, testAssemblyPass) {
   TEST_INST("TestLabel_11:  LDA #$20   ; this is a one weird comment  ");
   EXPECT_EQ(symbols.get("TestLabel_11"), std::nullopt);
   EXPECT_EQ(assembler.bytesWritten(), 3);
-  EXPECT_EQ(assembler.locationCounter(), 2005);
+  EXPECT_EQ(assembler.m_locationCounter, 2005);
 }
 
 TEST_F(AssemblerTest, testEmitBytes) {
   TEST_INST(".BYTE 20");
   EXPECT_EQ(assembler.bytesWritten(), 1);
-  EXPECT_EQ(memory[assembler.lastLocationCounter()], 20);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter], 20);
   TEST_INST(".BYTE $20 45 $4a");
   EXPECT_EQ(assembler.bytesWritten(), 4);
-  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0x20);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 1], 45);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 2], 0x4a);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter], 0x20);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 1], 45);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 2], 0x4a);
   TEST_INST(".BYTE $20, $3f,$4a ,$23 , 123");
   EXPECT_EQ(assembler.bytesWritten(), 9);
-  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0x20);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 1], 0x3f);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 2], 0x4a);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 3], 0x23);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 4], 123);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter], 0x20);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 1], 0x3f);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 2], 0x4a);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 3], 0x23);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 4], 123);
 }
 
 TEST_F(AssemblerTest, testEmitWords) {
   TEST_INST(".word $20ff $23af $fab0 ; test comment");
   EXPECT_EQ(assembler.bytesWritten(), 6);
-  EXPECT_EQ(memory.word(assembler.lastLocationCounter()), 0x20ff);
-  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 2), 0x23af);
-  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 4), 0xfab0);
+  EXPECT_EQ(memory.word(assembler.m_lastLocationCounter), 0x20ff);
+  EXPECT_EQ(memory.word(assembler.m_lastLocationCounter + 2), 0x23af);
+  EXPECT_EQ(memory.word(assembler.m_lastLocationCounter + 4), 0xfab0);
   TEST_INST(".word $3000 $15ad 10230");
   EXPECT_EQ(assembler.bytesWritten(), 12);
-  EXPECT_EQ(memory.word(assembler.lastLocationCounter()), 0x3000);
-  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 2), 0x15ad);
-  EXPECT_EQ(memory.word(assembler.lastLocationCounter() + 4), 10230);
+  EXPECT_EQ(memory.word(assembler.m_lastLocationCounter), 0x3000);
+  EXPECT_EQ(memory.word(assembler.m_lastLocationCounter + 2), 0x15ad);
+  EXPECT_EQ(memory.word(assembler.m_lastLocationCounter + 4), 10230);
 }
 
 TEST_F(AssemblerTest, testLowerCaseInstruction) {
@@ -183,8 +183,8 @@ TEST_F(AssemblerTest, testLowerCaseInstruction) {
 TEST_F(AssemblerTest, testDcb) {
   TEST_INST("dcb 0,0,0,0,0,0,0,0,0,$b,$b,$c,$f,$f,$f,$f");
   EXPECT_EQ(assembler.bytesWritten(), 16);
-  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 15], 0xf);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter], 0);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 15], 0xf);
 }
 
 TEST_F(AssemblerTest, testLoBytePrefix) {
@@ -192,8 +192,8 @@ TEST_F(AssemblerTest, testLoBytePrefix) {
   symbols.put("label", 0x2afe);
   TEST_INST_2("LDA #<label", 0xa9, 0xfe);
   TEST_INST("dcb <label, 2");
-  EXPECT_EQ(memory[assembler.lastLocationCounter()], 0xfe);
-  EXPECT_EQ(memory[assembler.lastLocationCounter() + 1], 2);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter], 0xfe);
+  EXPECT_EQ(memory[assembler.m_lastLocationCounter + 1], 2);
 }
 
 TEST_F(AssemblerTest, testHiBytePrefix) {
@@ -214,5 +214,5 @@ TEST_F(AssemblerTest, testSymbolDef) {
   assembler.changeMode(Assembler::ProcessingMode::ScanForSymbols);
   TEST_INST(".org $1000");
   TEST_INST("lda init");
-  EXPECT_EQ(assembler.locationCounter(), 0x1003);
+  EXPECT_EQ(assembler.m_locationCounter, 0x1003);
 }

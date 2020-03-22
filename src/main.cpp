@@ -12,7 +12,6 @@
 #include <QMetaType>
 #include <QScreen>
 #include <QStyleFactory>
-#include <QTest>
 #include <gtest/gtest.h>
 
 Q_DECLARE_METATYPE(EmulatorState)
@@ -22,14 +21,6 @@ Q_DECLARE_METATYPE(AddressRange)
 Q_DECLARE_METATYPE(FileOperationCallBack)
 Q_DECLARE_METATYPE(Frequency)
 
-int test(int argc, char** argv) {
-  QApplication app(argc, argv);
-
-  InstructionsTest opCodesTest;
-
-  return QTest::qExec(&opCodesTest, argc, argv);
-}
-
 int gtest(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
@@ -38,7 +29,7 @@ int gtest(int argc, char** argv) {
 int main(int argc, char* argv[]) {
 
 #ifdef RUN_TESTS
-  return gtest(argc, argv) & test(argc, argv);
+  return gtest(argc, argv);
 #else
   // register types already aliased by Qt
   qRegisterMetaType<uint8_t>("uint8_t");

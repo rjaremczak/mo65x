@@ -22,10 +22,6 @@ public:
 
   Assembler(Memory&, SymbolTable&);
 
-  auto mode() const { return m_mode; }
-  auto locationCounter() const { return m_locationCounter; }
-  auto lastLocationCounter() const { return m_lastLocationCounter; }
-
   int bytesWritten() const;
   AddressRange affectedAddressRange() const;
 

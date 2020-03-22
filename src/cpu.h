@@ -14,7 +14,6 @@ class Cpu {
 public:
   using Handler = void (Cpu::*)();
 
-  friend class InstructionsTest;
   friend constexpr Handler operandsHandler(OperandsFormat);
   friend constexpr Handler instructionHandler(InstructionType);
 
