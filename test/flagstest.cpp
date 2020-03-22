@@ -1,5 +1,6 @@
 #include "flagstest.h"
 #include <QTest>
+#include "gtest/gtest.h"
 
 FlagsTest::FlagsTest(QObject* parent) : QObject(parent) {
 }
