@@ -7,12 +7,12 @@
 #include <QStringList>
 #include <map>
 
-QString Disassembler::formatOperand8() const {
-  return "$" + formatHexByte(m_memory[m_address + 1]);
+std::string Disassembler::formatOperand8() const {
+  return ::formatOperand8(m_memory[m_address + 1]);
 }
 
-QString Disassembler::formatOperand16() const {
-  return "$" + formatHexWord(m_memory.word(m_address + 1));
+std::string Disassembler::formatOperand16() const {
+  return ::formatOperand16(m_memory.word(m_address + 1));
 }
 
 Disassembler::Disassembler(const Memory& memory, Address pc) : m_memory(memory) {
@@ -29,10 +29,10 @@ void Disassembler::nextInstruction() {
   setOrigin(m_address + m_instruction.size);
 }
 
-QString Disassembler::disassemble() const {
-  QString str;
+std::string Disassembler::disassemble() const {
+  std::string str;
   for (uint8_t i = 0; i < 3; i++) {
-    str.append(i < m_instruction.size ? formatHexByte(m_memory[m_address + i]).append(" ") : "   ");
+    str.append(i < m_instruction.size ? formatHex8(m_memory[m_address + i]).append(" ") : "   ");
   }
   str.append(" ");
   str.append(MnemonicTable.at(m_instruction.type)).append(" ");
@@ -52,8 +52,8 @@ QString Disassembler::disassemble() const {
   case Branch:
     const auto displacement = static_cast<int8_t>(m_memory[m_address + 1]);
     if (displacement > 0) str.append("+");
-    str.append(QString::number(displacement));
+    str.append(std::to_string(displacement));
     break;
   }
-  return str.toUpper();
+  return str;
 }

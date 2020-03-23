@@ -46,20 +46,20 @@ void DisassemblerView::changeSelected(Address addr) {
 
 void DisassemblerView::updateView() {
   disassembler.setOrigin(addressRange.first);
-  QString html("<div style='white-space:pre; display:inline-block'>");
+  std::string html("<div style='white-space:pre; display:inline-block'>");
   int rows = rowsInView();
   while (rows--) {
     auto hl = shouldHighlightCurrentAddress();
     html.append(hl ? "<div style='color:black; background-color: lightgreen'>" : "<div style='color:darkseagreen'>");
     html.append(hl ? "<span style='color:black'>" : "<span style='color:gray'>");
-    html.append(formatHexWord(disassembler.address()).toUpper());
+    html.append(formatHex16(disassembler.address()));
     html.append("</span> ");
     html.append(disassembler.disassemble());
     html.append("</div>");
     disassembler.nextInstruction();
   }
   html.append("</div>");
-  ui->view->setHtml(html);
+  ui->view->setHtml(QString::fromStdString(html));
   addressRange.last = disassembler.address();
 }
 

@@ -33,20 +33,20 @@ void MemoryWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void MemoryWidget::updateView() {
-  QString html("<div style='white-space:pre; display:inline-block; color:gray'>");
+  std::string html("<div style='white-space:pre; display:inline-block; color:gray'>");
   int rows = rowsInView() - 1;
   int cols = colsInView();
   auto addr = addressRange.first;
   for (int row = 0; row < rows; row++) {
     html.append("<div>");
-    html.append(formatHexWord(addr).toUpper()).append(" <span style='color:lightgreen'>");
+    html.append(formatHex16(addr)).append(" <span style='color:lightgreen'>");
     for (int x = 0; x < (cols - 7) / 3; x++) {
-      html.append(formatHexByte(memory[addr++]).toUpper()).append(" ");
+      html.append(formatHex8(memory[addr++])).append(" ");
     }
     html.append("</span></div>");
   }
   html.append("</div>");
-  ui->textView->setHtml(html);
+  ui->textView->setHtml(QString::fromStdString(html));
   addressRange.last = addr - 1;
   changeEndAddress(addressRange.last);
 }

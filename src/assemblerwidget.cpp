@@ -112,9 +112,9 @@ void AssemblerWidget::assembleSourceCode() {
 
   emit codeWritten(m_assembler.affectedAddressRange());
   emit programCounterChanged(m_assembler.affectedAddressRange().first);
-  emit operationCompleted(tr("%1 B written in range $%2-$%3, symbols: %4")
-                              .arg(m_assembler.bytesWritten())
-                              .arg(formatHexWord(m_assembler.affectedAddressRange().first))
-                              .arg(formatHexWord(m_assembler.affectedAddressRange().last))
-                              .arg(m_symbols.size()));
+  emit operationCompleted(QString::fromStdString(fmt::format("{} B written in range {} - {}, symbols: {}",
+                                           m_assembler.bytesWritten(),
+                                           formatHex16(m_assembler.affectedAddressRange().first),
+                                           formatHex16(m_assembler.affectedAddressRange().last),
+                                           m_symbols.size())));
 }

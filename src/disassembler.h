@@ -2,7 +2,6 @@
 
 #include "instruction.h"
 #include "memory.h"
-#include <QString>
 
 class Disassembler {
 public:
@@ -10,7 +9,7 @@ public:
   void setOrigin(Address);
   Address address() const { return m_address; }
   void nextInstruction();
-  QString disassemble() const;
+  std::string disassemble() const;
 
 private:
   const Memory& m_memory;
@@ -18,6 +17,6 @@ private:
   uint8_t m_opcode;
   Instruction m_instruction;
 
-  QString formatOperand8() const;
-  QString formatOperand16() const;
+  std::string formatOperand8() const;
+  std::string formatOperand16() const;
 };
