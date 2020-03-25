@@ -1,3 +1,4 @@
+#include "main-imgui-sfml.h"
 #include "commondefs.h"
 #include "config.h"
 #include "emulatorstate.h"
@@ -26,7 +27,12 @@ int gtest(int argc, char** argv) {
   return RUN_ALL_TESTS();
 }
 
-int main(int argc, char* argv[]) {
+int main(int, char**) {
+  main_imgui_sfml();
+  return 0;
+}
+
+int main2(int argc, char* argv[]) {
 
 #ifdef RUN_TESTS
   return gtest(argc, argv);
