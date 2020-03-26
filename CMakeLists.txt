@@ -9,6 +9,13 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set ( UIS
+ mainwindow.ui
+)
+
+set ( RESOURCES
+ main.qrc
+)
 set(SFML_STATIC_LIBRARIES TRUE)
 
 if(RUN_TESTS)
@@ -34,8 +41,10 @@ set(LIB_SOURCES
 
 file(GLOB_RECURSE APP_SOURCES "src/*.c*" "src/*.h*")
 file(GLOB_RECURSE TEST_SOURCES "test/*.c*" "test/*.h*")
+file(GLOB_RECURSE UIS "src/*.ui")
+file(GLOB_RECURSE RESOURCES "src/*.qrc")
 
-add_executable(mo65x ${APP_SOURCES} ${LIB_SOURCES} ${TEST_SOURCES})
+add_executable(mo65x ${APP_SOURCES} ${LIB_SOURCES} ${UIS} ${RESOURCES} ${TEST_SOURCES})
 
 target_link_libraries(mo65x
     Qt5::Widgets

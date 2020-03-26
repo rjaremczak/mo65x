@@ -5,9 +5,12 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+static const std::string ProjectName {"mo65x"};
+static const std::string ProjectVersion = "1.01";
+
 void main_imgui_sfml()
 {
-  sf::RenderWindow window(sf::VideoMode(640, 480), "");
+  sf::RenderWindow window(sf::VideoMode(800, 600), ProjectName + " " + ProjectVersion + " © mindpart.com");
   window.setVerticalSyncEnabled(true);
   ImGui::SFML::Init(window);
 
@@ -17,9 +20,9 @@ void main_imgui_sfml()
 
   // let's use char array as buffer, see next part
   // for instructions on using std::string with ImGui
-  char windowTitle[255] = "ImGui + SFML = <3";
+  //char windowTitle[255] = "ImGui + SFML = <3";
 
-  window.setTitle(windowTitle);
+  //window.setTitle(windowTitle);
   window.resetGLStates(); // call it if you only draw ImGui. Otherwise not needed.
   sf::Clock deltaClock;
   while (window.isOpen()) {
@@ -46,13 +49,13 @@ void main_imgui_sfml()
     }
 
     // Window title text edit
-    ImGui::InputText("Window title", windowTitle, 255);
+    //ImGui::InputText("Window title", windowTitle, 255);
 
     if (ImGui::Button("Update window title")) {
       // this code gets if user clicks on the button
       // yes, you could have written if(ImGui::InputText(...))
       // but I do this to show how buttons work :)
-      window.setTitle(windowTitle);
+      //window.setTitle(windowTitle);
     }
     ImGui::End(); // end window
 
