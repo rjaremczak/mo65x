@@ -9,14 +9,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set ( UIS
- mainwindow.ui
-)
-
-set ( RESOURCES
- main.qrc
-)
-set(SFML_STATIC_LIBRARIES TRUE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    add_definitions(-DGL_SILENCE_DEPRECATION)
+    find_package(OpenGL REQUIRED)
+else()
+    set(SFML_STATIC_LIBRARIES TRUE)
+endif()
 
 if(RUN_TESTS)
     add_definitions(-DRUN_TESTS)
@@ -54,4 +52,5 @@ target_link_libraries(mo65x
     sfml-graphics
     pthread
     gtest
+    OpenGL::GL
 )
