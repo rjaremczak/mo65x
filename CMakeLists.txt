@@ -9,16 +9,18 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    add_definitions(-DGL_SILENCE_DEPRECATION)
-    find_package(OpenGL REQUIRED)
-else()
-    set(SFML_STATIC_LIBRARIES TRUE)
-endif()
-
 if(RUN_TESTS)
     add_definitions(-DRUN_TESTS)
 endif(RUN_TESTS)
+
+if(WIN32)
+    set(SFML_STATIC_LIBRARIES TRUE)
+endif()
+
+if(UNIX)
+    add_definitions(-DGL_SILENCE_DEPRECATION)
+    find_package(OpenGL REQUIRED)
+endif()
 
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
@@ -52,5 +54,8 @@ target_link_libraries(mo65x
     sfml-graphics
     pthread
     gtest
-    OpenGL::GL
 )
+
+if(UNIX)
+    target_link_libraries(mo65x OpenGL::GL)
+endif()
