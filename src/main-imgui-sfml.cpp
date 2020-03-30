@@ -30,12 +30,12 @@ void main_imgui_sfml()
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(event);
 
-      if (event.type == sf::Event::Closed) {
-        window.close();
-      }
+      if (event.type == sf::Event::Closed) { window.close(); }
     }
 
     ImGui::SFML::Update(window, deltaClock.restart());
+
+    ImGui::ShowDemoWindow();
 
     ImGui::Begin("Sample window"); // begin window
 
