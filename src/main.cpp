@@ -8,7 +8,6 @@
 #include "test/flagstest.h"
 #include "test/instructionstest.h"
 #include <QApplication>
-#include <QDir>
 #include <QFile>
 #include <QMetaType>
 #include <QScreen>
@@ -27,12 +26,12 @@ int gtest(int argc, char** argv) {
   return RUN_ALL_TESTS();
 }
 
-int main(int, char**) {
+int main2(int, char**) {
   main_imgui_sfml();
   return 0;
 }
 
-int main2(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
 #ifdef RUN_TESTS
   return gtest(argc, argv);

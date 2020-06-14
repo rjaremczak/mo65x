@@ -1,17 +1,18 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <filesystem>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include <sstream>
 
 template <class DataObjectType> class FileDataStorage {
-  const std::string m_filePath;
+  const std::filesystem::path m_path;
 
 public:
-  FileDataStorage(const std::string& filePath) : m_filePath(filePath) {}
+  FileDataStorage(const std::filesystem::path&& path) : m_path(std::move(path)) {}
 
   bool read(DataObjectType& dao) {
-    std::ifstream is(m_filePath);
+    std::ifstream is(m_path);
     if (!is.is_open()) return false;
 
     std::ostringstream oss;
@@ -27,7 +28,7 @@ public:
   }
 
   void write(const DataObjectType& dao) {
-    std::ofstream os(m_filePath);
+    std::ofstream os(m_path);
     if (os.is_open()) os << dao.toJson().dump(4);
   }
 

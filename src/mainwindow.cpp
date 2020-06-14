@@ -1,10 +1,13 @@
 #include "mainwindow.h"
 #include "commonformatters.h"
+#include "commonutils.h"
 #include "ui_mainwindow.h"
 #include <QDir>
 #include <QMessageBox>
+#include <filesystem>
 
-static const QString ProjectName = "mo65x";
+static const auto ProjectName = "mo65x";
+static const auto ConfigFileName = "config.json";
 static const QString ProjectVersion = "1.01";
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -65,8 +68,7 @@ void MainWindow::changeAsmFileName(const QString& fileName) {
   m_config.asmFileName = fileName.toStdString();
   m_configStorage->write(m_config);
 
-  QFileInfo fileInfo(fileName);
-  setWindowTitle(ProjectName + " " + ProjectVersion + " © mindpart.com : " + fileInfo.fileName());
+  setWindowTitle(QString(ProjectName) + " " + ProjectVersion + " © mindpart.com : " + fileName);
 }
 
 void MainWindow::showMessage(const QString& message, bool success) {
@@ -83,10 +85,10 @@ void MainWindow::prepareToQuit() {
 }
 
 void MainWindow::initConfigStorage() {
-  auto appDir = QDir(QDir::homePath() + "/." + ProjectName);
-  if (!appDir.exists()) appDir.mkpath(".");
-
-  m_configStorage = new FileDataStorage<Config>(appDir.filePath("config.json").toStdString());
+  // auto appDir = std::filesystem::path(QDir::homePath().toStdString() + "/." + ProjectName);
+  const auto appDir = mindpart::home_path() / (std::string(".") + ProjectName);
+  if (!std::filesystem::exists(appDir)) std::filesystem::create_directory(appDir);
+  m_configStorage = new FileDataStorage<Config>(appDir / ConfigFileName);
   m_config = m_configStorage->readOrInit();
 }
 
