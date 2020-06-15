@@ -4,7 +4,6 @@
 #include "ui_mainwindow.h"
 #include <QDir>
 #include <QMessageBox>
-#include <filesystem>
 
 static const auto ProjectName = "mo65x";
 static const auto ConfigFileName = "config.json";
@@ -85,10 +84,9 @@ void MainWindow::prepareToQuit() {
 }
 
 void MainWindow::initConfigStorage() {
-  // auto appDir = std::filesystem::path(QDir::homePath().toStdString() + "/." + ProjectName);
-  const auto appDir = mindpart::home_path() / (std::string(".") + ProjectName);
-  if (!std::filesystem::exists(appDir)) std::filesystem::create_directory(appDir);
-  m_configStorage = new FileDataStorage<Config>(appDir / ConfigFileName);
+  const auto appDir = mindpart::home_directory() + "/." + ProjectName;
+  if (!mindpart::is_directory(appDir)) mindpart::create_directory(appDir);
+  m_configStorage = new FileDataStorage<Config>(appDir + "/" + ConfigFileName);
   m_config = m_configStorage->readOrInit();
 }
 

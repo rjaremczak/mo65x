@@ -1,7 +1,12 @@
-#include <filesystem>
+#include <string>
 
 namespace mindpart {
 
-std::filesystem::path home_path();
+bool is_file(const std::string&);
+bool is_directory(const std::string&);
+
+bool create_directory(const std::string&);
+
+std::string home_directory();
 
 } // namespace mindpart

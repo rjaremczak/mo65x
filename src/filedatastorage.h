@@ -1,15 +1,14 @@
 #pragma once
 
-#include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <sstream>
 
 template <class DataObjectType> class FileDataStorage {
-  const std::filesystem::path m_path;
+  const std::string m_path;
 
 public:
-  FileDataStorage(const std::filesystem::path&& path) : m_path(std::move(path)) {}
+  FileDataStorage(const std::string&& path) : m_path(std::move(path)) {}
 
   bool read(DataObjectType& dao) {
     std::ifstream is(m_path);
