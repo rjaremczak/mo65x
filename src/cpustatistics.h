@@ -1,8 +1,8 @@
 #pragma once
 
 #include "commondefs.h"
-#include <QString>
 #include <cstdint>
+#include <string>
 
 struct CpuStatistics {
   long cycles = 0;
@@ -17,4 +17,4 @@ struct CpuStatistics {
   CpuStatistics operator-(const CpuStatistics& e) const { return {cycles - e.cycles, duration - e.duration}; }
 };
 
-QString formatExecutionStatistics(CpuStatistics es);
+std::string formatExecutionStatistics(CpuStatistics es);

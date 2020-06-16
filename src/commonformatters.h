@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cpustatistics.h"
-#include <QString>
 #include <cstdint>
 #include <fmt/format.h>
 

@@ -4,7 +4,6 @@
 #include "instruction.h"
 #include "instructiontable.h"
 #include "mnemonics.h"
-#include <QStringList>
 #include <map>
 
 std::string Disassembler::formatOperand8() const {
