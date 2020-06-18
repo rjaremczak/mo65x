@@ -3,12 +3,14 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <sstream>
+#include <filesystem>
 
-template <class DataObjectType> class FileDataStorage {
-  const std::string m_path;
+template <class DataObjectType>
+class FileDataStorage {
+  const std::filesystem::path m_path;
 
-public:
-  FileDataStorage(const std::string&& path) : m_path(std::move(path)) {}
+ public:
+  FileDataStorage(const std::filesystem::path&& path) : m_path(std::move(path)) {}
 
   bool read(DataObjectType& dao) {
     std::ifstream is(m_path);
