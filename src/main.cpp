@@ -1,4 +1,5 @@
-#include "main-imgui-sfml.h"
+#include <gtest/gtest.h>
+#include "app.h"
 #include "commondefs.h"
 #include "config.h"
 #include "emulatorstate.h"
@@ -6,7 +7,6 @@
 #include "test/assemblertest.h"
 #include "test/flagstest.h"
 #include "test/instructionstest.h"
-#include <gtest/gtest.h>
 
 int gtest(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
@@ -17,7 +17,7 @@ int main(int, char**) {
 #ifdef RUN_TESTS
   return gtest(argc, argv);
 #else
-  main_imgui_sfml();
-  return 0;
+  auto app = std::make_unique<App>();
+  return app->run();
 #endif
 }
