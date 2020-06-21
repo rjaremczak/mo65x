@@ -5,8 +5,11 @@ stands for My Own 65 eXpandable emulator. The project has educational motivation
 
 since version 0.94 there is a video-ram mode that is compatible with that from 6502asm.com. It's a simple frame buffer mapping 32 x 32 x 8bit image with indexed color mode. Only bits 0-3 are used and maps to Commodore C64 color palette. Initially frame buffer starts at address 0x200 but can be changed live.
 
+## Getting rid of Qt dependencies
+While QT is a great library which along with entire ecosystem and QtCreator IDE gave this project a big boost I had to consider moving away from it. Recent changes in QT's licensing motivated me to think of a fully open-source alternative that is free of any obstacles, possible licensing pitfalls and similar uncertainity. Decision has been made and effects of my efforts can be evaluated on branch "noqt". In short for rendering I'm going to use ImGUI with SFML library, all the rest will be a mixture of native STL, FMT, POSIX threads and so on ... Once result has presentable appearance it'll be moved to the HEAD and probably can help others with similar struggle :-)
+
 ## Installation
-As project uses Qt 5.x.x library it should be fully portable wherever that library and valid c++17 compilers run. So far it's been tested on Ubuntu 19.x and macOS Catalina 10.15.x. Some flavour of Windows 10 has also been checked with success.
+As project uses Qt 5.x.x library it should be fully portable wherever that library and a valid c++17 compilers run. So far it's been tested on Ubuntu 19.x and macOS Catalina 10.15.x. Some flavour of Windows 10 has also been checked with success.
 
 Usual drill is the following:
 * be sure to have decent GCC (or MinGW) compiler that Qt SDK can work with. On Windows MinGW is a part of distribution but Windows set-up hasn't been tested yet. Code is written using C++17 language level, be sure your version supports this.
