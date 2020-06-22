@@ -9,6 +9,12 @@
 *.dll
 *.dylib
 
+# build folders
+build*
+
+# vscode
+.vscode
+
 # Qt-es
 object_script.*.Release
 object_script.*.Debug
