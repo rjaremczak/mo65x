@@ -1,4 +1,15 @@
-#include "flagstest.h"
+#include <gtest/gtest.h>
+#include "processorstatus.h"
+
+class FlagsTest : public ::testing::Test
+{
+protected:
+  ProcessorStatus p;
+};
+
+TEST(Fa,Fu) {
+  EXPECT_EQ(true,false);
+}
 
 TEST_F(FlagsTest, testBits) {
   p = 0b11111111;

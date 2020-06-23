@@ -1,7 +1,24 @@
-#include "instructionstest.h"
-#include "disassembler.h"
+#include <gtest/gtest.h>
 #include <algorithm>
 #include <numeric>
+#include "disassembler.h"
+
+#define private public
+#include "assembler.h"
+#include "cpu.h"
+#undef private
+
+class InstructionsTest : public ::testing::Test {
+protected:
+  InstructionsTest();
+  SymbolTable symbols;
+  Assembler assembler;
+  Memory memory;
+  Cpu cpu;
+  int lastCycles;
+
+  void SetUp() override;
+};
 
 #define TEST_NZC(n, z, c)                                                                                                        \
   EXPECT_EQ(cpu.regs.p.negative, n);                                                                                              \
