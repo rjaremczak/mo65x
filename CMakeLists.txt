@@ -1,55 +1,12 @@
-cmake_minimum_required(VERSION 3.9)
-
+cmake_minimum_required(VERSION 3.10)
 project(mo65x)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_MACOSX_BUNDLE ON)
-
-if(RUN_TESTS)
-    add_definitions(-DRUN_TESTS)
-endif(RUN_TESTS)
-
-if(WIN32)
-    set(SFML_STATIC_LIBRARIES TRUE)
-endif()
-
-if(UNIX)
-    add_definitions(-DGL_SILENCE_DEPRECATION)
-    find_package(OpenGL REQUIRED)
-endif()
-
-find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
-
-add_subdirectory(lib/googletest EXCLUDE_FROM_ALL)
-add_subdirectory(lib/fmt EXCLUDE_FROM_ALL)
 
 include_directories(src lib lib/imgui lib/imgui-sfml)
 
-set(LIB_SOURCES
-    lib/nlohmann/json.hpp
-    lib/imgui/imgui.cpp
-    lib/imgui/imgui_draw.cpp
-    lib/imgui/imgui_widgets.cpp
-    lib/imgui/imgui_demo.cpp
-    lib/imgui-sfml/imgui-SFML.cpp
-    )
-
-file(GLOB_RECURSE APP_SOURCES "src/*.c*" "src/*.h*")
-file(GLOB_RECURSE TEST_SOURCES "test/*.c*" "test/*.h*")
-file(GLOB_RECURSE UIS "src/*.ui")
-file(GLOB_RECURSE RESOURCES "src/*.qrc")
-
-add_executable(mo65x ${APP_SOURCES} ${LIB_SOURCES} ${UIS} ${RESOURCES} ${TEST_SOURCES})
-
-target_link_libraries(mo65x
-    fmt::fmt
-    sfml-graphics
-    pthread
-    gtest
-)
-
-if(UNIX)
-    target_link_libraries(mo65x OpenGL::GL)
-endif()
+add_subdirectory(src)
+add_subdirectory(test)
+add_subdirectory(lib/googletest)
+add_subdirectory(lib/fmt)
