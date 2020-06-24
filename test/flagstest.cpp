@@ -7,10 +7,6 @@ protected:
   ProcessorStatus p;
 };
 
-TEST(Fa,Fu) {
-  EXPECT_EQ(true,false);
-}
-
 TEST_F(FlagsTest, testBits) {
   p = 0b11111111;
   EXPECT_EQ(p.toByte(), 0b11001111);

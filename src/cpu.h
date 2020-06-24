@@ -7,7 +7,8 @@
 #include "operandptr.h"
 #include "registers.h"
 #include <chrono>
-#include <commondefs.h>
+#include "commondefs.h"
+
 #include <map>
 
 class Cpu {

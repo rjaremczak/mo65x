@@ -1,8 +1,6 @@
-set(TEST_BINARY ${CMAKE_PROJECT_NAME}_test)
+file(GLOB_RECURSE SOURCES *.h* *.c*)
 
-#include_directories(.)
-file(GLOB_RECURSE TEST_SOURCES *.h* *.c*)
+add_executable(${APP_TEST} ${SOURCES})
+target_link_libraries(${APP_TEST} ${APP_LIB} gtest_main)
 
-add_executable(${TEST_BINARY} ${TEST_SOURCES})
-add_test(NAME ${TEST_BINARY} COMMAND ${TEST_BINARY})
-target_link_libraries(${TEST_BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_main gtest_main)
+add_test(NAME ${APP_TEST} COMMAND ${APP_TEST})
