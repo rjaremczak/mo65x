@@ -4,7 +4,7 @@
 #include "cpu.h"
 #include "cpustatistics.h"
 #include "emulatorstate.h"
-#include "memory.h"
+#include "memorychip.h"
 #include <condition_variable>
 #include <istream>
 #include <mutex>
@@ -15,8 +15,8 @@ class Emulator
 public:
   Emulator();
   ~Emulator();
-  const Memory& memoryView() const { return m_memory; }
-  Memory& memoryRef() { return m_memory; }
+  const MemoryChip& memoryView() const { return m_memory; }
+  MemoryChip& memoryRef() { return m_memory; }
   bool running() const { return m_running; }
   EmulatorState state() const { return {m_cpu.state(), m_cpu.regs, m_accCpuStatistics, m_lastCpuStatistics}; }
 
@@ -38,7 +38,7 @@ public:
 private:
   void loop() noexcept;
 
-  Memory m_memory;
+  MemoryChip m_memory;
   Cpu m_cpu;
   CpuStatistics m_accCpuStatistics;
   CpuStatistics m_lastCpuStatistics;

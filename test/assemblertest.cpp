@@ -11,7 +11,7 @@ protected:
   AssemblerTest();
   SymbolTable symbols;
   Assembler assembler;
-  Memory memory;
+  MemoryChip memory;
 };
 
 #define TEST_INST(instr) EXPECT_EQ(assembler.processLine(instr), AssemblyResult::Ok)

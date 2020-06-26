@@ -3,7 +3,7 @@
 #include "commondefs.h"
 #include <iterator>
 
-class Memory {
+class MemoryChip {
 public:
   static constexpr size_t Size = 0x10000;
 

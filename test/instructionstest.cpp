@@ -13,7 +13,7 @@ protected:
   InstructionsTest();
   SymbolTable symbols;
   Assembler assembler;
-  Memory memory;
+  MemoryChip memory;
   Cpu cpu;
   int lastCycles;
 

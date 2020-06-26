@@ -3,7 +3,7 @@
 #include "cpustate.h"
 #include "cpustatistics.h"
 #include "instruction.h"
-#include "memory.h"
+#include "memorychip.h"
 #include "operandptr.h"
 #include "registers.h"
 #include <chrono>
@@ -20,7 +20,7 @@ public:
 
   Registers regs;
 
-  Cpu(Memory&);
+  Cpu(MemoryChip&);
   bool running() const { return m_state.running(); }
   void reset();
   void resetExecutionState();
@@ -35,7 +35,7 @@ public:
 
 private:
   CpuState m_state;
-  Memory& m_memory;
+  MemoryChip& m_memory;
   OperandPtr m_operandPtr;
   OperandPtr m_effectiveOperandPtr;
   uint16_t m_effectiveAddress;

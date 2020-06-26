@@ -2,7 +2,7 @@
 #include "decodetable.h"
 #include <chrono>
 
-Cpu::Cpu(Memory& memory) : m_memory(memory) {
+Cpu::Cpu(MemoryChip& memory) : m_memory(memory) {
 }
 
 void Cpu::prepImpliedOrAccumulatorMode() {

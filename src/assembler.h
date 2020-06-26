@@ -4,7 +4,7 @@
 #include "assemblyresult.h"
 #include "commondefs.h"
 #include "instruction.h"
-#include "memory.h"
+#include "memorychip.h"
 #include "operandvalue.h"
 #include "symboltable.h"
 #include <iterator>
@@ -20,7 +20,7 @@ public:
 
   static constexpr uint16_t DefaultOrigin = 0;
 
-  Assembler(Memory&, SymbolTable&);
+  Assembler(MemoryChip&, SymbolTable&);
 
   int bytesWritten() const;
   AddressRange affectedAddressRange() const;
@@ -42,7 +42,7 @@ private:
   };
   static const PatternEntry Patterns[];
 
-  Memory& m_memory;
+  MemoryChip& m_memory;
   SymbolTable& m_symbols;
 
   AddressRange m_addressRange;

@@ -108,7 +108,7 @@ static std::vector<std::string> split(const std::string_view str) {
   return items;
 }
 
-Assembler::Assembler(Memory& memory, SymbolTable& symbols) : m_memory(memory), m_symbols(symbols) {
+Assembler::Assembler(MemoryChip& memory, SymbolTable& symbols) : m_memory(memory), m_symbols(symbols) {
   init();
 }
 

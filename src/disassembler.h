@@ -1,18 +1,18 @@
 #pragma once
 
 #include "instruction.h"
-#include "memory.h"
+#include "memorychip.h"
 
 class Disassembler {
 public:
-  Disassembler(const Memory&, Address addr = 0);
+  Disassembler(const MemoryChip&, Address addr = 0);
   void setOrigin(Address);
   Address address() const { return m_address; }
   void nextInstruction();
   std::string disassemble() const;
 
 private:
-  const Memory& m_memory;
+  const MemoryChip& m_memory;
   Address m_address;
   uint8_t m_opcode;
   Instruction m_instruction;

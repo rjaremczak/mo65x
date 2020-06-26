@@ -14,7 +14,7 @@ std::string Disassembler::formatOperand16() const {
   return ::formatOperand16(m_memory.word(m_address + 1));
 }
 
-Disassembler::Disassembler(const Memory& memory, Address pc) : m_memory(memory) {
+Disassembler::Disassembler(const MemoryChip& memory, Address pc) : m_memory(memory) {
   setOrigin(pc);
 }
 
