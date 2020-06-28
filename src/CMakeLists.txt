@@ -20,14 +20,14 @@ list(APPEND SOURCES
 )
 
 add_library(${APP_LIB} STATIC ${SOURCES})
-target_link_libraries(${APP_LIB} 
+target_link_libraries(${APP_LIB} PUBLIC
     fmt::fmt 
     sfml-graphics 
     pthread 
 )
 
 if(UNIX)
-    target_link_libraries(${APP_LIB} OpenGL::GL)
+    target_link_libraries(${APP_LIB} PUBLIC OpenGL::GL)
 endif()
 
 target_include_directories(${APP_LIB} PUBLIC
