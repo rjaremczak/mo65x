@@ -1,9 +1,9 @@
 [submodule "lib/imgui-sfml"]
-	path = lib/imgui-sfml
+	path = extern/imgui-sfml
 	url = https://github.com/eliasdaler/imgui-sfml.git
 [submodule "lib/googletest"]
-	path = lib/googletest
+	path = extern/googletest
 	url = https://github.com/google/googletest.git
 [submodule "lib/fmt"]
-	path = lib/fmt
+	path = extern/fmt
 	url = https://github.com/fmtlib/fmt.git
