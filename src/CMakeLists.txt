@@ -12,11 +12,11 @@ find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 file(GLOB_RECURSE SOURCES *.h* *.c*)
 list(REMOVE_ITEM SOURCES main.cpp)
 list(APPEND SOURCES 
-    ${LIB_DIR}/imgui/imgui.cpp
-    ${LIB_DIR}/imgui/imgui_draw.cpp
-    ${LIB_DIR}/imgui/imgui_widgets.cpp
-    ${LIB_DIR}/imgui/imgui_demo.cpp
-    ${LIB_DIR}/imgui-sfml/imgui-SFML.cpp
+    ${EXTERN_DIR}/imgui/imgui.cpp
+    ${EXTERN_DIR}/imgui/imgui_draw.cpp
+    ${EXTERN_DIR}/imgui/imgui_widgets.cpp
+    ${EXTERN_DIR}/imgui/imgui_demo.cpp
+    ${EXTERN_DIR}/imgui-sfml/imgui-SFML.cpp
 )
 
 add_library(${APP_LIB} STATIC ${SOURCES})
@@ -32,6 +32,6 @@ endif()
 
 target_include_directories(${APP_LIB} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${LIB_DIR}/imgui
-    ${LIB_DIR}/imgui-sfml
+    ${EXTERN_DIR}/imgui
+    ${EXTERN_DIR}/imgui-sfml
 )
