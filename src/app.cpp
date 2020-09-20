@@ -11,19 +11,14 @@ int App::run() {
   initConfigStorage();
   initRenderWindow();
 
-  sf::Color bgColor;
-
-  float color[3] = { 0.f, 0.f, 0.f };
-
-  // let's use char array as buffer, see next part
-  // for instructions on using std::string with ImGui
+  float color[3] = { 0.5f, 0.5f, 0.5f };
   char windowTitle[255] = "ImGui + SFML = <3";
-
   bool demoWindow = false;
 
+  m_renderWindow->setBackgroundColor(color);
+  
   while (m_renderWindow->isOpen()) {
     m_renderWindow->update();
-
 
     ImGui::Begin("Sample window"); // begin window
 
