@@ -16,7 +16,6 @@ int App::run() {
   bool demoWindow = false;
 
   m_renderWindow->setBackgroundColor(color);
-  
   while (m_renderWindow->isOpen()) {
     m_renderWindow->update();
 
