@@ -1,5 +1,6 @@
 #include "app.h"
 #include "commonutils.h"
+#include "assembler.h"
 
 static const std::string ProjectName = "mo65x";
 static const std::string ConfigFileName = "config.json";
@@ -61,13 +62,24 @@ void App::initRenderWindow() {
   m_renderWindow = std::make_unique<RenderWindow>(800,600,ProjectName);
 }
 
-void App::loadMemoryFromFile(Address start, const std::filesystem::path& fpath) {
+void App::loadMemoryFromBinFile(Address start, const std::filesystem::path& fpath) {
   std::ifstream is(fpath, std::ios::in | std::ios::binary);
   if(is.is_open()) {
     const auto size = std::filesystem::file_size(fpath);
+    if(!is.read(reinterpret_cast<char*>(m_emulator.memoryRef().ptr(start)), static_cast<std::streamsize>(size))) {
+      errorMessage("load error");
+    }
+  }
+}
+
+void App::loadMemoryFromAsmFile(const std::filesystem::path& fpath) {
+  std::ifstream is(fpath, std::ios::in | std::ios::binary);
+  if(is.is_open()) {
+    SymbolTable symbols;
+    Assembler assembler(m_emulator.memoryRef(), symbols);
+    const auto size = std::filesystem::file_size(fpath);
     Data buf(static_cast<size_t>(size));
     if(is.read(reinterpret_cast<char*>(buf.data()), static_cast<std::streamsize>(size))) {
-      m_emulator.writeMemory(start, buf);
       return;
     }
   }

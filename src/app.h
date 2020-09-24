@@ -19,6 +19,7 @@ class App {
 
   void initConfigStorage();
   void initRenderWindow();
-  void loadMemoryFromFile(Address start, const std::filesystem::path& fpath);
+  void loadMemoryFromBinFile(Address start, const std::filesystem::path& fpath);
+  void loadMemoryFromAsmFile(const std::filesystem::path& fpath);
   void saveMemoryToFile(AddressRange, const std::filesystem::path& fpath);
 };

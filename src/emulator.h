@@ -22,6 +22,8 @@ public:
 
   void readMemory(AddressRange range, Data& buf) const;
   void writeMemory(AddressRange range, const Data& buf);
+  void loadBinary(Address start, std::istream);
+  void loadAssembly(std::istream);
   void execute(bool continuous, Frequency clock);
   void setRegisterPC(Address);
   void setRegisterSP(Address);
