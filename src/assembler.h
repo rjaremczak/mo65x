@@ -28,7 +28,7 @@ public:
   void init(Address addr = DefaultOrigin);
   void initPreserveSymbols(Address = DefaultOrigin);
   void changeMode(ProcessingMode m_mode);
-  AssemblyResult processLine(const std::string_view);
+  AssemblyResult processLine(const std::string&);
 
 private:
   friend class InstructionsTest;

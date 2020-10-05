@@ -18,7 +18,8 @@ public:
   auto cbegin() const { return std::cbegin(data); }
   auto cend() const { return std::cend(data); }
 
-  uint8_t* ptr(Address start) { return &data[start]; }
+  auto ptr(Address start) { return reinterpret_cast<char*>(&data[start]); }
+
   const uint8_t* cptr(Address start) const { return &data[start]; }
   
   uint16_t word(Address addr) const { return static_cast<uint16_t>(data[addr] | data[addr + 1] << 8); }

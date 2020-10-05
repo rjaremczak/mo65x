@@ -1,6 +1,7 @@
 #pragma once
 
-enum InstructionType {
+enum InstructionType
+{
   None,
   ADC,
   SBC,

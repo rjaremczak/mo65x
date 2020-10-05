@@ -66,7 +66,7 @@ void App::loadMemoryFromBinFile(Address start, const std::filesystem::path& fpat
   std::ifstream is(fpath, std::ios::in | std::ios::binary);
   if(is.is_open()) {
     const auto size = std::filesystem::file_size(fpath);
-    if(!is.read(reinterpret_cast<char*>(m_emulator.memoryRef().ptr(start)), static_cast<std::streamsize>(size))) {
+    if(!is.read(m_emulator.memoryRef().ptr(start), static_cast<std::streamsize>(size))) {
       errorMessage("load error");
     }
   }

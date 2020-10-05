@@ -129,11 +129,11 @@ void Assembler::changeMode(Assembler::ProcessingMode mode) {
   this->m_mode = mode;
 }
 
-AssemblyResult Assembler::processLine(const std::string_view str) {
+AssemblyResult Assembler::processLine(const std::string& str) {
   m_lastLocationCounter = m_locationCounter;
   std::cmatch match;
   for (const auto& entry : Patterns) {
-    if (std::regex_match(str.begin(), str.end(), match, entry.regex)) {
+    if (std::regex_match(str, match, entry.regex)) {
       m_operation = match.str(OperationGroup);
       m_operand = match.str(FirstOperandGroup);
       try {

@@ -1,5 +1,7 @@
 #include "emulator.h"
+#include "assembler.h"
 #include <pthread.h>
+#include <string>
 
 Emulator::Emulator() : m_cpu(m_memory), m_thread(&Emulator::loop, this) {
   const auto str = "emulator";
@@ -24,6 +26,19 @@ void Emulator::readMemory(AddressRange range, Data& buf) const {
 
 void Emulator::writeMemory(AddressRange range, const Data& buf) {
   std::copy_n(buf.begin(), range.size(), &m_memory[range.first]);
+}
+
+bool Emulator::loadBinary(Address start, int size, std::istream& is) {
+    return is.read(m_memory.ptr(start), static_cast<std::streamsize>(size)).good();
+}
+
+void Emulator::loadAssembly(std::istream& is) {
+  std::string line;
+  SymbolTable symbols;
+  Assembler assembler(m_memory, symbols);
+  while(!is.eof() && std::getline(is, line)) {
+    if(auto result = assembler.processLine(line); result != AssemblyResult::Ok);
+  }
 }
 
 void Emulator::execute(bool continuous, Frequency clock) {
