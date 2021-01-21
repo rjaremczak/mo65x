@@ -47,7 +47,7 @@
 
 #define TEST_BRANCH_NOT_TAKEN()                                                                                                  \
   QCOMPARE(cpu.regs.pc, assembler.locationCounter);                                                                              \
-  QCOMPARE(cpu.cycles, 2U)
+  QCOMPARE(cpu.cycles, 2)
 
 static constexpr auto AsmOrigin = 0x800;
 static constexpr auto StackPointerOffset = 0xff;
@@ -212,7 +212,7 @@ void InstructionsTest::testBranchForward() {
   cpu.operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 13);
-  QCOMPARE(cpu.cycles, 1U);
+  QCOMPARE(cpu.cycles, 1);
 }
 
 void InstructionsTest::testBranchBackward() {
@@ -221,7 +221,7 @@ void InstructionsTest::testBranchBackward() {
   cpu.operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 20);
-  QCOMPARE(cpu.cycles, 1U);
+  QCOMPARE(cpu.cycles, 1);
 }
 
 void InstructionsTest::testBranchWithPageBoundaryCrossed() {
@@ -230,7 +230,7 @@ void InstructionsTest::testBranchWithPageBoundaryCrossed() {
   cpu.operandPtr.lo = reinterpret_cast<uint8_t*>(&d);
   cpu.execBranch();
   QCOMPARE(cpu.regs.pc, AsmOrigin + 263);
-  QCOMPARE(cpu.cycles, 2U);
+  QCOMPARE(cpu.cycles, 2);
 }
 
 void InstructionsTest::testWordPushPull() {
