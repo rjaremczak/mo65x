@@ -1,7 +1,7 @@
 # mo65x
 stands for My Own 65 eXpandable emulator. The project has educational motivation and is a genuine project based on technical specifications of 6502/6510 family microprocessors. See the screenshot of assembler mode running the slightly modified "demoscene.asm" program from http://www.6502asm.com
 
-![Alt text](http://mindpart.com/wp-content/uploads/2020/01/mo65x-demoscene.png "Assembler mode view")
+![Alt text](https://github.com/rjaremczak/mo65x/blob/master/images/demoscene%20-%201.png "Assembler mode view")
 
 since version 0.94 there is a video-ram mode that is compatible with that from 6502asm.com. It's a simple frame buffer mapping a 32 x 32 x 8bit image with indexed color mode. Only bits 0-3 are used and they map to the Commodore C64 color palette. Initially the frame buffer starts at address 0x200 but can be changed live.
 
