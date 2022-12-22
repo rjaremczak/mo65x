@@ -3,7 +3,7 @@ stands for My Own 65 eXpandable emulator. The project has educational motivation
 
 ![Alt text](https://github.com/rjaremczak/mo65x/blob/master/images/demoscene%20-%201.png "Assembler mode view")
 
-since version 0.94 there is a video-ram mode that is compatible with that from 6502asm.com. It's a simple frame buffer mapping a 32 x 32 x 8bit image with indexed color mode. Only bits 0-3 are used and they map to the Commodore C64 color palette. Initially the frame buffer starts at address 0x200 but can be changed live.
+since version 0.94 there is a video-ram mode compatible with that from 6502asm.com. It's a simple frame buffer mapping a 32 x 32 x 8bit image with indexed color mode. Only bits 0-3 are used and they map to the Commodore C64 color palette. Initially the frame buffer starts at address 0x200 but can be changed live.
 
 ## Getting rid of Qt dependencies and the C++ language itself ...
 While QT is a great library which along with the entire ecosystem and QtCreator IDE gave this project a big boost, I had to consider moving away from it. Recent changes in QT's licensing motivated me to think of a fully open-source alternative that is free of any obstacles, possible licensing pitfalls and similar uncertainty. A decision has been made and the effects of my efforts can be evaluated on branch "noqt". After taking second thoughts, I decided to go one step further with getting rid of an unnecesary burden. The language itself seems to be overloaded and bound to the past way too much. Therefore I'm going to rewrite the entire project in Rust which at this point seems to be reasonable and fresh enough to be promising :-). The Rust port is ready, take a look at https://github.com/rjaremczak/mo65x-rs. 
