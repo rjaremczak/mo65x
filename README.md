@@ -42,6 +42,6 @@ Proper speed throttling has been implemented. Clock speed can be specified with 
 Test files can be found in the /asm directory within the project tree.
 
 ## License
-All design and code so far is written entirely by Robert Jaremczak (robert@mindpart.com) and is licensed as GPL.
+All design and code so far is written entirely by Robert Jaremczak (robert@emanacja.top) and is licensed as GPL.
 
 GPL in short means this: feel free to use as long as sources of your own work remain public. Don't forget to mention me as the author of this code :-)
